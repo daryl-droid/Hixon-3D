@@ -32,7 +32,7 @@
 <body>
 <canvas id="c"></canvas>
 <header><h1>Hixon Slope WCU 3D Model</h1></header>
-<div id="help">One finger: orbit · Two fingers: pan · Pinch: zoom<br>Double-tap the model to orbit around that point</div>
+<div id="help">Drag to rotate · two fingers to pan · double-tap to set pivot</div>
 <div id="bar"><button id="reset">Reset view</button><button id="helpBtn">?</button><a href="hd/"><button>HD</button></a><a id="arBtn" rel="ar" href="hixon.usdz" style="display:none"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" style="display:none"><button>View in AR</button></a></div><script>if(document.createElement("a").relList.supports("ar"))document.getElementById("arBtn").style.display="inline";</script>
 <div id="pin"></div>
 <div id="load"><div>Loading 3D model…</div><div id="track"><div id="fill"></div></div><div id="msg">0%</div></div>
@@ -57,7 +57,8 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 5000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.12;
-controls.screenSpacePanning = true; controls.zoomToCursor = true;
+controls.enablePan = true; controls.screenSpacePanning = true; controls.zoomToCursor = true;
+controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI; controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
 controls.minDistance = 2; controls.maxDistance = 1500;
 controls.touches = {ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN};
 controls.mouseButtons = {LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN};
@@ -78,7 +79,7 @@ function flyTo(target, eye, ms = 450){
 document.getElementById('reset').onclick = () => flyTo(new THREE.Vector3(...HOME.target), new THREE.Vector3(...HOME.eye), 600);
 const help = document.getElementById('help');
 document.getElementById('helpBtn').onclick = () => help.classList.toggle('hide');
-setTimeout(() => help.classList.add('hide'), 9000);
+
 
 // double-tap / double-click: new orbit centre (camera moves with it, keeping the same view direction)
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), pin = document.getElementById('pin');
@@ -87,20 +88,22 @@ function pick(x, y){
   ray.setFromCamera(ndc, camera); const hit = ray.intersectObjects(group.children, true)[0];
   if (!hit) return;
   const off = camera.position.clone().sub(controls.target);
-  const dist = Math.min(off.length(), Math.max(25, hit.distance * 0.7)); off.setLength(dist);
+  const dist = Math.max(controls.minDistance * 2, Math.min(off.length(), hit.distance) * 0.75); off.setLength(dist);
   flyTo(hit.point.clone(), hit.point.clone().add(off));
   pin.style.left = x + 'px'; pin.style.top = y + 'px'; pin.style.opacity = 1; setTimeout(() => pin.style.opacity = 0, 700);
 }
-let lastTap = 0, lastX = 0, lastY = 0, downT = 0, downX = 0, downY = 0, multi = false, active = 0;
-canvas.addEventListener('pointerdown', e => { active++; if (active > 1) multi = true; else { multi = false; downT = performance.now(); downX = e.clientX; downY = e.clientY; } });
-const up = e => { active = Math.max(0, active - 1); if (e.type !== 'pointerup' || multi) return;
+const pts = new Set(); let lastTap = 0, lastX = 0, lastY = 0, downT = 0, downX = 0, downY = 0, multi = false;
+canvas.addEventListener('pointerdown', e => { pts.add(e.pointerId); if (pts.size > 1) multi = true; else { multi = false; downT = performance.now(); downX = e.clientX; downY = e.clientY; } });
+const up = e => { const had = pts.delete(e.pointerId); if (e.type !== 'pointerup' || !had || multi || e.pointerType === 'mouse') return;
   const now = performance.now();
   if (now - downT > 300 || Math.hypot(e.clientX - downX, e.clientY - downY) > 12) return; // not a tap
-  if (now - lastTap < 350 && Math.hypot(e.clientX - lastX, e.clientY - lastY) < 40) { lastTap = 0; pick(e.clientX, e.clientY); }
+  if (now - lastTap < 400 && Math.hypot(e.clientX - lastX, e.clientY - lastY) < 40) { lastTap = 0; pick(e.clientX, e.clientY); }
   else { lastTap = now; lastX = e.clientX; lastY = e.clientY; } };
 canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+window.addEventListener('pointerup', e => pts.delete(e.pointerId)); window.addEventListener('pointercancel', e => pts.delete(e.pointerId));
+canvas.addEventListener('dblclick', e => { e.preventDefault(); pick(e.clientX, e.clientY); });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('gesturestart', e => e.preventDefault());   // stop iOS page zoom
-document.addEventListener('dblclick', e => e.preventDefault());
 
 // loading with progress
 const fill = document.getElementById('fill'), msg = document.getElementById('msg');
