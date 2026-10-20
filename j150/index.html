@@ -156,6 +156,23 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
     <p><b>No fly-over:</b> The drone does not fly over anyone. The landing zone must be clear before we approach to land.</p>
     <p><b>Heads up:</b> I'll call "heads up" on takeoff and landing. When you hear it, look up and keep clear.</p>
     <p><b>Exclusion zone:</b> <span id="tgExcl">No one under the drone, ever. Keep the landing zone guarded. If something looks wrong, step back and shout.</span></p>
+    <div class="tgMode" data-tg="lifting" hidden>
+    <p><b>Load and rigging:</b> I check the hook, ropes and slings before every lift. Hook-up and release crew wait for my call, keep hands clear of the hook, and step away once the load is hooked.</p>
+    <p><b>Swinging load:</b> Never try to catch or steady a swinging load by hand. Step back and let me settle it.</p>
+    </div>
+    <div class="tgMode" data-tg="spraying" hidden>
+    <p><b>Product:</b> Today's product is on the label we've read. The label and SDS are the rules for this job: rate, PPE, buffer zones and re-entry. Applicable BC/AB pesticide rules apply too.</p>
+    <p><b>Drift:</b> Spray must stay on target. No drift onto people, neighbouring properties, homes, water or other crops. If it's drifting, we stop.</p>
+    <p><b>Wind and inversion:</b> We don't spray in gusty or rising wind, or in dead-calm conditions with a temperature inversion (cool still air near the ground, often early morning or evening). If in doubt, we wait.</p>
+    <p><b>Mixing and loading:</b> Mix and load only at the mixing spot, upwind and away from water. Wear the PPE the label/SDS calls for when handling the product, mixing and filling the tank. Close containers right away.</p>
+    <p><b>Spills:</b> If anything spills, stop, keep people away, contain it and clean it up per the label/SDS. Tell me right away.</p>
+    <p><b>Treated area:</b> Nobody goes into the treated area during spraying or before the label re-entry time. Keep people and animals out.</p>
+    </div>
+    <div class="tgMode" data-tg="spreading" hidden>
+    <p><b>Bags:</b> Lift bags with your legs, not your back. Get help with heavy bags and keep the bag area tidy.</p>
+    <p><b>Dust:</b> Filling the box makes dust. Wear a dust mask and eye protection when loading, and stand upwind.</p>
+    <p><b>Spinner:</b> Stay clear of the spinning disc and the drone. Hands away from the spreader until the motors are off and I say it's safe.</p>
+    </div>
     <p><b>Power lines and trees:</b> We've checked for wires and tall trees. If you see a hazard I haven't called out, stop me.</p>
     <p><b>Weather:</b> Wind and gusts have to stay under our limit. If it picks up, we pause.</p>
     <p><b>Battery:</b> We land and swap at 30%. Don't wait for a low-battery warning.</p>
@@ -219,6 +236,18 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
     <label class="f"><span>Spray width <span class="u">(m)</span></span><input type="text" id="sprSwath" inputmode="decimal" autocomplete="off" placeholder="4 to 15"></label>
     <label class="f"><span>Nozzles</span><select id="sprNozzles"><option value="">Choose</option><option>2</option><option>4</option></select></label>
   </div>
+  <div class="sub">Product &amp; regulatory <span class="u">(optional &mdash; enter from the product label and your licence)</span></div>
+  <label class="f"><span>Product name</span><input type="text" id="sprName" autocomplete="off" placeholder="as on label"></label>
+  <div class="row">
+    <label class="f"><span>PCP registration no.</span><input type="text" id="sprPcp" autocomplete="off" placeholder="from label"></label>
+    <label class="f"><span>Applicator licence no.</span><input type="text" id="sprLic" autocomplete="off" placeholder="your licence"></label>
+  </div>
+  <div class="row">
+    <label class="f"><span>Label rate</span><input type="text" id="sprLabelRate" autocomplete="off" placeholder="from label"></label>
+    <label class="f"><span>Buffer zone</span><input type="text" id="sprBuffer" autocomplete="off" placeholder="from label"></label>
+  </div>
+  <label class="f"><span>Nearby sensitive areas <span class="u">(homes, water, crops)</span></span><input type="text" id="sprSensitive" autocomplete="off" placeholder="e.g. house to east, creek to south"></label>
+  <div class="hint">Values come from the product label and the applicable BC/AB pesticide rules. The app does not supply or check them. Not required for GO.</div>
   <div class="tot">Liquid mass: <span id="sprMass">-- kg</span><code id="sprMassF">volume x density</code></div>
 </section>
 
@@ -496,7 +525,7 @@ function buildPdfLines(rec){
   L('Client / Customer: '+(rec.clientName||'(blank)')+'   Contact: '+(rec.clientContact||'(blank)'));
   if(!rec.special){L('Special considerations: (blank)');}
   else{L('Special considerations:');String(rec.special).split(/\r?\n/).forEach(function(line){L('  '+line)});}
-  L('Tailgate given: '+(rec.tailgateGiven?'yes':'no')+'    Saved: '+rec.stamp);
+  L('Tailgate given: '+(rec.tailgateGiven?'yes':'no')+(rec.modeName?'  ('+rec.modeName+' tailgate)':'')+'    Saved: '+rec.stamp);
   L('');
   L('CREW');
   L('  Pilot / PIC: '+(rec.pilot||'(blank)'));
@@ -512,6 +541,10 @@ function buildPdfLines(rec){
     L('  Mix volume: '+B(f.sprVol,'L')+'   Density: '+B(f.sprDens,'kg/L')+'   Liquid mass: '+rec.payloadText);
     L('  Application rate: '+B(f.sprRate,'L/ha')+'   Flow rate: '+B(f.sprFlow,'L/min'));
     L('  Spray width: '+B(f.sprSwath,'m')+'   Nozzles: '+B(f.sprNozzles));
+    L('  Product name: '+B(f.sprName)+'   PCP reg. no.: '+B(f.sprPcp));
+    L('  Applicator licence no.: '+B(f.sprLic)+'   Label rate: '+B(f.sprLabelRate));
+    L('  Buffer zone: '+B(f.sprBuffer)+'   Nearby sensitive areas: '+B(f.sprSensitive));
+    L('  (Values entered by pilot from product label / BC-AB rules; not checked by app)');
   }else if(rec.mode==='spreading'){
     L('1 SPREAD LOAD');
     L('  Material: '+B(f.sprdMaterial));
@@ -703,7 +736,7 @@ function limitsText(m){
   if(m==='lifting')return 'max lift '+S.maxKg+' kg, max TOW '+S.mtow+' kg, rope '+S.ropeMin+'-'+S.ropeMax+' m';
   return '(choose mode)';
 }
-var MODE_FIELDS={spraying:['sprProduct','sprVol','sprDens','sprRate','sprFlow','sprSwath','sprNozzles'],spreading:['sprdMaterial','sprdKg','sprdVol','sprdParticle','sprdWidth','sprdRate'],lifting:['what','wLoad','wRig','lineLen','lineType','weak']};
+var MODE_FIELDS={spraying:['sprProduct','sprVol','sprDens','sprRate','sprFlow','sprSwath','sprNozzles','sprName','sprPcp','sprLic','sprLabelRate','sprBuffer','sprSensitive'],spreading:['sprdMaterial','sprdKg','sprdVol','sprdParticle','sprdWidth','sprdRate'],lifting:['what','wLoad','wRig','lineLen','lineType','weak']};
 function capTextOf(o){
   return o.cap==='green'?'GREEN - WITHIN CAPACITY':(o.cap==='red'?'RED - OVER LIMIT / DO NOT FLY':(o.cap==='nomode'?'CHOOSE MODE':'ENTER NUMBERS (need: '+o.capNeed.join(', ')+')'));
 }
@@ -795,7 +828,7 @@ var TG={
   spreading:{job:'spreading drone',zone:'spread area',excl:"No one under the drone or in the spread path, ever. Keep clear of the spinner. Keep the landing zone guarded. If something looks wrong, step back and shout.",emerg:"If the aircraft goes down, nobody runs in until I say it's clear."},
   lifting:{job:'heavy-lift drone',zone:'drop zone',excl:"No one under the load, ever. Keep the landing zone guarded. If the load starts to swing or something looks wrong, step back and shout, don't try to catch it.",emerg:"If the aircraft goes down or the load releases early, nobody runs in until I say it's clear."}
 };
-function updateTailgate(m){var t=TG[m||'']||TG[''];$('tgJob').textContent=t.job;$('tgZone').textContent=t.zone;$('tgExcl').textContent=t.excl;$('tgEmerg').textContent=t.emerg;}
+function updateTailgate(m){var t=TG[m||'']||TG[''];[].slice.call(document.querySelectorAll('.tgMode')).forEach(function(d){d.hidden=(d.getAttribute('data-tg')!==m)});$('tgJob').textContent=t.job;$('tgZone').textContent=t.zone;$('tgExcl').textContent=t.excl;$('tgEmerg').textContent=t.emerg;}
 function observerName(){
   var pilot=($('pilot')?$('pilot').value:'').trim().toLowerCase();
   var named=crewState.filter(function(c){var n=(c.name||'').trim();return n.length>0&&n.toLowerCase()!==pilot;});
@@ -1016,7 +1049,7 @@ $('go').addEventListener('click',function(){
   var t=new Date();goTime=('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2);
   this.classList.add('done');render();saveDraft();
 });
-var CLEAR_IDS=['jobName','clientName','clientContact','special','sprProduct','sprVol','sprDens','sprRate','sprFlow','sprSwath','sprdMaterial','sprdKg','sprdVol','sprdParticle','sprdWidth','sprdRate','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'];
+var CLEAR_IDS=['jobName','clientName','clientContact','special','sprProduct','sprName','sprPcp','sprLic','sprLabelRate','sprBuffer','sprSensitive','sprVol','sprDens','sprRate','sprFlow','sprSwath','sprdMaterial','sprdKg','sprdVol','sprdParticle','sprdWidth','sprdRate','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'];
 $('btnNew').addEventListener('click',function(){
   if(!confirm('Clear this job? (Wind limit, aircraft weights, Pilot/PIC, and crew names stay. Mode, job/client/special and Tailgate given clear.)'))return;
   CLEAR_IDS.forEach(function(id){$(id).value=''});
