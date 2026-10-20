@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Daily Flight Log v3</title>
+<title>Daily Flight Log v4</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -52,6 +52,8 @@ input[readonly]{background:#eef3f8}
 .sw.on{outline:4px solid #0057ff;outline-offset:2px}
 .wd{min-height:44px;padding:0 12px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;font-weight:800;font-size:15px}
 .wd.on{background:#000;color:#fff}
+.snapHint{font-size:13px;font-weight:700;color:#000;margin:0 0 8px;min-height:18px}
+.snapHint.hit{background:#c8f0d2;border-radius:6px;padding:2px 6px}
 .dt{border:3px solid #000;border-radius:14px;padding:10px 12px 2px;margin:0 0 12px;background:#eef3f8}
 .dt .sub{font-size:17px;font-weight:800;margin:0 0 6px}
 .cnt{font-size:14px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;flex-wrap:wrap}
@@ -116,7 +118,7 @@ input[readonly]{background:#eef3f8}
 </head>
 <body>
 <header>
-  <h1>Daily Flight Log<small>v3 &ndash; Flight execution record &ndash; works offline</small></h1>
+  <h1>Daily Flight Log<small>v4 &ndash; Flight execution record &ndash; works offline</small></h1>
   <button type="button" id="btnNew">New day</button>
 </header>
 <main>
@@ -133,7 +135,7 @@ input[readonly]{background:#eef3f8}
 <section id="s-drone" style="--sc:#0d3b66"><h2><span class="n">1</span>Drone information</h2><div class="grid"><label class="f full" id="w-asset"><span>Asset unit number</span><input type="text" id="asset" data-k="asset" autocomplete="off"></label><label class="f full"><span>Drone</span><select id="drone" data-k="drone"><option value="">Choose drone...</option><option value="j150">EAVision J150</option><option value="j100">EAVision J100 (EA-J100)</option><option value="m4e">DJI Matrice 4E</option><option value="mini">DJI Mini 5 Pro</option><option value="other">Other drone (type details)</option></select></label><div class="dcard" id="dCard" hidden></div><label class="f" id="w-model"><span>Model name</span><input type="text" id="model" data-k="model" autocomplete="off"></label><label class="f" id="w-tcReg"><span>TC registration number</span><input type="text" id="tcReg" data-k="tcReg" autocomplete="off"></label><label class="f full" id="w-serial"><span>Serial number</span><input type="text" id="serial" data-k="serial" autocomplete="off"></label><label class="f" id="w-weight"><span>Weight of drone (kg)</span><input type="text" id="weight" inputmode="decimal" data-k="weight" autocomplete="off"></label><label class="f" id="w-sfoc"><span>SFOC</span><input type="text" id="sfoc" readonly data-k="sfoc" autocomplete="off"></label><label class="f" id="w-dims"><span>Dimensions of drone (mm)</span><input type="text" id="dims" placeholder="L x W x H" data-k="dims" autocomplete="off"></label></div></section>
 <section id="s-pilot" style="--sc:#2f3e1f"><h2><span class="n">2</span>Pilot information</h2><div class="grid"><label class="f" id="w-pilot"><span>Pilot</span><input type="text" id="pilot" data-k="pilot" autocomplete="off"></label><label class="f" id="w-pilotPhone"><span>Phone number</span><input type="tel" id="pilotPhone" data-k="pilotPhone" autocomplete="off"></label><label class="f" id="w-cert"><span>Certificate number</span><input type="text" id="cert" data-k="cert" autocomplete="off"></label><label class="f" id="w-pilotEmail"><span>Email</span><input type="email" id="pilotEmail" data-k="pilotEmail" autocomplete="off"></label></div></section>
 <section id="s-client" style="--sc:#0b4f4a"><h2><span class="n">3</span>Client information</h2><div class="grid"><label class="f" id="w-client"><span>Client</span><input type="text" id="client" data-k="client" autocomplete="off"></label><label class="f" id="w-clientPhone"><span>Phone number</span><input type="tel" id="clientPhone" data-k="clientPhone" autocomplete="off"></label><label class="f" id="w-project"><span>Project</span><input type="text" id="project" data-k="project" autocomplete="off"></label><label class="f" id="w-clientEmail"><span>Email</span><input type="email" id="clientEmail" data-k="clientEmail" autocomplete="off"></label><label class="f full" id="w-clientRep"><span>Client rep</span><input type="text" id="clientRep" data-k="clientRep" autocomplete="off"></label></div></section>
-<section id="s-flight" style="--sc:#34495e"><h2><span class="n">4</span>Flight information</h2><div class="grid"><label class="f" id="w-purpose"><span>Flight purpose</span><input type="text" id="purpose" data-k="purpose" autocomplete="off"></label><label class="f" id="w-estStart"><span>Est. start time</span><input type="time" id="estStart" data-k="estStart" autocomplete="off"></label><label class="f" id="w-estEnd"><span>Est. end time</span><input type="time" id="estEnd" data-k="estEnd" autocomplete="off"></label><label class="f" id="w-location"><span>Flight location</span><input type="text" id="location" data-k="location" autocomplete="off"></label><label class="f" id="w-estMins"><span>Est. actual flight time (mins)</span><input type="text" id="estMins" inputmode="numeric" data-k="estMins" autocomplete="off"></label><label class="f" id="w-lat"><span>Flight coordinates: latitude</span><input type="text" id="lat" inputmode="decimal" data-k="lat" autocomplete="off"></label><label class="f" id="w-alt"><span>Flight altitude (m AGL)</span><input type="text" id="alt" inputmode="numeric" data-k="alt" autocomplete="off"></label><label class="f" id="w-lon"><span>Flight coordinates: longitude</span><input type="text" id="lon" inputmode="decimal" data-k="lon" autocomplete="off"></label><button type="button" class="btn sm" id="btnGps">Use phone GPS</button><div class="f full" id="diagField"><span class="lbl">Flight diagram <span class="u">(optional)</span></span><div class="diagPick" id="diagPick"><label class="btn" for="diagDrawFile">Draw on a picture</label><input type="file" id="diagDrawFile" accept="image/*" hidden><button type="button" class="btn" id="diagSketch">Blank sketch</button><label class="btn" for="diagFile">Add photo only</label><input type="file" id="diagFile" accept="image/*" hidden></div><div class="hint2">Pick a screenshot or photo (e.g. a map) and draw on it with your finger, start a blank sketch, or add a photo as is.</div><div class="diag" id="diagBox"><div id="diagNone">No diagram added. The PDF keeps the blank diagram box for a sketch.</div><canvas id="diagCanvas" hidden></canvas></div><div class="tools" id="diagTools" hidden><div class="trow" role="group" aria-label="Colour"><button type="button" class="sw on" data-col="#d00000" aria-label="Red" style="background:#d00000"></button><button type="button" class="sw" data-col="#ffd400" aria-label="Yellow" style="background:#ffd400"></button><button type="button" class="sw" data-col="#ffffff" aria-label="White" style="background:#ffffff"></button><button type="button" class="sw" data-col="#000000" aria-label="Black" style="background:#000000"></button></div><div class="trow" role="group" aria-label="Line width"><button type="button" class="wd" data-w="0.004">Thin</button><button type="button" class="wd on" data-w="0.008">Medium</button><button type="button" class="wd" data-w="0.016">Thick</button></div><div class="trow"><button type="button" class="btn sm" id="diagUndo">Undo</button><button type="button" class="btn sm" id="diagClearInk">Clear drawing</button><button type="button" class="btn sm" id="diagClear">Remove picture</button></div></div></div></div></section>
+<section id="s-flight" style="--sc:#34495e"><h2><span class="n">4</span>Flight information</h2><div class="grid"><label class="f" id="w-purpose"><span>Flight purpose</span><input type="text" id="purpose" data-k="purpose" autocomplete="off"></label><label class="f" id="w-estStart"><span>Est. start time</span><input type="time" id="estStart" data-k="estStart" autocomplete="off"></label><label class="f" id="w-estEnd"><span>Est. end time</span><input type="time" id="estEnd" data-k="estEnd" autocomplete="off"></label><label class="f" id="w-location"><span>Flight location</span><input type="text" id="location" data-k="location" autocomplete="off"></label><label class="f" id="w-estMins"><span>Est. actual flight time (mins)</span><input type="text" id="estMins" inputmode="numeric" data-k="estMins" autocomplete="off"></label><label class="f" id="w-lat"><span>Flight coordinates: latitude</span><input type="text" id="lat" inputmode="decimal" data-k="lat" autocomplete="off"></label><label class="f" id="w-alt"><span>Flight altitude (m AGL)</span><input type="text" id="alt" inputmode="numeric" data-k="alt" autocomplete="off"></label><label class="f" id="w-lon"><span>Flight coordinates: longitude</span><input type="text" id="lon" inputmode="decimal" data-k="lon" autocomplete="off"></label><button type="button" class="btn sm" id="btnGps">Use phone GPS</button><div class="f full" id="diagField"><span class="lbl">Flight diagram <span class="u">(optional)</span></span><div class="diagPick" id="diagPick"><label class="btn" for="diagDrawFile">Draw on a picture</label><input type="file" id="diagDrawFile" accept="image/*" hidden><button type="button" class="btn" id="diagSketch">Blank sketch</button><label class="btn" for="diagFile">Add photo only</label><input type="file" id="diagFile" accept="image/*" hidden></div><div class="hint2">Pick a screenshot or photo (e.g. a map) and draw on it with your finger, start a blank sketch, or add a photo as is.</div><div class="diag" id="diagBox"><div id="diagNone">No diagram added. The PDF keeps the blank diagram box for a sketch.</div><canvas id="diagCanvas" hidden></canvas></div><div class="tools" id="diagTools" hidden><div class="trow" role="group" aria-label="Colour"><button type="button" class="sw on" data-col="#0a7a2f" aria-label="Green" style="background:#0a7a2f"></button><button type="button" class="sw" data-col="#f2c200" aria-label="Yellow" style="background:#f2c200"></button><button type="button" class="sw" data-col="#c40000" aria-label="Red" style="background:#c40000"></button><button type="button" class="sw" data-col="#0047b3" aria-label="Blue" style="background:#0047b3"></button><button type="button" class="sw" data-col="#000000" aria-label="Black" style="background:#000000"></button></div><div class="trow" role="group" aria-label="Line width"><button type="button" class="wd" data-w="0.004">Thin</button><button type="button" class="wd on" data-w="0.008">Medium</button><button type="button" class="wd" data-w="0.016">Thick</button></div><div class="snapHint" id="snapMsg">Tip: hold your finger still for a moment at the end of a stroke to snap it to a straight line, rectangle or circle.</div><div class="trow"><button type="button" class="btn sm" id="diagUndo">Undo</button><button type="button" class="btn sm" id="diagClearInk">Clear drawing</button><button type="button" class="btn sm" id="diagClear">Remove picture</button></div></div><label class="f full"><span>What the diagram shows <span class="u">(optional)</span></span><textarea id="diagNote" data-k="diagNote" rows="3" placeholder="e.g. Green = where we intend to fly, Yellow = landing zone, Red = caution area"></textarea></label><button type="button" class="btn sm" id="diagLegend">Insert example legend</button></div></div></section>
 <section id="s-air" style="--sc:#0d3b66"><h2><span class="n">5</span>Restricted airspace</h2><div class="grid"><label class="f full"><span>Does the flight enter restricted airspace?</span><select id="restricted" data-k="restricted"><option value="">Choose...</option><option value="Yes">Yes</option><option value="No">No</option></select></label><label class="f full"><span>Has NAV CANADA issued a flight authorization for this flight?</span><select id="navAuth" data-k="navAuth" data-day="1"><option value="">Choose...</option><option value="Yes">Yes</option><option value="No">No</option><option value="N/A">N/A</option></select></label><label class="f" id="w-fic"><span>Flight center</span><input type="text" id="fic" data-k="fic" autocomplete="off"></label><label class="f" id="w-airFreq"><span>Airspace frequency</span><input type="text" id="airFreq" placeholder="e.g. 126.3" data-k="airFreq" autocomplete="off"></label><label class="f" id="w-atc"><span>ATC contact</span><input type="text" id="atc" data-k="atc" autocomplete="off"></label><label class="f" id="w-atcNum"><span>ATC number</span><input type="tel" id="atcNum" data-k="atcNum" autocomplete="off"></label><p class="static">Other nearest flight centres, distance, contact number, airspace frequency:</p><label class="f full" id="w-near1"><span>1)</span><input type="text" id="near1" data-k="near1" autocomplete="off"></label><label class="f full" id="w-near2"><span>2)</span><input type="text" id="near2" data-k="near2" autocomplete="off"></label><label class="f full" id="w-near3"><span>3)</span><input type="text" id="near3" data-k="near3" autocomplete="off"></label><label class="f full" id="w-near4"><span>4)</span><input type="text" id="near4" data-k="near4" autocomplete="off"></label><label class="f" id="w-emergFreq"><span>Emergency radio frequency</span><input type="text" id="emergFreq" placeholder="e.g. 121.5" data-k="emergFreq" autocomplete="off"></label><label class="f" id="w-classGFreq"><span>General radio frequency, Class G</span><input type="text" id="classGFreq" placeholder="e.g. 126.7" data-k="classGFreq" autocomplete="off"></label></div></section>
 <section id="s-erp" style="--sc:#3e2723"><h2><span class="n">6</span>Emergency response plan</h2><div class="grid"><label class="f full" id="w-raEmerg"><span>Restricted airspace emergency contact</span><input type="text" id="raEmerg" data-k="raEmerg" autocomplete="off"></label><label class="f full" id="w-clientEmerg"><span>Client emergency contact number</span><input type="tel" id="clientEmerg" data-k="clientEmerg" autocomplete="off"></label><p class="static">Local emergency contact number: 911</p><label class="f full"><span>Primary and secondary landing site established</span><select id="landSites" data-k="landSites"><option value="">Choose...</option><option value="Yes">Yes</option><option value="No">No</option><option value="N/A">N/A</option></select></label><label class="f full"><span>Description of emergency response plan</span><textarea id="erpText" rows="4" data-k="erpText"></textarea></label></div></section>
 <section id="s-restr" style="--sc:#263238"><h2><span class="n">7</span>Flight restrictions</h2><div class="grid"><p class="static">The flight will be limited to a maximum altitude of 122 m (400 ft) AGL.</p><p class="static">The pilot and crew will maintain visual line of sight with the drone.</p><p class="static">The pilot will have a valid pilot certificate and flight authorization.</p></div></section>
@@ -487,13 +489,62 @@ function PhotoBox(o){
 var photoBox=PhotoBox({el:$('photoBox'),key:'dfl.photos',maxPx:1200,quality:0.7,cap:450000});
 /* ---- flight diagram: photo, blank sketch, or draw on a picture ---- */
 var DMAX=1200, DQ=0.7, DCAP=450000; // px, JPEG quality, max data-URI chars (~330 KB)
-var dc=$('diagCanvas'),dx=dc.getContext('2d'),dBase=null,dStrokes=[],dCur=null,dCol='#d00000',dW=0.008,dDraw=false;
+var dc=$('diagCanvas'),dx=dc.getContext('2d'),dBase=null,dStrokes=[],dCur=null,dCol='#0a7a2f',dW=0.008,dDraw=false;
 function dRedraw(){
   dx.fillStyle='#fff';dx.fillRect(0,0,dc.width,dc.height);if(dBase)dx.drawImage(dBase,0,0,dc.width,dc.height);
   dStrokes.concat(dCur?[dCur]:[]).forEach(function(s){
     dx.strokeStyle=s.c;dx.lineWidth=s.w;dx.lineCap='round';dx.lineJoin='round';dx.beginPath();
-    s.p.forEach(function(p,i){i?dx.lineTo(p[0],p[1]):dx.moveTo(p[0],p[1])});if(s.p.length===1)dx.lineTo(s.p[0][0]+0.1,s.p[0][1]);dx.stroke();});
+    if(s===dFlashS){dx.save();dx.shadowColor='#ffffff';dx.shadowBlur=Math.max(8,s.w*1.5)}
+    if(s.shape)shapePath(s.shape);else{s.p.forEach(function(p,i){i?dx.lineTo(p[0],p[1]):dx.moveTo(p[0],p[1])});if(s.p.length===1)dx.lineTo(s.p[0][0]+0.1,s.p[0][1]);}
+    dx.stroke();if(s===dFlashS)dx.restore();});
 }
+function shapePath(sh){
+  if(sh.type==='line'){dx.moveTo(sh.x1,sh.y1);dx.lineTo(sh.x2,sh.y2);return}
+  if(sh.type==='rect'||sh.type==='square'){var c=Math.cos(sh.a),s=Math.sin(sh.a),hw=sh.w/2,hh=sh.h/2;
+    [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]].forEach(function(q,i){var x=sh.cx+q[0]*c-q[1]*s,y=sh.cy+q[0]*s+q[1]*c;i?dx.lineTo(x,y):dx.moveTo(x,y)});dx.closePath();return}
+  dx.ellipse(sh.cx,sh.cy,Math.max(1,sh.rx),Math.max(1,sh.ry),sh.a,0,Math.PI*2);
+}
+/* Shape recognition (iPhone Markup style): classify(points) -> shape or null */
+function classify(P){
+  if(!P||P.length<4)return null;
+  var L=0,i;for(i=1;i<P.length;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);
+  var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;P.forEach(function(p){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);minY=Math.min(minY,p[1]);maxY=Math.max(maxY,p[1])});
+  var size=Math.hypot(maxX-minX,maxY-minY);if(size<8||L<10)return null;
+  var a=P[0],z=P[P.length-1],chord=Math.hypot(z[0]-a[0],z[1]-a[1]);
+  if(chord/L>0.9){ // near-straight: max deviation from the chord small
+    var dev=0;P.forEach(function(p){dev=Math.max(dev,Math.abs((z[0]-a[0])*(a[1]-p[1])-(a[0]-p[0])*(z[1]-a[1]))/chord)});
+    if(dev<0.08*chord+3)return {type:'line',x1:a[0],y1:a[1],x2:z[0],y2:z[1]};return null;}
+  if(chord>0.25*size)return null; // open curve: stay freehand
+  var Q=P.slice();var n=Q.length,cx=0,cy=0;Q.forEach(function(p){cx+=p[0];cy+=p[1]});cx/=n;cy/=n;
+  // best-fitting rotated rectangle (min-area box) vs ellipse (PCA); compare mean boundary error
+  var best=null;for(var d=0;d<90;d+=1){var t=d*Math.PI/180,c=Math.cos(t),s=Math.sin(t),x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    Q.forEach(function(p){var u=(p[0]-cx)*c+(p[1]-cy)*s,v=-(p[0]-cx)*s+(p[1]-cy)*c;x0=Math.min(x0,u);x1=Math.max(x1,u);y0=Math.min(y0,v);y1=Math.max(y1,v)});
+    var ar=(x1-x0)*(y1-y0);if(!best||ar<best.ar)best={ar:ar,t:t,x0:x0,x1:x1,y0:y0,y1:y1}}
+  var bt=best,rw=bt.x1-bt.x0,rh=bt.y1-bt.y0,ru=(bt.x0+bt.x1)/2,rv=(bt.y0+bt.y1)/2,ct=Math.cos(bt.t),st=Math.sin(bt.t);
+  var rcx=cx+ru*ct-rv*st,rcy=cy+ru*st+rv*ct,eR=0,eE=0;
+  var sxx=0,syy=0,sxy=0;Q.forEach(function(p){var X=p[0]-cx,Y=p[1]-cy;sxx+=X*X;syy+=Y*Y;sxy+=X*Y});var ea=0.5*Math.atan2(2*sxy,sxx-syy),ec=Math.cos(ea),es=Math.sin(ea),ex0=1e9,ex1=-1e9,ey0=1e9,ey1=-1e9;
+  Q.forEach(function(p){var u=(p[0]-cx)*ec+(p[1]-cy)*es,v=-(p[0]-cx)*es+(p[1]-cy)*ec;ex0=Math.min(ex0,u);ex1=Math.max(ex1,u);ey0=Math.min(ey0,v);ey1=Math.max(ey1,v)});
+  var erx=(ex1-ex0)/2,ery=(ey1-ey0)/2,ecx=cx+((ex0+ex1)/2)*ec-((ey0+ey1)/2)*es,ecy=cy+((ex0+ex1)/2)*es+((ey0+ey1)/2)*ec;
+  Q.forEach(function(p){
+    var u=(p[0]-rcx)*ct+(p[1]-rcy)*st,v=-(p[0]-rcx)*st+(p[1]-rcy)*ct;eR+=Math.min(Math.abs(Math.abs(u)-rw/2),Math.abs(Math.abs(v)-rh/2));
+    var U=(p[0]-ecx)*ec+(p[1]-ecy)*es,V=-(p[0]-ecx)*es+(p[1]-ecy)*ec,r=Math.hypot(U/Math.max(erx,1),V/Math.max(ery,1));eE+=Math.abs(r-1)*Math.min(erx,ery);
+  });
+  eR/=n;eE/=n;var scale=Math.max(rw,rh);
+  if(Math.min(eR,eE)>0.12*scale)return null; // too irregular: keep freehand
+  if(eR<=eE){var ang=bt.t;var deg=ang*180/Math.PI;if(deg<8||deg>82){ // near axis-aligned: square it to the axes
+      if(deg>82){var tmp=rw;rw=rh;rh=tmp}ang=0}
+    if(Math.abs(rw-rh)<0.15*Math.max(rw,rh)){var m=(rw+rh)/2;return {type:'square',cx:rcx,cy:rcy,w:m,h:m,a:ang}}
+    return {type:'rect',cx:rcx,cy:rcy,w:rw,h:rh,a:ang}}
+  if(Math.abs(erx-ery)<0.15*Math.max(erx,ery)){var r0=(erx+ery)/2;return {type:'circle',cx:ecx,cy:ecy,rx:r0,ry:r0,a:0}}
+  return {type:'ellipse',cx:ecx,cy:ecy,rx:erx,ry:ery,a:ea};
+}
+var HOLD_MS=600,dHoldT=null,dAnchor=null,dFlashS=null;
+function holdTol(){return Math.max(6,0.012*Math.max(dc.width,dc.height))}
+function armHold(p){dAnchor=p;clearTimeout(dHoldT);dHoldT=setTimeout(function(){
+  if(!dDraw||!dCur||dCur.shape)return;var sh=classify(dCur.p);if(!sh)return;
+  dCur.shape=sh;dFlashS=dCur;dRedraw();var m=$('snapMsg');m.textContent='Snapped to '+(sh.type==='rect'?'rectangle':sh.type)+'. Lift your finger to keep it, or use Undo.';m.classList.add('hit');
+  setTimeout(function(){dFlashS=null;dRedraw();m.classList.remove('hit')},450);
+},HOLD_MS)}
 function dFlatten(){ // flattened JPEG kept with the log; shrink until under the cap
   var q=DQ,uri=dc.toDataURL('image/jpeg',q),c=dc;
   while(uri.length>DCAP&&q>0.35){q-=0.1;uri=c.toDataURL('image/jpeg',q)}
@@ -525,13 +576,15 @@ $('diagDrawFile').addEventListener('change',function(){loadPicked(this.files&&th
 $('diagFile').addEventListener('change',function(){loadPicked(this.files&&this.files[0],false);this.value=''});
 $('diagSketch').addEventListener('click',function(){if(diag&&diag.uri&&!confirm('Replace the current diagram with a blank sketch?'))return;dSetBase(null,1200,800,true);dFlatten();dShow();$('saveHint').textContent='Sketch with your finger.'});
 function dPos(e){var r=dc.getBoundingClientRect();return [(e.clientX-r.left)*dc.width/r.width,(e.clientY-r.top)*dc.height/r.height]}
-dc.addEventListener('pointerdown',function(e){if(!dc.width)return;e.preventDefault();dDraw=true;try{dc.setPointerCapture(e.pointerId)}catch(_){}dCur={c:dCol,w:Math.max(2,dW*Math.max(dc.width,dc.height)),p:[dPos(e)]};dRedraw()});
-dc.addEventListener('pointermove',function(e){if(!dDraw)return;e.preventDefault();dCur.p.push(dPos(e));dRedraw()});
-function dEnd(){if(!dDraw)return;dDraw=false;if(dCur)dStrokes.push(dCur);dCur=null;dRedraw();dFlatten()}
+dc.addEventListener('pointerdown',function(e){if(!dc.width)return;e.preventDefault();dDraw=true;try{dc.setPointerCapture(e.pointerId)}catch(_){}dCur={c:dCol,w:Math.max(2,dW*Math.max(dc.width,dc.height)),p:[dPos(e)]};armHold(dCur.p[0]);dRedraw()});
+dc.addEventListener('pointermove',function(e){if(!dDraw)return;e.preventDefault();if(dCur.shape)return;var p=dPos(e);dCur.p.push(p);if(!dAnchor||Math.hypot(p[0]-dAnchor[0],p[1]-dAnchor[1])>holdTol())armHold(p);dRedraw()});
+function dEnd(){if(!dDraw)return;dDraw=false;clearTimeout(dHoldT);dAnchor=null;if(dCur)dStrokes.push(dCur);dCur=null;dRedraw();dFlatten()}
 dc.addEventListener('pointerup',dEnd);dc.addEventListener('pointercancel',dEnd);
 ['touchstart','touchmove'].forEach(function(ev){dc.addEventListener(ev,function(e){if(dc.width)e.preventDefault()},{passive:false})}); // no page scroll while drawing (iOS)
 document.querySelectorAll('.sw').forEach(function(b){b.addEventListener('click',function(){dCol=b.dataset.col;document.querySelectorAll('.sw').forEach(function(x){x.classList.toggle('on',x===b)})})});
 document.querySelectorAll('.wd').forEach(function(b){b.addEventListener('click',function(){dW=+b.dataset.w;document.querySelectorAll('.wd').forEach(function(x){x.classList.toggle('on',x===b)})})});
+$('diagLegend').addEventListener('click',function(){var n=$('diagNote');if(n.value.trim()&&!confirm('Replace the current text with the example legend?'))return;
+  n.value='Green = where we intend to fly\nYellow = landing zone\nRed = caution area\nBlue = water or other boundary\nBlack = roads, access and labels';n.dispatchEvent(new Event('input',{bubbles:true}));});
 $('diagUndo').addEventListener('click',function(){if(!dStrokes.length)return;dStrokes.pop();dRedraw();dFlatten()});
 $('diagClearInk').addEventListener('click',function(){dStrokes=[];dRedraw();dFlatten()});
 $('diagClear').addEventListener('click',function(){if(!confirm('Remove the diagram?'))return;diag=null;showDiag();saveDraft()});
@@ -628,7 +681,7 @@ function buildPdfBytes(rec){
     heading(s.t);var q=[];
     function flush(){while(q.length){pair(q.shift(),q.shift())}}
     s.f.forEach(function(fd){
-      if(fd.pdf===false||fd.ty==='drone'||fd.ty==='diagram')return;
+      if(fd.pdf===false||fd.ty==='drone'||fd.ty==='diagram'||fd.k==='diagNote')return;
       if(fd.ty==='static'){flush();para(fd.l.toUpperCase(),fd.lbl?8.5:9,!!fd.lbl);return}
       if(fd.k==='sfoc'&&!f.sfoc)return;
       if(fd.ty==='area'){flush();block(fd.l,f[fd.k],fd.k==='erpText'?24:36);return}
@@ -637,10 +690,12 @@ function buildPdfBytes(rec){
     });
     flush();
     if(s.id==='flight'){ // flight diagram box, like page 1 of the form
+      var legL=f.diagNote?wrap(f.diagNote,9,false,X1-X0-6):[],legH=legL.length?16+legL.length*11+4:0;
       ensure(150);txt(X0,y-9,'FLIGHT DIAGRAM',8.5,true);y-=14;
-      var h=Math.max(150,y-BOT-4);if(diagName)h=Math.min(h,360);box(X0,y,X1-X0,h);
+      var h=Math.max(150,y-BOT-4-legH);if(diagName)h=Math.min(h,360);box(X0,y,X1-X0,h);
       if(diagName){var iw=X1-X0-8,ih=iw*rec.diag.h/rec.diag.w;if(ih>h-8){ih=h-8;iw=ih*rec.diag.w/rec.diag.h}ops.push('q');ops.push(iw.toFixed(2)+' 0 0 '+ih.toFixed(2)+' '+(X0+(X1-X0-iw)/2).toFixed(2)+' '+(y-4-ih).toFixed(2)+' cm');ops.push('/'+diagName+' Do');ops.push('Q');}
       y-=h+6;
+      if(legL.length){ensure(28);txt(X0,y-9,'WHAT THE DIAGRAM SHOWS:',8.5,true);y-=15;legL.forEach(function(s){ensure(12);txt(X0+6,y-9,s,9,false);y-=11});y-=4;}
     }
   });
   SPEC.checks.forEach(function(c,i){if(i===0&&pages.length<3)newPage(false);checks(c)});
@@ -727,7 +782,7 @@ document.addEventListener('change',function(){counts();renderMissing();saveDraft
 window.addEventListener('pagehide',saveDraft);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveDraft()});
 try{ChecklistSync.init({statusEl:$('syncStatus'),settingsEl:$('syncSettings')})}catch(e){}
-window.__DFL={getSyncId:function(){return syncId},read:read,snapshotRecord:snapshotRecord,buildPdfBytes:buildPdfBytes,buildPdfFilename:buildPdfFilename,saveOrEmail:saveOrEmail,newDay:newDay,missing:function(){return missing().map(function(r){return r[1]})},isLocked:function(){return locked},photos:function(){return photoBox.list()},diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,w:dStrokes[dStrokes.length-1].w}:null}},DCAP:DCAP,getLogs:getLogs,carryKeys:carryKeys,SPEC:SPEC,longDate:longDate};
+window.__DFL={getSyncId:function(){return syncId},read:read,snapshotRecord:snapshotRecord,buildPdfBytes:buildPdfBytes,buildPdfFilename:buildPdfFilename,saveOrEmail:saveOrEmail,newDay:newDay,missing:function(){return missing().map(function(r){return r[1]})},isLocked:function(){return locked},photos:function(){return photoBox.list()},classify:classify,diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,w:dStrokes[dStrokes.length-1].w,shape:dStrokes[dStrokes.length-1].shape||null}:null}},DCAP:DCAP,getLogs:getLogs,carryKeys:carryKeys,SPEC:SPEC,longDate:longDate};
 })();
 </script>
 </body>
