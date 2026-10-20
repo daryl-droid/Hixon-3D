@@ -30,7 +30,7 @@ label.f>span{display:block;font-size:15px;font-weight:700;margin-bottom:3px}
 input[type=text],select{width:100%;min-height:54px;font-size:20px;padding:8px 12px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;-webkit-appearance:none;appearance:none}
 select{background-image:linear-gradient(45deg,transparent 50%,#000 50%),linear-gradient(135deg,#000 50%,transparent 50%);background-position:calc(100% - 22px) 24px,calc(100% - 14px) 24px;background-size:8px 8px;background-repeat:no-repeat;padding-right:36px}
 input:focus,select:focus{outline:4px solid #0057ff;outline-offset:1px}
-input.bad{border-color:var(--r);background:#ffecec}
+input.bad{border-color:var(--r);background:#fff4d6}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .u{font-weight:400}
@@ -138,7 +138,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
 .modeBox .sub{font-size:17px;font-weight:800;margin:0 0 6px}
 #modeNone{font-size:16px;font-weight:800;color:var(--r);margin:8px 0 0}
 /* v4 colour accents (visual only) */
-:root{--g:#0a7a2f;--r:#b00000;--mSpray:#00707a;--mSpread:#8a4f00;--mLift:#6a1b9a;--sCap:#0b3d91;--sFlt:#37474f;--sWx:#283593;--sQc:#004d40}
+:root{--g:#0a7a2f;--r:#b00000;--mSpray:#00494f;--mSpread:#6b4400;--mLift:#0d3b66;--sCap:#3b4a12;--sFlt:#3a3a3a;--sWx:#34495e;--sQc:#1b4d1b}
 #s-spray{--sc:var(--mSpray)}#s-spread{--sc:var(--mSpread)}#s-load{--sc:var(--mLift)}
 #s-cap{--sc:var(--sCap)}#s-flight{--sc:var(--sFlt)}#s-wx{--sc:var(--sWx)}#s-qc{--sc:var(--sQc)}
 section.acc{border-color:var(--sc);border-left-width:10px}
@@ -156,9 +156,24 @@ body:has(#modeSpraying:checked){--mode:var(--mSpray)}body:has(#modeSpreading:che
 .res.red{background:var(--r);box-shadow:inset 0 0 0 3px #fff}
 .wx.ok{background:#c8f0d2;border-width:3px;border-left-width:10px}
 .wx.over{border-color:#000;border-left-width:10px}
-input.bad{border-color:var(--r);border-width:3px;background:#ffe0e0}
+input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
 #go{box-shadow:0 0 0 3px #000}
 #go:disabled{box-shadow:none}
+
+/* Sync (v5/v12) */
+.syncBox{border:3px solid #000;border-radius:14px;margin:12px 0 10px;background:#fff;overflow:hidden}
+.syncBox>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;background:#263238;color:#fff;font-weight:900;font-size:18px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.syncBox>summary::-webkit-details-marker{display:none}
+.syncBox>summary::marker{content:""}
+.syncBox>summary:focus-visible{outline:4px solid #0057ff;outline-offset:-4px}
+#syncStatus{margin-left:auto;font-size:14px;font-weight:800;padding:3px 9px;border-radius:8px;background:#fff;color:#000}
+#syncStatus[data-state=synced],#chkStatus[data-state=synced]{background:#c8f0d2;color:#05501f}
+#syncStatus[data-state=queued],#chkStatus[data-state=queued]{background:#ffc61a;color:#000}
+#chkStatus{padding:2px 8px;border-radius:6px}
+.syncBody{padding:10px 12px 4px}
+.syncBody input{display:block;width:100%;min-height:52px;font-size:16px;padding:8px 10px;border:2px solid #000;border-radius:8px;font-family:inherit;background:#fff;color:#000}
+.syncLine{font-size:16px;font-weight:700;margin:2px 0 8px}
+.syncBody .hint{font-size:13px;margin:0 0 8px}
 </style>
 </head>
 <body>
@@ -402,8 +417,160 @@ input.bad{border-color:var(--r);border-width:3px;background:#ffe0e0}
 <div id="why" role="status" aria-live="polite"></div>
 <button type="button" id="btnSave">Save / Email record</button>
 <div id="saveHint" role="status" aria-live="polite"></div>
-<div class="foot">Checklist aid only. The pilot in command makes the final call. No data leaves the phone. Wind limit, aircraft weight per mode, Pilot/PIC, and crew names are remembered. The current job's entries and mode (except signatures) are kept on this phone so a reload does not lose them, until you tap New job. Save / Email builds a PDF on the phone (share sheet or download) &mdash; nothing is uploaded by the app.<br>Limits: J150 spraying tank 70 L rated (73 L full), max spraying takeoff weight 145 kg; spreader box 100 L, max internal load 75 kg, max spreading takeoff weight 149.9 kg; lifting max 75 kg, max lifting takeoff weight 149.9 kg; max flow 40 L/min; spray width 4&ndash;15 m; spreading width 3&ndash;8 m; operating temp -10 to 45 &deg;C, humidity 30&ndash;90% RH; max wind 12 m/s. Source: EAVision J150 Product Manual V1.1 (Dec 2024) (Appendix 1, Spreader &amp; Lifting Precautions); eavision.com J150 specs.</div>
+<details class="syncBox" id="s-sync"><summary>Sync records <span id="syncStatus" data-state="off">Sync off</span></summary><div class="syncBody"><div id="syncSettings"></div><div class="hint">Optional. Paste the Sync URL and token once. When you tap Save / Email, a copy of the record and its PDF is also sent to the EcoDrone checklist sheet. With no signal it waits on this phone and sends later (status shows Queued). Email / PDF works the same either way. Blank URL = Sync off.</div></div></details>
+<div class="foot">Checklist aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. Wind limit, aircraft weight per mode, Pilot/PIC, and crew names are remembered. The current job's entries and mode (except signatures) are kept on this phone so a reload does not lose them, until you tap New job. Save / Email builds a PDF on the phone (share sheet or download) &mdash; nothing is uploaded unless Sync is set up (then a copy goes to the EcoDrone checklist sheet).<br>Limits: J150 spraying tank 70 L rated (73 L full), max spraying takeoff weight 145 kg; spreader box 100 L, max internal load 75 kg, max spreading takeoff weight 149.9 kg; lifting max 75 kg, max lifting takeoff weight 149.9 kg; max flow 40 L/min; spray width 4&ndash;15 m; spreading width 3&ndash;8 m; operating temp -10 to 45 &deg;C, humidity 30&ndash;90% RH; max wind 12 m/s. Source: EAVision J150 Product Manual V1.1 (Dec 2024) (Appendix 1, Spreader &amp; Lifting Precautions); eavision.com J150 specs.</div>
 </main>
+<script>
+/* checklist-sync.js (offline outbox) */
+/* ChecklistSync — offline-first outbox for checklist records.
+ * Additive only: call ChecklistSync.enqueue(...) AFTER the existing PDF share/download.
+ * It never blocks or changes the email/PDF flow. Blank endpoint = disabled.
+ * localStorage: chk.outbox (queue), chk.endpoint, chk.token
+ */
+(function (global) {
+  'use strict';
+  var KQ = 'chk.outbox', KE = 'chk.endpoint', KT = 'chk.token';
+  var MAX_ITEMS = 30;           // ~ PDFs are ~50-300 KB; keeps well under 5 MB quota
+  var busy = false, statusEls = [], lastErr = '';
+
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function queue() { try { return JSON.parse(lsGet(KQ, '[]')) || []; } catch (e) { return []; } }
+  function saveQueue(q) {
+    while (!lsSet(KQ, JSON.stringify(q)) && q.length > 1) {
+      // Storage full: drop the PDF of the oldest item (row still syncs), then oldest item.
+      var o = q.find(function (i) { return i.pdfBase64; });
+      if (o) o.pdfBase64 = ''; else q.shift();
+    }
+  }
+  function config() { return { endpoint: lsGet(KE, '').trim(), token: lsGet(KT, '').trim() }; }
+  function enabled() { var c = config(); return !!(c.endpoint && c.token); }
+
+  function newId(prefix) {
+    var r = '';
+    try { var a = new Uint8Array(6); crypto.getRandomValues(a); a.forEach(function (b) { r += ('0' + b.toString(16)).slice(-2); }); }
+    catch (e) { r = Math.random().toString(16).slice(2, 14); }
+    return (prefix || 'REC') + '-' + Date.now().toString(36) + '-' + r;
+  }
+
+  function bytesToB64(bytes) {
+    if (typeof bytes === 'string') return bytes;          // already base64
+    var s = '', CH = 0x8000;
+    for (var i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(s);
+  }
+
+  /** record: flat object of the 12 sheet fields (see adapters below). pdfBytes: Uint8Array or base64. */
+  function enqueue(record, pdfBytes, filename, clientRecordId) {
+    if (!enabled()) { render(); return null; }
+    var item = {
+      clientRecordId: clientRecordId || newId(record && record.aircraft),
+      record: record || {}, filename: filename || '',
+      pdfBase64: pdfBytes ? bytesToB64(pdfBytes) : '', queuedAt: Date.now(), tries: 0,
+      v: Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+    };
+    var q = queue();
+    // latest version of a record replaces any queued older version (same id)
+    q = q.filter(function (i) { return i.clientRecordId !== item.clientRecordId; });
+    q.push(item);
+    while (q.length > MAX_ITEMS) q.shift();
+    saveQueue(q);
+    render();
+    setTimeout(flush, 0);
+    return item.clientRecordId;
+  }
+
+  function postOne(item, c) {
+    var body = JSON.stringify({ token: c.token, clientRecordId: item.clientRecordId, record: item.record,
+      filename: item.filename, pdfBase64: item.pdfBase64 });
+    // text/plain = "simple" request: no CORS preflight (Apps Script can't answer OPTIONS).
+    return fetch(c.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body, redirect: 'follow', cache: 'no-store' })
+      .then(function (res) { return res.text(); })
+      .then(function (t) { var j; try { j = JSON.parse(t); } catch (e) { j = { ok: false, error: 'bad_response' }; } return j; });
+  }
+
+  function flush() {
+    if (busy || !enabled()) { render(); return Promise.resolve(); }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) { render(); return Promise.resolve(); }
+    var c = config(); busy = true;
+    function next() {
+      var q = queue();
+      if (!q.length) return Promise.resolve();
+      var item = q[0];
+      return postOne(item, c).then(function (j) {
+        var q2 = queue();
+        if (j && j.ok) {
+          lastErr = '';
+          // remove only the version we sent; a newer re-save queued meanwhile stays and is sent next
+          saveQueue(q2.filter(function (i) { return !(i.clientRecordId === item.clientRecordId && i.v === item.v); }));
+          return next();
+        }
+        lastErr = (j && j.error) || 'error';
+        if (lastErr === 'bad_record_id') {   // permanent: drop, can't ever succeed
+          saveQueue(q2.filter(function (i) { return i.clientRecordId !== item.clientRecordId; }));
+          return next();
+        }
+        q2.forEach(function (i) { if (i.clientRecordId === item.clientRecordId) i.tries++; });
+        saveQueue(q2);   // keep (bad_token, busy, server_error) for a later retry
+      }, function () { lastErr = 'offline'; });
+    }
+    return next().then(function () { busy = false; render(); }, function () { busy = false; render(); });
+  }
+
+  function render() {
+    var n = queue().length, t, st;
+    if (!enabled()) { t = 'Sync off'; st = 'off'; }
+    else if (!n) { t = 'Synced'; st = 'synced'; }
+    else { t = 'Queued (' + n + ')' + (lastErr === 'bad_token' ? ' - check sync token' : ''); st = 'queued'; }
+    statusEls.forEach(function (el) { el.textContent = t; el.setAttribute('data-state', st); });
+  }
+
+  /** Optional: mount a tiny settings block (endpoint + token) and status line into `container`. */
+  function mountSettings(container) {
+    var c = config();
+    container.innerHTML =
+      '<label class="f"><span>Sync URL <span class="u">(blank = off)</span></span><input id="chkEndpoint" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec"></label>' +
+      '<label class="f"><span>Sync token</span><input id="chkToken" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
+      '<div class="syncLine">Records: <b id="chkStatus"></b></div>';
+    var ep = container.querySelector('#chkEndpoint'), tk = container.querySelector('#chkToken');
+    ep.value = c.endpoint; tk.value = c.token;
+    function save() { lsSet(KE, ep.value.trim()); lsSet(KT, tk.value.trim()); render(); flush(); }
+    ep.addEventListener('change', save); tk.addEventListener('change', save);
+    statusEls.push(container.querySelector('#chkStatus'));
+    render();
+  }
+
+  function init(opts) {
+    opts = opts || {};
+    if (opts.statusEl) statusEls.push(opts.statusEl);
+    if (opts.settingsEl) mountSettings(opts.settingsEl);
+    global.addEventListener('online', flush);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') flush(); });
+    render(); flush();
+  }
+
+  // ---- adapters from each app's snapshotRecord() ----
+  function crewSigned(crew) {
+    crew = crew || [];
+    var s = crew.filter(function (c) { return c.signed; }).map(function (c) { return c.name || '(no name)'; });
+    return s.length + '/' + crew.filter(function (c) { return c.name; }).length + (s.length ? ': ' + s.join(', ') : '');
+  }
+  function windText(r) {
+    return 'wind ' + (r.wind != null ? r.wind : '?') + ' / gust ' + (r.gust != null ? r.gust : '?') + ' ' + (r.windUnit || '') +
+      ' (limit ' + (r.windLim != null ? r.windLim : '?') + ') - ' + (r.wxText || '');
+  }
+  function fromJ150(r) {
+    return { dateTime: ((r.liftDate || '') + ' ' + (r.liftTime || '')).trim() || r.stamp, aircraft: 'J150', mode: r.modeName || r.mode || '',
+      job: r.jobName || '', client: r.clientName || '', pilot: r.pilot || '', crewSigned: crewSigned(r.crew),
+      airspace: r.airspace || '', navDrone: r.navDrone || '', loadResult: r.capText || '', wind: windText(r), goStatus: r.goText || '' };
+  }
+
+  global.ChecklistSync = { init: init, enqueue: enqueue, flush: flush, queue: queue, enabled: enabled,
+    fromJ150: fromJ150, newId: newId, _keys: { KQ: KQ, KE: KE, KT: KT } };
+})(window);
+
+</script>
 <script>
 (function(){
 'use strict';
@@ -539,6 +706,8 @@ function read(){
     checks:activeQcs().map(function(c){return c.checked})};
 }
 var goTime=null;
+var syncId=null;
+function newSyncId(){try{return ChecklistSync.newId('J150')}catch(e){return 'J150-'+Date.now().toString(36)+'-'+Math.random().toString(16).slice(2,10)}}
 var AIR_NOTES={'Class C/D/E (controlled)':'Controlled airspace: needs an Advanced Operations pilot certificate, a drone with Standard 922 declarations for controlled airspace (922.04 + 922.08), and an ATS authorization before flight (CARs 901.14, 901.69(h), 901.71). In NAV CANADA zones, request it through NAV Drone (allow up to 2 weeks); otherwise get permission from the controlling agency, and keep the authorization on hand. If flying under an SFOC-RPAS, follow its conditions.','Class F (restricted/advisory)':'Class F Restricted: no flight without authorization from the user agency named in the Designated Airspace Handbook (CARs 601.04(2)). Class F Advisory: follow the Designated Airspace Handbook procedures (CARs 601.04(1)). If flying under an SFOC-RPAS, follow its conditions.'};
 function airNoteText(v){return AIR_NOTES[v]||''}
 function wrapTxt(t,n){var out=[],cur='';String(t).split(' ').forEach(function(w){if(cur&&(cur+' '+w).length>n){out.push(cur);cur=w}else cur=cur?cur+' '+w:w});if(cur)out.push(cur);return out}
@@ -693,12 +862,21 @@ function buildPdfBytes(rec){
     parts.push('ET');
     y -= big?15:11;
   }
+  var BOT=40, pages=[parts], HDR=String(lines[0]).split(' - ')[0];
+  function newPage(){
+    parts=[];pages.push(parts);
+    y=792-36;
+    parts.push('BT');parts.push('/F2 9 Tf');parts.push(imgX+' '+y.toFixed(2)+' Td');
+    parts.push('('+pdfEsc(HDR+' - RECORD (continued)    Job: '+(rec.jobName||'(blank)')+'    Date: '+(rec.liftDate||'(blank)')+'    Page '+pages.length+' of @@N@@')+') Tj');parts.push('ET');
+    y-=20;
+  }
   for(var i=0;i<lines.length;i++){
+    if(y<BOT)newPage();
     emitLine(lines[i], i<2);
     if(i===insertAfter && sigDraw.length){
       y -= 2;
       sigDraw.forEach(function(sg){
-        if(y-sg.drawH-10<36)return;
+        if(y-sg.drawH-10<BOT)newPage();
         parts.push('BT');
         parts.push('/F1 8 Tf');
         parts.push(imgX+' '+y.toFixed(2)+' Td');
@@ -714,31 +892,32 @@ function buildPdfBytes(rec){
       });
     }
   }
-  var stream=parts.join('\n');
+  var NP=pages.length;
+  if(NP>1)pages.forEach(function(pp,pi){pp.push('BT');pp.push('/F1 8 Tf');pp.push('480 22 Td');pp.push('(Page '+(pi+1)+' of '+NP+') Tj');pp.push('ET');});
+  var streams=pages.map(function(pp){return pp.join('\n').split('@@N@@').join(String(NP))});
+  var imgBase=5, pgBase=5+imgs.length;
+  var xrefs=imgs.map(function(im,ii){return '/'+im.name+' '+(imgBase+ii)+' 0 R'}).join(' ');
+  var kids=streams.map(function(s0,pi){return (pgBase+2*pi)+' 0 R'}).join(' ');
   var objs=[];
   objs.push('<< /Type /Catalog /Pages 2 0 R >>');
-  objs.push('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-  var xrefs = imgs.map(function(im,ii){return '/'+im.name+' '+(7+ii)+' 0 R'}).join(' ');
-  objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> /XObject << '+xrefs+' >> >> >>');
-  objs.push('<< /Length '+stream.length+' >>\nstream\n'+stream+'\nendstream');
+  objs.push('<< /Type /Pages /Kids ['+kids+'] /Count '+NP+' >>');
   objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
   objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
-  var pieces=['%PDF-1.4\n'];
-  var offsets=[0];
-  for(var oi=0;oi<6;oi++){
-    offsets.push(pieces.reduce(function(a,c){return a+(typeof c==='string'?c.length:c.length)},0));
-    pieces.push((oi+1)+' 0 obj\n'+objs[oi]+'\nendobj\n');
+  imgs.forEach(function(im){objs.push({head:'<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n',bin:im.bytes});});
+  streams.forEach(function(st,pi){
+    objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents '+(pgBase+2*pi+1)+' 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << '+xrefs+' >> >> >>');
+    objs.push('<< /Length '+st.length+' >>\nstream\n'+st+'\nendstream');
+  });
+  var pieces=['%PDF-1.4\n'], offsets=[0], cur=pieces[0].length;
+  function add(c){pieces.push(c);cur+=c.length;}
+  for(var oi=0;oi<objs.length;oi++){
+    offsets.push(cur);
+    var ob=objs[oi];
+    if(typeof ob==='string'){add((oi+1)+' 0 obj\n'+ob+'\nendobj\n');}
+    else{add((oi+1)+' 0 obj\n'+ob.head);add(ob.bin);add('\nendstream\nendobj\n');}
   }
-  for(var ii=0;ii<imgs.length;ii++){
-    var im=imgs[ii];
-    var imgDict='<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n';
-    offsets.push(pieces.reduce(function(a,c){return a+(typeof c==='string'?c.length:c.length)},0));
-    pieces.push((7+ii)+' 0 obj\n'+imgDict);
-    pieces.push(im.bytes);
-    pieces.push('\nendstream\nendobj\n');
-  }
-  var xrefPos=pieces.reduce(function(a,c){return a+(typeof c==='string'?c.length:c.length)},0);
-  var nTotal=7+imgs.length;
+  var xrefPos=cur;
+  var nTotal=objs.length+1;
   var xref='xref\n0 '+nTotal+'\n0000000000 65535 f \n';
   for(var j=1;j<offsets.length;j++)xref+=pad10(offsets[j])+' 00000 n \n';
   pieces.push(xref);
@@ -835,6 +1014,16 @@ function downloadPdf(bytes, name){
   setTimeout(function(){URL.revokeObjectURL(url)},2000);
 }
 function saveOrEmail(){
+  var res=saveOrEmailCore();
+  try{
+    if(window.ChecklistSync&&ChecklistSync.enabled()){
+      if(!syncId){syncId=newSyncId();saveDraft();}
+      ChecklistSync.enqueue(ChecklistSync.fromJ150(res.record),res.bytes,res.filename,syncId);
+    }
+  }catch(e){}
+  return res;
+}
+function saveOrEmailCore(){
   var rec=snapshotRecord();
   var bytes=buildPdfBytes(rec);
   var name=buildPdfFilename(null,rec.mode);
@@ -1078,6 +1267,7 @@ document.addEventListener('change',render);
 $('go').addEventListener('click',function(){
   if(this.disabled)return;
   var t=new Date();goTime=('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2);
+  if(!syncId)syncId=newSyncId();
   this.classList.add('done');render();saveDraft();
 });
 var CLEAR_IDS=['jobName','clientName','clientContact','special','sprProduct','sprName','sprPcp','sprLic','sprLabelRate','sprBuffer','sprSensitive','sprVol','sprDens','sprRate','sprFlow','sprSwath','sprdMaterial','sprdKg','sprdVol','sprdParticle','sprdWidth','sprdRate','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'];
@@ -1090,14 +1280,14 @@ $('btnNew').addEventListener('click',function(){
   setMode('');
   clearCrewAttendance();
   setDateTimeNow();
-  goTime=null;clearDraft();render();window.scrollTo(0,0);
+  goTime=null;syncId=null;clearDraft();render();window.scrollTo(0,0);
 });
 var DRAFT_KEY='j150.draft';
 var DRAFT_IDS=['liftDate','liftTime'].concat(CLEAR_IDS,['lineType','sprNozzles','airspace','navDrone']);
 var DRAFT_CBS=['uPeople','uRoads','uWater','pwr','trees','tailgateGiven'];
 function saveDraft(){
   try{
-    var o={mode:getMode(),v:{},c:{},q:{},p:crewState.map(function(c){return !!c.present}),goTime:goTime};
+    var o={mode:getMode(),v:{},c:{},q:{},p:crewState.map(function(c){return !!c.present}),goTime:goTime,syncId:syncId};
     DRAFT_IDS.forEach(function(id){o.v[id]=$(id).value});
     DRAFT_CBS.forEach(function(id){o.c[id]=$(id).checked});
     allQcs.forEach(function(c){o.q[c.getAttribute('data-q')]=c.checked});
@@ -1115,6 +1305,7 @@ function loadDraft(){
     if(o.q)allQcs.forEach(function(c){c.checked=!!o.q[c.getAttribute('data-q')]});
     if(o.p){crewState.forEach(function(c,i){c.present=!!o.p[i]});renderCrew();}
     if(o.goTime)goTime=o.goTime;
+    if(o.syncId)syncId=o.syncId;
     return true;
   }catch(e){return false}
 }
@@ -1129,7 +1320,8 @@ document.addEventListener('input',saveDraft);
 document.addEventListener('change',saveDraft);
 window.addEventListener('pagehide',saveDraft);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveDraft();});
-window.__J150={SPEC:SPEC,compute:compute,read:read,render:render,num:num,windToMs:windToMs,buildPdfBytes:buildPdfBytes,buildPdfLines:buildPdfLines,buildPdfFilename:buildPdfFilename,snapshotRecord:snapshotRecord,notReady:function(){return notReady(compute(read()))},saveOrEmail:saveOrEmail,setDateTimeNow:setDateTimeNow,getMode:getMode,setMode:setMode,activeQcs:activeQcs,getCrewState:function(){return crewState},observerName:observerName,saveDraft:saveDraft,loadDraft:loadDraft,isCanvasBlank:isCanvasBlank};
+try{ChecklistSync.init({statusEl:$('syncStatus'),settingsEl:$('syncSettings')})}catch(e){}
+window.__J150={getSyncId:function(){return syncId},SPEC:SPEC,compute:compute,read:read,render:render,num:num,windToMs:windToMs,buildPdfBytes:buildPdfBytes,buildPdfLines:buildPdfLines,buildPdfFilename:buildPdfFilename,snapshotRecord:snapshotRecord,notReady:function(){return notReady(compute(read()))},saveOrEmail:saveOrEmail,setDateTimeNow:setDateTimeNow,getMode:getMode,setMode:setMode,activeQcs:activeQcs,getCrewState:function(){return crewState},observerName:observerName,saveDraft:saveDraft,loadDraft:loadDraft,isCanvasBlank:isCanvasBlank};
 })();
 </script>
 </body>
