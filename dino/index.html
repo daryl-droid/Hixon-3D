@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1d2329">
+<link rel="icon" href="data:,">
+<title>Dino2 3D Model</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#1d2329;color:#eef1f4;font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;background:linear-gradient(#9fb3c4,#d9e1e7)}
+  header{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;background:linear-gradient(rgba(20,26,32,.85),rgba(20,26,32,0));pointer-events:none}
+  h1{margin:0;font-size:17px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+  #bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px)}
+  button{appearance:none;border:0;border-radius:22px;padding:11px 18px;font:600 15px -apple-system,sans-serif;color:#fff;background:rgba(20,26,32,.78);box-shadow:0 2px 8px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  button:active{background:rgba(60,70,80,.9)}
+  #help{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 64px);background:rgba(20,26,32,.82);padding:10px 14px;border-radius:12px;font-size:13px;width:max-content;max-width:88vw;transition:opacity .4s}
+  #help.hide{opacity:0;pointer-events:none}
+  #load{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(29,35,41,.92);transition:opacity .5s}
+  #load.done{opacity:0;pointer-events:none}
+  #load.mini{inset:auto 0 auto 0;top:calc(env(safe-area-inset-top) + 40px);background:none;gap:4px;pointer-events:none}
+  #load.mini>div:first-child{display:none}
+  #load.mini #msg{font-size:11px;color:#fff;text-shadow:0 1px 2px #000}
+  #track{width:min(70vw,320px);height:8px;border-radius:4px;background:#3a444e;overflow:hidden}
+  #fill{height:100%;width:0;background:#f2b705;transition:width .2s}
+  #msg{font-size:13px;color:#b9c3cc;text-align:center;max-width:80vw}
+  #pin{position:fixed;width:18px;height:18px;margin:-9px 0 0 -9px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.4);pointer-events:none;opacity:0;transition:opacity .6s}
+</style>
+<script type="importmap">{"imports":{"three":"../lib/three.module.js","three/addons/":"../lib/jsm/"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<header><h1>Dino2 3D Model</h1></header>
+<div id="help">Drag to rotate · two fingers to pan · double-tap to set pivot</div>
+<div id="bar"><button id="reset">Reset view</button><button id="helpBtn">?</button><a href="../"><button>Hixon</button></a><a id="arBtn" rel="ar" href="dino2.usdz" style="display:none"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" style="display:none"><button>View in AR</button></a></div><script>if(document.createElement("a").relList.supports("ar"))document.getElementById("arBtn").style.display="inline";</script>
+<div id="pin"></div>
+<div id="load"><div>Loading 3D model…</div><div id="track"><div id="fill"></div></div><div id="msg">0%</div></div>
+<script src="model.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+
+const MODEL = window.HIXON_MODEL || {files: [], bytes: []};
+let HOME = {eye: [ 160, 120, 170 ], target: [ 0, 8, 0 ]};  // metres, model coords (Y up)
+
+const hv = (location.hash.match(/v=([-\d.,]+)/) || [])[1];
+if (hv) { const n = hv.split(',').map(Number); if (n.length === 6) HOME = {eye: n.slice(0, 3), target: n.slice(3)}; }
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!window.HIXON_TEST});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.setClearColor(0x000000, 0);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.5, 5000);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.12;
+controls.enablePan = true; controls.screenSpacePanning = true; controls.zoomToCursor = true;
+controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI; controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
+controls.minDistance = 2; controls.maxDistance = 1500;
+controls.touches = {ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN};
+controls.mouseButtons = {LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN};
+const group = new THREE.Group(); scene.add(group);
+
+function setView(v){ camera.position.set(...v.eye); controls.target.set(...v.target); controls.update(); }
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h;
+  camera.fov = w < h ? 62 : 45; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize(); setView(HOME);
+
+// smooth fly of orbit centre
+let anim = null;
+function flyTo(target, eye, ms = 450){
+  const t0 = performance.now(), a = controls.target.clone(), b = camera.position.clone();
+  anim = now => { let k = Math.min(1, (now - t0) / ms); k = k * k * (3 - 2 * k);
+    controls.target.lerpVectors(a, target, k); if (eye) camera.position.lerpVectors(b, eye, k); if (k >= 1) anim = null; };
+}
+document.getElementById('reset').onclick = () => flyTo(new THREE.Vector3(...HOME.target), new THREE.Vector3(...HOME.eye), 600);
+const help = document.getElementById('help');
+document.getElementById('helpBtn').onclick = () => help.classList.toggle('hide');
+
+
+// double-tap / double-click: new orbit centre (camera moves with it, keeping the same view direction)
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), pin = document.getElementById('pin');
+function pick(x, y){
+  const r = canvas.getBoundingClientRect(); ndc.set((x - r.left) / r.width * 2 - 1, -(y - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ndc, camera); const hit = ray.intersectObjects(group.children, true)[0];
+  if (!hit) return;
+  const off = camera.position.clone().sub(controls.target);
+  const dist = Math.max(controls.minDistance * 2, Math.min(off.length(), hit.distance) * 0.75); off.setLength(dist);
+  flyTo(hit.point.clone(), hit.point.clone().add(off));
+  pin.style.left = x + 'px'; pin.style.top = y + 'px'; pin.style.opacity = 1; setTimeout(() => pin.style.opacity = 0, 700);
+}
+const pts = new Set(); let lastTap = 0, lastX = 0, lastY = 0, downT = 0, downX = 0, downY = 0, multi = false;
+canvas.addEventListener('pointerdown', e => { pts.add(e.pointerId); if (pts.size > 1) multi = true; else { multi = false; downT = performance.now(); downX = e.clientX; downY = e.clientY; } });
+const up = e => { const had = pts.delete(e.pointerId); if (e.type !== 'pointerup' || !had || multi || e.pointerType === 'mouse') return;
+  const now = performance.now();
+  if (now - downT > 300 || Math.hypot(e.clientX - downX, e.clientY - downY) > 12) return; // not a tap
+  if (now - lastTap < 400 && Math.hypot(e.clientX - lastX, e.clientY - lastY) < 40) { lastTap = 0; pick(e.clientX, e.clientY); }
+  else { lastTap = now; lastX = e.clientX; lastY = e.clientY; } };
+canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+window.addEventListener('pointerup', e => pts.delete(e.pointerId)); window.addEventListener('pointercancel', e => pts.delete(e.pointerId));
+canvas.addEventListener('dblclick', e => { e.preventDefault(); pick(e.clientX, e.clientY); });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());   // stop iOS page zoom
+
+// loading with progress
+const fill = document.getElementById('fill'), msg = document.getElementById('msg');
+const total = MODEL.bytes.reduce((a, b) => a + b, 0) || 1, got = new Array(MODEL.files.length).fill(0);
+let loaded = 0;
+const show = () => { const s = got.reduce((a, b) => a + b, 0); const p = Math.min(100, s / total * 100);
+  fill.style.width = p.toFixed(1) + '%';
+  msg.textContent = `${p.toFixed(0)}%  ·  ${(s / 1048576).toFixed(0)} of ${(total / 1048576).toFixed(0)} MB  ·  ${loaded}/${MODEL.files.length} parts`; };
+const ktx2 = new KTX2Loader().setTranscoderPath('../lib/jsm/libs/basis/').detectSupport(renderer);
+const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
+let failed = 0;
+async function loadOne(i){
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const gltf = await loader.loadAsync(MODEL.files[i], ev => { got[i] = ev.loaded; show(); });
+      gltf.scene.traverse(o => { if (o.isMesh) { o.material.side = THREE.DoubleSide; o.frustumCulled = true; } });
+      group.add(gltf.scene); got[i] = MODEL.bytes[i]; loaded++; show(); document.getElementById('load').classList.add('mini'); return;
+    } catch (err) { console.error(err); got[i] = 0; }
+  }
+  failed++; got[i] = MODEL.bytes[i]; show();
+}
+(async () => {
+  const queue = MODEL.files.map((_, i) => i); const workers = [];
+  for (let w = 0; w < 3; w++) workers.push((async () => { while (queue.length) await loadOne(queue.shift()); })());
+  await Promise.all(workers);
+  if (failed) msg.textContent = `${failed} part(s) failed to load – check your connection and reload.`;
+  else document.getElementById('load').classList.add('done');
+  window.HIXON_READY = true; if (window.HIXON_TEST) window.__t = {controls, camera, pick, group};
+})();
+renderer.setAnimationLoop(now => { if (anim) anim(now); controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>
