@@ -137,6 +137,28 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
 .modeBox{border:3px solid #000;border-radius:14px;padding:10px 12px;margin:0 0 12px;background:#eef9f0}
 .modeBox .sub{font-size:17px;font-weight:800;margin:0 0 6px}
 #modeNone{font-size:16px;font-weight:800;color:var(--r);margin:8px 0 0}
+/* v4 colour accents (visual only) */
+:root{--g:#0a7a2f;--r:#b00000;--mSpray:#00707a;--mSpread:#8a4f00;--mLift:#6a1b9a;--sCap:#0b3d91;--sFlt:#37474f;--sWx:#283593;--sQc:#004d40}
+#s-spray{--sc:var(--mSpray)}#s-spread{--sc:var(--mSpread)}#s-load{--sc:var(--mLift)}
+#s-cap{--sc:var(--sCap)}#s-flight{--sc:var(--sFlt)}#s-wx{--sc:var(--sWx)}#s-qc{--sc:var(--sQc)}
+section.acc{border-color:var(--sc);border-left-width:10px}
+section.acc>h2{margin:-12px -12px 12px;padding:9px 12px;background:var(--sc);color:#fff;border-radius:8px 8px 0 0}
+section.acc>h2 .n{background:#fff;color:var(--sc);font-weight:900}
+.modes>label:has(#modeSpraying){--mc:var(--mSpray)}.modes>label:has(#modeSpreading){--mc:var(--mSpread)}.modes>label:has(#modeLifting){--mc:var(--mLift)}
+.modes>label>span{border-color:var(--mc);border-left-width:14px;color:var(--mc)}
+.modes>label>input:checked+span{background:var(--mc);border-color:var(--mc);color:#fff}
+body:has(#modeSpraying:checked){--mode:var(--mSpray)}body:has(#modeSpreading:checked){--mode:var(--mSpread)}body:has(#modeLifting:checked){--mode:var(--mLift)}
+.tgBox{border-color:var(--mode,#000)}
+.tgBox>summary{background:var(--mode,#000)}
+.lim{background:#ffc61a;border-color:#000;border-left-width:8px}
+.res{border:3px solid #000}
+.res.green{background:var(--g);box-shadow:inset 0 0 0 3px #fff}
+.res.red{background:var(--r);box-shadow:inset 0 0 0 3px #fff}
+.wx.ok{background:#c8f0d2;border-width:3px;border-left-width:10px}
+.wx.over{border-color:#000;border-left-width:10px}
+input.bad{border-color:var(--r);border-width:3px;background:#ffe0e0}
+#go{box-shadow:0 0 0 3px #000}
+#go:disabled{box-shadow:none}
 </style>
 </head>
 <body>
@@ -209,6 +231,9 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <label class="f"><span>Job name</span><input type="text" id="jobName" autocomplete="off" placeholder="e.g. field 12 north"></label>
   <label class="f"><span>Client / Customer</span><input type="text" id="clientName" autocomplete="organization" placeholder="Company or customer name"></label>
   <label class="f"><span>Client contact <span class="u">(name or phone)</span></span><input type="text" id="clientContact" autocomplete="tel" placeholder="Name or phone"></label>
+  <label class="f"><span>Airspace classification</span><select id="airspace"><option value="">Choose</option><option>Class G (uncontrolled)</option><option>Class C/D/E (controlled)</option><option>Class F (restricted/advisory)</option><option>Other</option></select></label>
+  <div class="hint" id="airNote" hidden style="background:#fff7e0;border:1px solid #e0b000;border-radius:6px;padding:6px 8px;margin:4px 0 8px;font-size:14px"></div>
+  <label class="f"><span>NAV Drone flight plan submitted?</span><select id="navDrone"><option value="">Choose</option><option>Yes</option><option>No</option></select></label>
   <label class="f"><span>Special considerations</span><textarea id="special" autocomplete="off" placeholder="Hazards, site notes, access, etc. (optional)"></textarea></label>
   <div class="hint">Recorded on Save / Email PDF. Not required for GO.</div>
 </div>
@@ -221,7 +246,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <div class="hint" style="margin:6px 0 0">Names stay on phone. Crew start unmarked and can sign directly (signing counts as present). Present + signatures are for this job only. Not required for GO.</div>
 </section>
 
-<section id="s-spray" data-mode="spraying" hidden>
+<section class="acc" id="s-spray" data-mode="spraying" hidden>
   <h2><span class="n">1</span>Spray load</h2>
   <label class="f"><span>Product / mix</span><input type="text" id="sprProduct" autocomplete="off" placeholder="e.g. product name + rate"></label>
   <div class="row">
@@ -251,7 +276,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <div class="tot">Liquid mass: <span id="sprMass">-- kg</span><code id="sprMassF">volume x density</code></div>
 </section>
 
-<section id="s-spread" data-mode="spreading" hidden>
+<section class="acc" id="s-spread" data-mode="spreading" hidden>
   <h2><span class="n">1</span>Spread load</h2>
   <label class="f"><span>Material</span><input type="text" id="sprdMaterial" autocomplete="off" placeholder="e.g. urea, seed"></label>
   <div class="row">
@@ -265,7 +290,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <label class="f"><span>Dose rate <span class="u">(kg/ha)</span></span><input type="text" id="sprdRate" inputmode="decimal" autocomplete="off" placeholder="kg/ha"></label>
 </section>
 
-<section id="s-load" data-mode="lifting" hidden>
+<section class="acc" id="s-load" data-mode="lifting" hidden>
   <h2><span class="n">1</span>Load</h2>
   <label class="f"><span>What you're lifting</span><input type="text" id="what" autocomplete="off" placeholder="e.g. pipe, bags, tools"></label>
   <div class="row">
@@ -280,7 +305,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <div class="tot">Total lifted: <span id="total">-- kg</span><code id="totF">load + rigging (enter 0 if none)</code></div>
 </section>
 
-<section id="s-cap">
+<section class="acc" id="s-cap">
   <h2><span class="n">2</span>Capacity</h2>
   <div class="lim" id="capLim">Choose an operation mode.</div>
   <label class="f"><span>Aircraft weight without payload <span class="u">(kg, saved per mode)</span></span><input type="text" id="opw" inputmode="decimal" autocomplete="off" placeholder="enter kg"></label>
@@ -294,7 +319,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <p class="note" id="capNote">Temp must be -10 to 45 &deg;C; humidity 30 to 90% RH (outside range blocks GO). Altitude is recorded only: the J150 manual gives no altitude payload derating &mdash; the pilot must judge. Source: EAVision J150 Product Manual V1.1 (Dec 2024), Appendix 1 Specifications.</p>
 </section>
 
-<section id="s-flight">
+<section class="acc" id="s-flight">
   <h2><span class="n">3</span>Flight</h2>
   <div class="row">
     <label class="f"><span>Distance <span class="u">(m)</span></span><input type="text" id="dist" inputmode="decimal" autocomplete="off" placeholder="m"></label>
@@ -321,7 +346,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <p class="note">Height over 30 m blocks GO (J150 factory limit: true altitude 30 m; manual lifting max 30 m / 7 m/s). Source: EAVision J150 Product Manual V1.1 (Dec 2024), Regulatory Safety &amp; Lifting Precautions.</p>
 </section>
 
-<section id="s-wx">
+<section class="acc" id="s-wx">
   <h2><span class="n">4</span>Weather</h2>
   <div class="row">
     <label class="f"><span>Your wind limit <span class="u">(saved on phone)</span></span><input type="text" id="windLim" inputmode="decimal" autocomplete="off" placeholder="enter limit"></label>
@@ -335,7 +360,7 @@ input[type=date]::-webkit-date-and-time-value,input[type=time]::-webkit-date-and
   <p class="note">Your limit cannot be above the J150 maximum tolerable wind speed 12 m/s (43.2 km/h, 23.3 kn). Source: EAVision J150 Product Manual V1.1 (Dec 2024), Appendix 1.</p>
 </section>
 
-<section id="s-qc">
+<section class="acc" id="s-qc">
   <h2><span class="n">5</span>Quick checks</h2>
   <div class="qc" id="qc">
     <label data-m="all"><input type="checkbox" data-q="props"><span>Props: no cracks, not loose</span></label>
@@ -514,6 +539,10 @@ function read(){
     checks:activeQcs().map(function(c){return c.checked})};
 }
 var goTime=null;
+var AIR_NOTES={'Class C/D/E (controlled)':'Controlled airspace: needs an Advanced Operations pilot certificate, a drone with Standard 922 declarations for controlled airspace (922.04 + 922.08), and an ATS authorization before flight (CARs 901.14, 901.69(h), 901.71). In NAV CANADA zones, request it through NAV Drone (allow up to 2 weeks); otherwise get permission from the controlling agency, and keep the authorization on hand. If flying under an SFOC-RPAS, follow its conditions.','Class F (restricted/advisory)':'Class F Restricted: no flight without authorization from the user agency named in the Designated Airspace Handbook (CARs 601.04(2)). Class F Advisory: follow the Designated Airspace Handbook procedures (CARs 601.04(1)). If flying under an SFOC-RPAS, follow its conditions.'};
+function airNoteText(v){return AIR_NOTES[v]||''}
+function wrapTxt(t,n){var out=[],cur='';String(t).split(' ').forEach(function(w){if(cur&&(cur+' '+w).length>n){out.push(cur);cur=w}else cur=cur?cur+' '+w:w});if(cur)out.push(cur);return out}
+function updateAirNote(){var t=airNoteText($('airspace').value),n=$('airNote');n.textContent=t;n.hidden=!t;}
 function pdfEsc(s){s=String(s).replace(/\u2014|\u2013/g,'-').replace(/\u2713/g,'OK').replace(/[^\x20-\x7E]/g,'?');return s.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
 function pad10(n){n=String(n);return '0000000000'.slice(n.length)+n}
 function B(v,u){v=String(v==null?'':v).trim();return v?v+(u?' '+u:''):'(blank)'}
@@ -523,6 +552,8 @@ function buildPdfLines(rec){
   L('DATE: '+(rec.liftDate||'(blank)')+'    TIME: '+(rec.liftTime||'(blank)'));
   L('Job: '+(rec.jobName||'(blank)'));
   L('Client / Customer: '+(rec.clientName||'(blank)')+'   Contact: '+(rec.clientContact||'(blank)'));
+  L('Airspace: '+(rec.airspace||'(blank)')+'    NAV Drone flight plan submitted: '+(rec.navDrone||'(blank)'));
+  if(rec.airNote){L('Airspace note:');wrapTxt(rec.airNote,88).forEach(function(x){L('  '+x)});}
   if(!rec.special){L('Special considerations: (blank)');}
   else{L('Special considerations:');String(rec.special).split(/\r?\n/).forEach(function(line){L('  '+line)});}
   L('Tailgate given: '+(rec.tailgateGiven?'yes':'no')+(rec.modeName?'  ('+rec.modeName+' tailgate)':'')+'    Saved: '+rec.stamp);
@@ -755,7 +786,7 @@ function snapshotRecord(){
   });
   return {
     stamp:stamp, mode:m, modeName:MODE_NAMES[m]||'', fields:fields,
-    liftDate:$('liftDate').value.trim(), liftTime:$('liftTime').value.trim(), jobName:$('jobName').value.trim(), clientName:$('clientName').value.trim(), clientContact:$('clientContact').value.trim(), special:$('special').value.trim(),
+    liftDate:$('liftDate').value.trim(), liftTime:$('liftTime').value.trim(), jobName:$('jobName').value.trim(), clientName:$('clientName').value.trim(), clientContact:$('clientContact').value.trim(), airspace:$('airspace').value, navDrone:$('navDrone').value, airNote:airNoteText($('airspace').value), special:$('special').value.trim(),
     payloadKg:o.payloadKg, payloadText:o.payloadKg!=null?fmt(o.payloadKg)+' kg':'-- kg',
     opw:$('opw').value.trim(), towText:o.tow!=null?fmt(o.tow)+' kg (max '+o.mtow+')':'--',
     limitsText:limitsText(m), cap:o.cap, capText:capTextOf(o), capIssues:o.capIssues,
@@ -1053,7 +1084,7 @@ var CLEAR_IDS=['jobName','clientName','clientContact','special','sprProduct','sp
 $('btnNew').addEventListener('click',function(){
   if(!confirm('Clear this job? (Wind limit, aircraft weights, Pilot/PIC, and crew names stay. Mode, job/client/special and Tailgate given clear.)'))return;
   CLEAR_IDS.forEach(function(id){$(id).value=''});
-  $('lineType').value='';$('sprNozzles').value='';
+  $('lineType').value='';$('sprNozzles').value='';$('airspace').value='';$('navDrone').value='';updateAirNote();
   ['uPeople','uRoads','uWater','pwr','trees','tailgateGiven'].forEach(function(id){$(id).checked=false});
   allQcs.forEach(function(q){q.checked=false});
   setMode('');
@@ -1062,7 +1093,7 @@ $('btnNew').addEventListener('click',function(){
   goTime=null;clearDraft();render();window.scrollTo(0,0);
 });
 var DRAFT_KEY='j150.draft';
-var DRAFT_IDS=['liftDate','liftTime'].concat(CLEAR_IDS,['lineType','sprNozzles']);
+var DRAFT_IDS=['liftDate','liftTime'].concat(CLEAR_IDS,['lineType','sprNozzles','airspace','navDrone']);
 var DRAFT_CBS=['uPeople','uRoads','uWater','pwr','trees','tailgateGiven'];
 function saveDraft(){
   try{
@@ -1092,6 +1123,7 @@ $('btnSave').addEventListener('click',function(){saveOrEmail()});
 $('s-tailgate').addEventListener('toggle',function(){var t=this.querySelector('.tgTap');if(t)t.textContent=this.open?'tap to close':'tap to open';});
 initCrew();
 if(!loadDraft())setDateTimeNow();
+updateAirNote();$('airspace').addEventListener('change',updateAirNote);
 render();
 document.addEventListener('input',saveDraft);
 document.addEventListener('change',saveDraft);
