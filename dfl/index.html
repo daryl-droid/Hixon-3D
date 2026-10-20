@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Daily Flight Log v5</title>
+<title>Daily Flight Log v6</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -118,7 +118,7 @@ input[readonly]{background:#eef3f8}
 </head>
 <body>
 <header>
-  <h1>Daily Flight Log<small>v5 &ndash; Flight execution record &ndash; works offline</small></h1>
+  <h1>Daily Flight Log<small>v6 &ndash; Flight execution record &ndash; works offline</small></h1>
   <button type="button" id="btnNew">New day</button>
 </header>
 <main>
@@ -146,7 +146,7 @@ input[readonly]{background:#eef3f8}
 <section id="s-land" class="chk" style="--sc:#0d3b66"><h2><span class="n">12</span>RPAS landing and shut-down procedures</h2><div class="cnt"><span id="cnt-land">0 of 14</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="land">Tick all</button></div><div class="qc"><label><input type="checkbox" id="land0" data-k="land0" data-day="1"><span>Announce &quot;Aircraft inbound for landing&quot;</span></label><label><input type="checkbox" id="land1" data-k="land1" data-day="1"><span>Position RPAS 5 m above landing zone</span></label><label><input type="checkbox" id="land2" data-k="land2" data-day="1"><span>Perform area hazard assessment</span></label><label><input type="checkbox" id="land3" data-k="land3" data-day="1"><span>Land within established landing zone</span></label><label><input type="checkbox" id="land4" data-k="land4" data-day="1"><span>Power down RPAS unit</span></label><label><input type="checkbox" id="land5" data-k="land5" data-day="1"><span>Power down RTK base station</span></label><label><input type="checkbox" id="land6" data-k="land6" data-day="1"><span>Power down controller</span></label><label><input type="checkbox" id="land7" data-k="land7" data-day="1"><span>Verify flight data is properly captured</span></label><label><input type="checkbox" id="land8" data-k="land8" data-day="1"><span>Remove batteries</span></label><label><input type="checkbox" id="land9" data-k="land9" data-day="1"><span>Allow batteries to cool</span></label><label><input type="checkbox" id="land10" data-k="land10" data-day="1"><span>Allow motors to cool</span></label><label><input type="checkbox" id="land11" data-k="land11" data-day="1"><span>Record landing time</span></label><label><input type="checkbox" id="land12" data-k="land12" data-day="1"><span>Give the &quot;All clear&quot; for workers in area</span></label><label><input type="checkbox" id="land13" data-k="land13" data-day="1"><span>Notify local airspace controller</span></label></div></section>
 <section id="s-post" class="chk" style="--sc:#6b4a0f"><h2><span class="n">13</span>Post-flight inspection and storage</h2><div class="cnt"><span id="cnt-post">0 of 8</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="post">Tick all</button></div><div class="qc"><label><input type="checkbox" id="post0" data-k="post0" data-day="1"><span>Inspect all components for damage</span></label><label><input type="checkbox" id="post1" data-k="post1" data-day="1"><span>Wipe unit down</span></label><label><input type="checkbox" id="post2" data-k="post2" data-day="1"><span>Prepare RPAS for next mission</span></label><label><input type="checkbox" id="post3" data-k="post3" data-day="1"><span>Remove or secure camera</span></label><label><input type="checkbox" id="post4" data-k="post4" data-day="1"><span>Remove SD card for data download</span></label><label><input type="checkbox" id="post5" data-k="post5" data-day="1"><span>Charge batteries</span></label><label><input type="checkbox" id="post6" data-k="post6" data-day="1"><span>Store batteries at a min. 60% charge</span></label><label><input type="checkbox" id="post7" data-k="post7" data-day="1"><span>Perform a quick inventory check on gear</span></label></div></section>
 <section id="s-obs" style="--sc:#263238"><h2><span class="n">14</span>Flight observations</h2>
-<label class="f full"><span>Observations during flight</span><textarea id="obs" rows="6" data-k="obs" data-day="1"></textarea></label></section>
+<label class="f full"><span>Observations during flight <span class="u">(Optional &ndash; fill in after the flight if needed)</span></span><textarea id="obs" rows="6" placeholder="Optional &ndash; fill in after the flight if needed. Editing this after signing keeps the signature." data-k="obs" data-day="1"></textarea></label></section>
 <section id="s-photos" style="--sc:#34495e"><h2><span class="n">15</span>Photos <span class="u" style="font-size:14px;font-weight:600">&nbsp;(optional)</span></h2><div id="photoBox"></div></section>
 <section id="s-sign" style="--sc:#3e2723"><h2><span class="n">16</span>Pilot in charge sign-off</h2>
 <div class="grid"><label class="f"><span>Pilot in charge</span><input type="text" id="pic" data-k="pic" autocomplete="off" placeholder="Name of pilot in charge"></label>
@@ -335,7 +335,7 @@ var REQ=[['flightDate','Flight date'],['recTime','Time'],['drone','Drone'],['mod
  ['estStart','Est. start time'],['estEnd','Est. end time'],['alt','Flight altitude'],['restricted','Restricted airspace answer'],['navAuth','NAV CANADA authorization answer'],
  ['landSites','Landing sites established answer'],['erpText','Emergency response plan'],['hazards','Hazards and controls'],
  ['wxTemp','Temp'],['wxPop','PoP'],['wxWind','Wind speed'],['wxGust','Wind gust'],['wxRain','Rain'],['wxSnow','Snow'],['wxVis','Visibility'],['wxCeil','Ceiling'],['wxHum','Humidity'],['wxCloud','Cloud cover'],['wxCond','Conditions'],
- ['obs','Flight observations'],['pic','Pilot in charge']];
+ ['pic','Pilot in charge']]; // v6: observations are post-flight, optional
 function missing(){return REQ.filter(function(r){var e=document.getElementById(r[0]);return !e||!String(e.value).trim()})}
 var locked=true, logId=null, KLOGS='dfl.logs', MAXLOGS=40;
 function carryKeys(){return els().filter(function(e){return !e.dataset.day&&e.type!=='checkbox'}).map(function(e){return e.dataset.k})}
