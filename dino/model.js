@@ -1,1 +1,1 @@
-window.HIXON_MODEL={"files":["m/dino2.glb"],"bytes":[11420896]};
+window.HIXON_MODEL={"files": ["m/dino2.glb"], "bytes": [11760228]};
