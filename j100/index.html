@@ -713,7 +713,7 @@ function buildPdfBytes(rec){
   }
   var drawW=100, drawH=drawW*WWD_LOGO_H/WWD_LOGO_W;
   var imgX=50, imgY=792-14-drawH;
-  var y=imgY-8;
+  var y=imgY-18;
   var parts=[];
   parts.push('q');
   parts.push(drawW.toFixed(2)+' 0 0 '+drawH.toFixed(2)+' '+imgX+' '+imgY.toFixed(2)+' cm');
