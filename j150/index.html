@@ -188,17 +188,17 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   <div class="tgBody" id="tgBody">
     <div id="tgScript">
     <p>We're running a <span id="tgJob">drone</span> job today. Before we talk through the aircraft, let's get the basics straight.</p>
-    <p><b>Job and roles:</b> I'm the pilot in command. <span class="tgObs blank" id="tgObserver" data-blank="1">__________</span> is the visual observer. Everyone else stays clear of the takeoff, flight path and <span id="tgZone">work area</span> unless I say otherwise.</p>
-    <p><b>Stand-off distances:</b> Non-crew stay at least 30 m back. Crew may come as close as 5 m from the drone. Closer than that only if I ask you to.</p>
-    <p><b>No fly-over:</b> The drone does not fly over anyone. The landing zone must be clear before we approach to land.</p>
+    <p><b>Job and roles:</b> I'm the pilot in command. Our visual observer is <span class="tgObs blank" id="tgObserver" data-blank="1">____</span>. Everyone else stays clear of the takeoff, flight path and <span id="tgZone">work area</span> unless I say otherwise.</p>
+    <p><b>Public safety and exclusion zones:</b> We fly at least 152 m (500 ft) from the general public. That includes people on foot, even when they're walking on a road; vehicles driving on a road don't count. There's a 30 m exclusion zone around the landing zone (LZ), and only crew go inside it. Crew, stay at least 5 m from the drone unless I ask you to come closer. Wherever we can, we mark the exclusion zones with cones, tape or a spotter. If anyone from the public comes near, tell me right away and we'll hold until they're clear.</p>
+    <p><b>No fly-over:</b> The drone does not fly over anyone. The LZ must be clear before we approach to land.</p>
     <p><b>Heads up:</b> I'll call "heads up" on takeoff and landing. When you hear it, look up and keep clear.</p>
-    <p><b>Exclusion zone:</b> <span id="tgExcl">No one under the drone, ever. Keep the landing zone guarded. If something looks wrong, step back and shout.</span></p>
+    <p><b>Under the drone:</b> <span id="tgExcl">No one under the drone, ever. Keep the LZ guarded. If something looks wrong, step back and shout.</span></p>
     <div class="tgMode" data-tg="lifting" hidden>
     <p><b>Load and rigging:</b> I check the hook, ropes and slings before every lift. Hook-up and release crew wait for my call, keep hands clear of the hook, and step away once the load is hooked.</p>
     <p><b>Swinging load:</b> Never try to catch or steady a swinging load by hand. Step back and let me settle it.</p>
     </div>
     <div class="tgMode" data-tg="spraying" hidden>
-    <p><b>Product:</b> Today's product is on the label we've read. The label and SDS are the rules for this job: rate, PPE, buffer zones and re-entry. Applicable BC/AB pesticide rules apply too.</p>
+    <p><b>Product:</b> Today's product is on the label we've read. The label and SDS are the rules for this job: rate, PPE, buffer zones and re-entry. BC/AB pesticide rules apply too.</p>
     <p><b>Drift:</b> Spray must stay on target. No drift onto people, neighbouring properties, homes, water or other crops. If it's drifting, we stop.</p>
     <p><b>Wind and inversion:</b> We don't spray in gusty or rising wind, or in dead-calm conditions with a temperature inversion (cool still air near the ground, often early morning or evening). If in doubt, we wait.</p>
     <p><b>Mixing and loading:</b> Mix and load only at the mixing spot, upwind and away from water. Wear the PPE the label/SDS calls for when handling the product, mixing and filling the tank. Close containers right away.</p>
@@ -258,7 +258,7 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   <label class="f pilotRow"><span>Pilot / PIC <span class="u">(optional, saved)</span></span><input type="text" id="pilot" autocomplete="name" placeholder="Pilot name"></label>
   <div class="crewList" id="crewList"></div>
   <button type="button" id="btnAddCrew">+ Add person</button>
-  <div class="hint" style="margin:6px 0 0">Names stay on phone. Crew start unmarked and can sign directly (signing counts as present). Present + signatures are for this job only. Not required for GO.</div>
+  <div class="hint" style="margin:6px 0 0">Names stay on this phone. Crew start unmarked and can sign directly (signing counts as present). Present + signatures are for this job only. Not required for GO.</div>
 </section>
 
 <section class="acc" id="s-spray" data-mode="spraying" hidden>
@@ -348,9 +348,9 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   </div>
   <div class="hz">
     <div>
-      <div class="sub">Powerlines present?</div>
-      <div class="tg"><label><input type="checkbox" id="pwr"><span>Powerlines<i id="pwrT">no</i></span></label></div>
-      <label class="f" id="pwrHW" hidden><span>Powerline height <span class="u">(m)</span></span><input type="text" id="pwrH" inputmode="decimal" autocomplete="off" placeholder="m"></label>
+      <div class="sub">Power lines present?</div>
+      <div class="tg"><label><input type="checkbox" id="pwr"><span>Power lines<i id="pwrT">no</i></span></label></div>
+      <label class="f" id="pwrHW" hidden><span>Power line height <span class="u">(m)</span></span><input type="text" id="pwrH" inputmode="decimal" autocomplete="off" placeholder="m"></label>
     </div>
     <div>
       <div class="sub">Trees present?</div>
@@ -394,10 +394,10 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
     <label data-m="spraying"><input type="checkbox" data-q="sprPPE"><span>Crew upwind, PPE on</span></label>
     <label data-m="spraying"><input type="checkbox" data-q="sprWater"><span>No drift onto water sources</span></label>
     <label data-m="spreading"><input type="checkbox" data-q="sprdMount"><span>Spreader on rail, harness connected</span></label>
-    <label data-m="spreading"><input type="checkbox" data-q="sprdPort"><span>Discharge port OK, disk spins freely</span></label>
+    <label data-m="spreading"><input type="checkbox" data-q="sprdPort"><span>Discharge port OK, disc spins freely</span></label>
     <label data-m="spreading"><input type="checkbox" data-q="sprdCal"><span>Box weighing + spreading calibrated</span></label>
     <label data-m="spreading"><input type="checkbox" data-q="sprdDry"><span>Dry granules 1&ndash;10 mm</span></label>
-    <label data-m="spreading"><input type="checkbox" data-q="sprdClear"><span>Crew clear of spreader disk</span></label>
+    <label data-m="spreading"><input type="checkbox" data-q="sprdClear"><span>Crew clear of spreader disc</span></label>
     <label data-m="lifting"><input type="checkbox" data-q="noNoz"><span>Nozzles removed</span></label>
     <label data-m="lifting"><input type="checkbox" data-q="ropes"><span>Ropes tied firmly, 5&ndash;10 m, no tangle</span></label>
     <label data-m="lifting"><input type="checkbox" data-q="hook"><span>Hook release test</span></label>
@@ -767,7 +767,7 @@ function buildPdfLines(rec){
   L('3 FLIGHT');
   L('  Distance: '+B(rec.dist,'m')+'   Height: '+B(rec.height,'m'));
   L('  Underneath - People: '+rec.uPeople+'  Roads: '+rec.uRoads+'  Water: '+rec.uWater);
-  L('  Powerlines present: '+rec.powerText+'   Trees present: '+rec.treesText);
+  L('  Power lines present: '+rec.powerText+'   Trees present: '+rec.treesText);
   L('');
   L('4 WEATHER');
   L('  Wind limit: '+B(rec.windLim)+' '+rec.windUnit+'   Wind now: '+B(rec.wind)+'   Gust: '+B(rec.gust));
@@ -986,13 +986,13 @@ function notReady(o){
   if(!o.mode){why.push('Choose operation mode');return why;}
   if(o.cap==='red')o.capIssues.forEach(function(s){why.push('Capacity RED: '+s)});
   else if(o.cap!=='green')why.push('Capacity: enter '+o.capNeed.join(', '));
-  if(o.temp==='out')why.push('Temperature outside J150 operating range (-10 to 45 C)'); else if(o.temp==='bad')why.push('Temperature: unclear number');
+  if(o.temp==='out')why.push('Temperature outside J150 operating range (-10 to 45 °C)'); else if(o.temp==='bad')why.push('Temperature: unclear number');
   if(o.humid==='out')why.push('Humidity outside J150 operating range (30 to 90% RH)'); else if(o.humid==='bad')why.push('Humidity: unclear number');
   if(o.alt!==null&&!ok(o.alt))why.push('Altitude: unclear number');
   if(o.height==='out')why.push('Height over 30 m (J150 limit)'); else if(o.height==='bad')why.push('Height: unclear number');
   if(o.wx==='limover')why.push('Your wind limit is above J150 max 12 m/s');
   else if(o.wx==='over')why.push('Wind/gust over your limit'); else if(o.wx!=='ok')why.push('Weather: enter wind limit, wind, gust');
-  if(o.power==='need')why.push('Powerlines YES: enter powerline height (m)');else if(o.power==='bad')why.push('Powerline height: unclear number');
+  if(o.power==='need')why.push('Power lines YES: enter power line height (m)');else if(o.power==='bad')why.push('Power line height: unclear number');
   if(o.trees==='need')why.push('Trees YES: enter tree height (m)');else if(o.trees==='bad')why.push('Tree height: unclear number');
   var miss=activeQcs().filter(function(c){return !c.checked});
   if(miss.length>4){why.push(miss.length+' quick checks not ticked');}
@@ -1043,10 +1043,10 @@ function saveOrEmailCore(){
   return {mode:'download',filename:name,bytes:bytes,record:rec};
 }
 var TG={
-  '':{job:'drone',zone:'work area',excl:'No one under the drone, ever. Keep the landing zone guarded. If something looks wrong, step back and shout.',emerg:"If the aircraft goes down, nobody runs in until I say it's clear."},
-  spraying:{job:'spraying drone',zone:'spray area',excl:"No one under the drone or in the spray drift, ever. Stay upwind. Keep the landing zone guarded. If something looks wrong, step back and shout.",emerg:"If the aircraft goes down or the tank leaks, nobody runs in until I say it's clear."},
-  spreading:{job:'spreading drone',zone:'spread area',excl:"No one under the drone or in the spread path, ever. Keep clear of the spinner. Keep the landing zone guarded. If something looks wrong, step back and shout.",emerg:"If the aircraft goes down, nobody runs in until I say it's clear."},
-  lifting:{job:'heavy-lift drone',zone:'drop zone',excl:"No one under the load, ever. Keep the landing zone guarded. If the load starts to swing or something looks wrong, step back and shout, don't try to catch it.",emerg:"If the aircraft goes down or the load releases early, nobody runs in until I say it's clear."}
+  '':{job:'drone',zone:'work area',excl:'No one under the drone, ever. Keep the LZ guarded. If something looks wrong, step back and shout.',emerg:"If the aircraft goes down, nobody runs in until I say it's clear."},
+  spraying:{job:'spraying drone',zone:'spray area',excl:"No one under the drone or in the spray drift, ever. Stay upwind. Keep the LZ guarded. If something looks wrong, step back and shout.",emerg:"If the aircraft goes down or the tank leaks, nobody runs in until I say it's clear."},
+  spreading:{job:'spreading drone',zone:'spread area',excl:"No one under the drone or in the spread path, ever. Keep clear of the spinner. Keep the LZ guarded. If something looks wrong, step back and shout.",emerg:"If the aircraft goes down, nobody runs in until I say it's clear."},
+  lifting:{job:'heavy-lift drone',zone:'drop zone',excl:"No one under the load, ever. Keep the LZ guarded. If the load starts to swing or something looks wrong, step back and shout, don't try to catch it.",emerg:"If the aircraft goes down or the load releases early, nobody runs in until I say it's clear."}
 };
 function updateTailgate(m){var t=TG[m||'']||TG[''];[].slice.call(document.querySelectorAll('.tgMode')).forEach(function(d){d.hidden=(d.getAttribute('data-tg')!==m)});$('tgJob').textContent=t.job;$('tgZone').textContent=t.zone;$('tgExcl').textContent=t.excl;$('tgEmerg').textContent=t.emerg;}
 function observerName(){
@@ -1060,7 +1060,7 @@ function updateObserver(){
   var el=$('tgObserver'); if(!el)return '';
   var n=observerName();
   if(n){el.textContent=n;el.classList.remove('blank');el.removeAttribute('data-blank');}
-  else{el.textContent='__________';el.classList.add('blank');el.setAttribute('data-blank','1');}
+  else{el.textContent='____';el.classList.add('blank');el.setAttribute('data-blank','1');}
   return n;
 }
 var lastMode=null;
@@ -1272,7 +1272,7 @@ $('go').addEventListener('click',function(){
 });
 var CLEAR_IDS=['jobName','clientName','clientContact','special','sprProduct','sprName','sprPcp','sprLic','sprLabelRate','sprBuffer','sprSensitive','sprVol','sprDens','sprRate','sprFlow','sprSwath','sprdMaterial','sprdKg','sprdVol','sprdParticle','sprdWidth','sprdRate','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'];
 $('btnNew').addEventListener('click',function(){
-  if(!confirm('Clear this job? (Wind limit, aircraft weights, Pilot/PIC, and crew names stay. Mode, job/client/special and Tailgate given clear.)'))return;
+  if(!confirm('Clear this job? (Wind limit, aircraft weights, Pilot/PIC, and crew names stay. Mode, job/client details, special considerations and Tailgate given are cleared.)'))return;
   CLEAR_IDS.forEach(function(id){$(id).value=''});
   $('lineType').value='';$('sprNozzles').value='';$('airspace').value='';$('navDrone').value='';updateAirNote();
   ['uPeople','uRoads','uWater','pwr','trees','tailgateGiven'].forEach(function(id){$(id).checked=false});

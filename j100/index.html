@@ -173,11 +173,11 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   <div class="tgBody" id="tgBody">
     <div id="tgScript">
     <p>We're running a heavy-lift drone job today. Before we talk through the aircraft, let's get the basics straight.</p>
-    <p><b>Job and roles:</b> I'm the pilot in command. <span class="tgObs blank" id="tgObserver" data-blank="1">__________</span> is the visual observer. Everyone else stays clear of the takeoff, flight path and drop zone unless I say otherwise.</p>
-    <p><b>Stand-off distances:</b> Non-crew stay at least 30 m back. Crew may come as close as 5 m from the drone. Closer than that only if I ask you to.</p>
-    <p><b>No fly-over:</b> The drone does not fly over anyone. The landing zone must be clear before we approach to land.</p>
+    <p><b>Job and roles:</b> I'm the pilot in command. Our visual observer is <span class="tgObs blank" id="tgObserver" data-blank="1">____</span>. Everyone else stays clear of the takeoff, flight path and drop zone unless I say otherwise.</p>
+    <p><b>Public safety and exclusion zones:</b> We fly at least 152 m (500 ft) from the general public. That includes people on foot, even when they're walking on a road; vehicles driving on a road don't count. There's a 30 m exclusion zone around the landing zone (LZ), and only crew go inside it. Crew, stay at least 5 m from the drone unless I ask you to come closer. Wherever we can, we mark the exclusion zones with cones, tape or a spotter. If anyone from the public comes near, tell me right away and we'll hold until they're clear.</p>
+    <p><b>No fly-over:</b> The drone does not fly over anyone. The LZ must be clear before we approach to land.</p>
     <p><b>Heads up:</b> I'll call "heads up" on takeoff and landing. When you hear it, look up and keep clear.</p>
-    <p><b>Exclusion zone:</b> No one under the load, ever. Keep the landing zone guarded. If the load starts to swing or something looks wrong, step back and shout, don't try to catch it.</p>
+    <p><b>Under the drone:</b> No one under the load, ever. Keep the LZ guarded. If the load starts to swing or something looks wrong, step back and shout, don't try to catch it.</p>
     <p><b>Power lines and trees:</b> We've checked for wires and tall trees. If you see a hazard I haven't called out, stop me.</p>
     <p><b>Weather:</b> Wind and gusts have to stay under our limit. If it picks up, we pause.</p>
     <p><b>Battery:</b> We land and swap at 30%. Don't wait for a low-battery warning.</p>
@@ -208,7 +208,7 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   <div class="hint" id="airNote" hidden style="background:#fff7e0;border:1px solid #e0b000;border-radius:6px;padding:6px 8px;margin:4px 0 8px;font-size:14px"></div>
   <label class="f"><span>NAV Drone flight plan submitted?</span><select id="navDrone"><option value="">Choose</option><option>Yes</option><option>No</option></select></label>
   <label class="f"><span>Special considerations</span><textarea id="special" autocomplete="off" placeholder="Hazards, site notes, access, etc. (optional)"></textarea></label>
-  <div class="hint">Not saved on phone. Recorded on Save / Email PDF. Not required for GO.</div>
+  <div class="hint">Recorded on Save / Email PDF. Not required for GO.</div>
 </div>
 
 <section id="s-crew" class="crewBox">
@@ -216,7 +216,7 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   <label class="f pilotRow"><span>Pilot / PIC <span class="u">(optional, saved)</span></span><input type="text" id="pilot" autocomplete="name" placeholder="Pilot name"></label>
   <div class="crewList" id="crewList"></div>
   <button type="button" id="btnAddCrew">+ Add person</button>
-  <div class="hint" style="margin:6px 0 0">Names stay on phone. Present + signatures are for this lift only (clear on New lift). Not required for GO.</div>
+  <div class="hint" style="margin:6px 0 0">Names stay on this phone. Present + signatures are for this lift only (clear on New lift). Not required for GO.</div>
 </section>
 
 <section id="s-load">
@@ -264,9 +264,9 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   </div>
   <div class="hz">
     <div>
-      <div class="sub">Powerlines present?</div>
-      <div class="tg"><label><input type="checkbox" id="pwr"><span>Powerlines<i id="pwrT">no</i></span></label></div>
-      <label class="f" id="pwrHW" hidden><span>Powerline height <span class="u">(m)</span></span><input type="text" id="pwrH" inputmode="decimal" autocomplete="off" placeholder="m"></label>
+      <div class="sub">Power lines present?</div>
+      <div class="tg"><label><input type="checkbox" id="pwr"><span>Power lines<i id="pwrT">no</i></span></label></div>
+      <label class="f" id="pwrHW" hidden><span>Power line height <span class="u">(m)</span></span><input type="text" id="pwrH" inputmode="decimal" autocomplete="off" placeholder="m"></label>
     </div>
     <div>
       <div class="sub">Trees present?</div>
@@ -302,7 +302,7 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
     <label><input type="checkbox" data-q="area"><span>Area clear</span></label>
     <label><input type="checkbox" data-q="lz"><span>Landing zones clear &amp; guarded</span></label>
     <label><input type="checkbox" data-q="obs"><span>Observer in place</span></label>
-    <label><input type="checkbox" data-q="nav"><span>NavDrone plan active</span></label>
+    <label><input type="checkbox" data-q="nav"><span>NAV Drone plan active</span></label>
     <label><input type="checkbox" data-q="manLim"><span>Height under 30 m / speed under 7 m/s (manual flight)</span></label>
     <label><input type="checkbox" data-q="noWires"><span>Route does not cross wires</span></label>
     <label><input type="checkbox" data-q="batt30"><span>Battery swap at 30%</span></label>
@@ -630,7 +630,7 @@ function buildPdfLines(rec){
   L('3 FLIGHT');
   L('  Distance: '+(rec.dist||'(blank)')+' m   Height: '+(rec.height||'(blank)')+' m');
   L('  Underneath - People: '+rec.uPeople+'  Roads: '+rec.uRoads+'  Water: '+rec.uWater);
-  L('  Powerlines present: '+rec.powerText);
+  L('  Power lines present: '+rec.powerText);
   L('  Trees present: '+rec.treesText);
   L('');
   L('4 WEATHER');
@@ -808,7 +808,7 @@ function altWorkText(o,altRaw){
   if(o.payloadOverManual)return 'n/a (payload over manual 60 kg)';
   if(o.payload==null)return '(enter payload)';
   if(altRaw==null||String(altRaw).trim()==='')return 'Altitude blank: no reduction, allowed '+fmt1(o.allowed)+' kg';
-  if(!ok(o.alt))return 'Altitude unclear number';
+  if(!ok(o.alt))return 'Altitude: unclear number';
   if(o.alt<=1000)return 'Altitude '+fmtAlt(o.alt)+' m: no reduction (<=1000 m), allowed '+fmt1(o.allowed)+' kg';
   return 'Altitude '+fmtAlt(o.alt)+' m: -'+fmt1(o.altReduction)+' kg, allowed '+fmt1(o.allowed)+' kg';
 }
@@ -863,13 +863,13 @@ function notReady(o){
   if(o.cap==='manual')why.push('Manual limit is 60 kg - reduce drone max payload');
   else if(o.cap==='red')why.push('Capacity RED - over capacity');
   else if(o.cap!=='green')why.push('Capacity: enter numbers');
-  if(o.temp==='out')why.push('Temperature outside J100 operating range (-10 to 45 C)');
+  if(o.temp==='out')why.push('Temperature outside J100 operating range (-10 to 45 °C)');
   else if(o.temp==='bad')why.push('Temperature: unclear number');
   if(o.humid==='out')why.push('Humidity outside J100 operating range (30 to 90% RH)');
   else if(o.humid==='bad')why.push('Humidity: unclear number');
   if(o.alt!==null&&!ok(o.alt))why.push('Altitude: unclear number');
   if(o.wx==='over')why.push('Wind/gust over your limit');else if(o.wx!=='ok')why.push('Weather: enter wind limit, wind, gust');
-  if(o.power==='need')why.push('Powerlines YES: enter powerline height (m)');else if(o.power==='bad')why.push('Powerline height: unclear number');
+  if(o.power==='need')why.push('Power lines YES: enter power line height (m)');else if(o.power==='bad')why.push('Power line height: unclear number');
   if(o.trees==='need')why.push('Trees YES: enter tree height (m)');else if(o.trees==='bad')why.push('Tree height: unclear number');
   var miss=qcs.filter(function(c){return !c.checked});
   var namedQs={rigInsp:1,lz:1,manLim:1,noWires:1,batt30:1,weighed:1};var named=miss.filter(function(c){return namedQs[c.getAttribute('data-q')];});
@@ -934,7 +934,7 @@ function updateObserver(){
   var el=$('tgObserver'); if(!el)return '';
   var n=observerName();
   if(n){el.textContent=n;el.classList.remove('blank');el.removeAttribute('data-blank');}
-  else{el.textContent='__________';el.classList.add('blank');el.setAttribute('data-blank','1');}
+  else{el.textContent='____';el.classList.add('blank');el.setAttribute('data-blank','1');}
   return n;
 }
 function render(){
@@ -1142,7 +1142,7 @@ $('go').addEventListener('click',function(){
   this.classList.add('done');render();saveDraft();
 });
 $('btnNew').addEventListener('click',function(){
-  if(!confirm('Clear this lift? (Payload limit, wind limit, Pilot/PIC, and crew names stay. Job/client/special and Tailgate given clear.)'))return;
+  if(!confirm('Clear this lift? (Payload limit, wind limit, Pilot/PIC, and crew names stay. Job/client details, special considerations and Tailgate given are cleared.)'))return;
   ['jobName','clientName','clientContact','special','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'].forEach(function(id){if($(id))$(id).value=''});
   $('lineType').value='';$('airspace').value='';$('navDrone').value='';updateAirNote();
   ['uPeople','uRoads','uWater','pwr','trees'].forEach(function(id){$(id).checked=false});
