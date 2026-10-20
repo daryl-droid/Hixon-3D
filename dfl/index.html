@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Daily Flight Log v6</title>
+<title>Daily Flight Log v7</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -18,6 +18,7 @@ body{margin:0;background:#fff;color:var(--ink);font:18px/1.3 -apple-system,Blink
 header{background:#000;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
 header h1{margin:0;font-size:21px;flex:1;line-height:1.1}
 header h1 small{display:block;font-size:13px;font-weight:400;opacity:.9}
+header .hbtns{display:flex;flex-direction:column;gap:6px}
 header button{min-height:44px;padding:0 12px;border:2px solid #fff;border-radius:10px;background:#000;color:#fff;font-family:inherit;font-weight:700;font-size:15px}
 .brand{display:flex;align-items:center;padding:8px 0 2px;margin:0 0 4px}
 .brand img{display:block;height:28px;width:auto;max-width:70%}
@@ -86,6 +87,16 @@ input[readonly]{background:#eef3f8}
 .logItem b{font-size:15px}
 .logItem .tag{display:inline-block;font-size:12px;font-weight:800;background:#0b4f4a;color:#fff;border-radius:6px;padding:1px 6px;margin-right:6px}
 .logItem .btn{margin:6px 8px 0 0}
+.stTag{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff;background:#555}
+.stTag[data-s="complete"]{background:#1b5e20}.stTag[data-s="closed"]{background:#0d3b66}.stTag[data-s="draft"]{background:#5d4037}
+#statusBox{border:3px solid #1b5e20;border-radius:12px;background:#e8f5e9;color:#000;padding:10px 12px;margin:10px 0}
+#statusBox[data-s="closed"]{border-color:#0d3b66;background:#e3f2fd}
+#statusBox b.st{font-size:18px;display:block}
+#statusBox .btn{margin:8px 8px 0 0}
+#btnComplete{display:block;width:100%;min-height:54px;margin:10px 0;border:0;border-radius:14px;background:#1b5e20;color:#fff;font-family:inherit;font-weight:900;font-size:18px}
+.pfNote{font-size:13px;font-weight:600;margin-top:6px}
+#cmtList{margin:0 0 10px;padding-left:20px}#cmtList li{margin:0 0 6px}#cmtList .t{font-weight:800}
+body.pfLocked section [data-pfl]{opacity:.75}
 #btnSave{display:block;width:100%;min-height:58px;margin:12px 0 6px;border:0;border-radius:14px;background:var(--g);color:#fff;font-family:inherit;font-weight:900;font-size:20px}
 #saveHint{font-size:14px;font-weight:600;margin:0 0 6px;min-height:18px}
 .foot{font-size:13px;color:var(--mut);margin-top:10px}
@@ -118,8 +129,8 @@ input[readonly]{background:#eef3f8}
 </head>
 <body>
 <header>
-  <h1>Daily Flight Log<small>v6 &ndash; Flight execution record &ndash; works offline</small></h1>
-  <button type="button" id="btnNew">New day</button>
+  <h1>Daily Flight Log<small>v7 &ndash; Flight execution record &ndash; works offline</small></h1>
+  <div class="hbtns"><button type="button" id="btnCopyTop">Copy project</button><button type="button" id="btnNew">Reset all</button></div>
 </header>
 <main>
 <div class="brand" id="brand"><img src="data:image/png;base64,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" alt="Western Work Drones" width="147" height="28"></div>
@@ -128,7 +139,7 @@ input[readonly]{background:#eef3f8}
 <label class="f"><span>Time</span><input type="time" id="recTime" data-k="recTime" data-day="1"></label>
 </div><button type="button" class="btn sm" id="btnNow">Set to now</button></div>
 <details class="logsBox" id="s-logs"><summary>Saved logs and job sites <span id="logCount">0</span></summary><div class="logsBody">
-<div class="hint" style="font-size:13px;font-weight:600;margin:0 0 8px">Every saved or signed log is kept here on this phone. "Copy to new log" starts today's log with the client, job, site, airspace, emergency plan, hazards, drone and pilot filled in. Date and time are set to now; everything else is kept except the weather, NAV CANADA answer, the four checklists, observations, signature and sync, which start blank.</div>
+<div class="hint" style="font-size:13px;font-weight:600;margin:0 0 8px">Every saved or signed log is kept here on this phone. "Copy project" starts a new log with the drone, pilot, client, project, site, coordinates, airspace, frequencies, emergency plan, hazards, diagram and legend filled in. Date and time are set to now; weather, NAV CANADA answer, checklists, observations, actual flight time, comments, photos, signature and status start blank.</div>
 <label class="f"><span>Name this job site <span class="u">(optional)</span></span><input type="text" id="tplName" autocomplete="off" placeholder="e.g. North loop pipeline"></label>
 <button type="button" class="btn sm" id="btnTpl">Save current details as job site</button>
 <div id="logList"></div></div></details>
@@ -147,6 +158,11 @@ input[readonly]{background:#eef3f8}
 <section id="s-post" class="chk" style="--sc:#6b4a0f"><h2><span class="n">13</span>Post-flight inspection and storage</h2><div class="cnt"><span id="cnt-post">0 of 8</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="post">Tick all</button></div><div class="qc"><label><input type="checkbox" id="post0" data-k="post0" data-day="1"><span>Inspect all components for damage</span></label><label><input type="checkbox" id="post1" data-k="post1" data-day="1"><span>Wipe unit down</span></label><label><input type="checkbox" id="post2" data-k="post2" data-day="1"><span>Prepare RPAS for next mission</span></label><label><input type="checkbox" id="post3" data-k="post3" data-day="1"><span>Remove or secure camera</span></label><label><input type="checkbox" id="post4" data-k="post4" data-day="1"><span>Remove SD card for data download</span></label><label><input type="checkbox" id="post5" data-k="post5" data-day="1"><span>Charge batteries</span></label><label><input type="checkbox" id="post6" data-k="post6" data-day="1"><span>Store batteries at a min. 60% charge</span></label><label><input type="checkbox" id="post7" data-k="post7" data-day="1"><span>Perform a quick inventory check on gear</span></label></div></section>
 <section id="s-obs" style="--sc:#263238"><h2><span class="n">14</span>Flight observations</h2>
 <label class="f full"><span>Observations during flight <span class="u">(Optional &ndash; fill in after the flight if needed)</span></span><textarea id="obs" rows="6" placeholder="Optional &ndash; fill in after the flight if needed. Editing this after signing keeps the signature." data-k="obs" data-day="1"></textarea></label></section>
+<section id="s-cmt" style="--sc:#1b5e20" hidden><h2><span class="n">+</span>Post-flight comments</h2>
+<div class="hint" style="font-size:13px;font-weight:600;margin:0 0 8px">Each comment is time-stamped and kept as written (it can't be edited later). Adding comments keeps the pre-flight signature.</div>
+<ol id="cmtList"></ol>
+<label class="f full"><span>New comment</span><textarea id="cmtText" rows="3" placeholder="e.g. Landed 11:40, all batteries recovered"></textarea></label>
+<button type="button" class="btn" id="cmtAdd">Add comment</button></section>
 <section id="s-photos" style="--sc:#34495e"><h2><span class="n">15</span>Photos <span class="u" style="font-size:14px;font-weight:600">&nbsp;(optional)</span></h2><div id="photoBox"></div></section>
 <section id="s-sign" style="--sc:#3e2723"><h2><span class="n">16</span>Pilot in charge sign-off</h2>
 <div class="grid"><label class="f"><span>Pilot in charge</span><input type="text" id="pic" data-k="pic" autocomplete="off" placeholder="Name of pilot in charge"></label>
@@ -154,11 +170,16 @@ input[readonly]{background:#eef3f8}
 <div class="miss" id="missBox" role="status" aria-live="polite"><b id="missHead">Still missing</b><ul id="missList"></ul></div>
 <span class="lbl">Signature</span><div class="sigWrap" id="sigWrap"><canvas id="sigPad" width="600" height="160"></canvas></div>
 <div class="sigLine">Signature: <span id="sigState" data-s="no">not signed</span> <button type="button" class="btn sm" id="sigClear">Clear signature</button></div>
+<button type="button" id="btnComplete" hidden>Complete pre-flight</button>
+<div id="statusBox" hidden><b class="st" id="pfStatus"></b><div id="pfTimes"></div>
+<div class="pfNote">Pre-flight items are read-only. You can still add observations, actual flight time, the landing and post-flight checklists, photos and comments.</div>
+<button type="button" class="btn" id="btnEmail">Email PDF</button><button type="button" class="btn" id="btnClose">Close out log</button><button type="button" class="btn" id="btnUnlock">Unlock pre-flight (clears signature)</button>
+<div class="pfNote" id="emailNote"></div></div>
 </section>
 <button type="button" id="btnSave">Save / Email PDF</button>
 <div id="saveHint"></div>
 <details class="syncBox" id="s-sync"><summary>Sync records <span id="syncStatus" data-state="off">Sync off</span></summary><div class="syncBody"><div id="syncSettings"></div><div class="hint">Optional. Paste the Sync URL and token once. When you tap Save / Email PDF, a copy of the log and its PDF is also sent to the EcoDrone checklist sheet. With no signal it waits on this phone and sends later (status shows Queued). Saving again for the same day updates that row. Email / PDF works the same either way. Blank URL = Sync off.</div></div></details>
-<div class="foot">Record aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. Today's entries, including the signature, are kept on this phone so a reload does not lose them. New day clears the date, time, NAV CANADA authorization, weather, checklists, observations, photos and signature, and keeps the drone, pilot, client, site, airspace, emergency plan and hazards.</div>
+<div class="foot">Record aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. Today's entries, including the signature, are kept on this phone so a reload does not lose them. Reset all clears every field (saved logs and job sites are kept). Copy project keeps the project details and starts the day's items fresh.</div>
 </main>
 <script>
 /* checklist-sync.js (offline outbox) */
@@ -338,25 +359,28 @@ var REQ=[['flightDate','Flight date'],['recTime','Time'],['drone','Drone'],['mod
  ['pic','Pilot in charge']]; // v6: observations are post-flight, optional
 function missing(){return REQ.filter(function(r){var e=document.getElementById(r[0]);return !e||!String(e.value).trim()})}
 var locked=true, logId=null, KLOGS='dfl.logs', MAXLOGS=40;
-function carryKeys(){return els().filter(function(e){return !e.dataset.day&&e.type!=='checkbox'}).map(function(e){return e.dataset.k})}
+function carryKeys(){return els().filter(function(e){return !e.dataset.day&&e.type!=='checkbox'&&e.dataset.k!=='estMins'}).map(function(e){return e.dataset.k})}
 function getLogs(){try{return JSON.parse(lsGet(KLOGS)||'[]')||[]}catch(e){return []}}
 function putLogs(a){while(a.length>MAXLOGS)a.pop();while(!lsSet(KLOGS,JSON.stringify(a))&&a.length>1)a.pop();renderLogs()}
 function entry(kind,name){var v=read(),c={};carryKeys().forEach(function(k){c[k]=v[k]});var n=new Date();
-  return {kind:kind,name:name||'',savedAt:localDateStr(n)+' '+localTimeStr(n),date:v.flightDate,client:v.client,project:v.project,location:v.location,model:v.model,signed:!!(sig&&sig.uri),carry:c,diag:diag}}
+  return {kind:kind,name:name||'',savedAt:localDateStr(n)+' '+localTimeStr(n),date:v.flightDate,client:v.client,project:v.project,location:v.location,model:v.model,signed:!!(sig&&sig.uri),carry:c,diag:diag,status:st.status,completeAt:st.completeAt,closedAt:st.closedAt,updatedAt:st.updatedAt}}
 function addLog(){ // one entry per day's log, updated on each save/sign
   if(!logId){logId='L'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);saveDraft()}
-  var e=entry('log');e.id=logId;var a=getLogs().filter(function(x){return x.id!==logId});a.unshift(e);putLogs(a)}
+  var e=entry('log');e.id=logId;e.full={v:read(),sig:sig,syncId:syncId,diag:diag,st:st};var ph=photoBox.list();if(JSON.stringify(ph).length<700000)e.full.photos=ph;var a=getLogs().filter(function(x){return x.id!==logId});a.unshift(e);putLogs(a)}
 function addTemplate(){var nm=$('tplName').value.trim()||[$('client').value,$('location').value].filter(Boolean).join(' - ')||'Job site';
   var e=entry('site',nm);e.id='S'+Date.now().toString(36);var a=getLogs();a.unshift(e);putLogs(a);$('tplName').value='';$('saveHint').textContent='Job site saved: '+nm}
 function copyLog(id){
-  var e=getLogs().filter(function(x){return x.id===id})[0];if(!e)return;
-  if(!confirm('Start a new log from "'+(e.name||e.location||e.client||e.date)+'"? Today\'s entries will be replaced.'))return;
+  var e=id?getLogs().filter(function(x){return x.id===id})[0]:null;
+  if(!id){ // Copy project from the log on screen: keep it in Saved logs first
+    if(!confirm('Copy this project into a new log? The current log is kept in Saved logs.'))return;
+    try{addLog()}catch(_){}e=entry('log');}
+  else{if(!e)return;if(!confirm('Copy project "'+(e.name||e.location||e.client||e.date)+'" into a new log? The log on screen is replaced.'))return;}
   restoring=true;
   els().forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value=''});
   write(e.carry||{});
-  restoring=false;sig=null;syncId=null;logId=null;diag=e.diag||null;showDiag();photoBox.clear();
+  restoring=false;sig=null;syncId=null;logId=null;st=normSt(null);applyLock();diag=e.diag||null;showDiag();photoBox.clear();
   applyDrone(false);showSig();setDateTimeNow();counts();renderMissing();saveDraft();
-  $('s-logs').open=false;window.scrollTo(0,0);$('saveHint').textContent='Copied to a new log. Fill in today\'s weather, checklists and observations.'}
+  $('s-logs').open=false;window.scrollTo(0,0);$('saveHint').textContent='Project copied to a new log. Fill in today\'s weather, NAV CANADA answer and checklists.'}
 function delLog(id){if(!confirm('Remove this from the list?'))return;putLogs(getLogs().filter(function(x){return x.id!==id}))}
 function renderLogs(){
   var a=getLogs(),box=$('logList');$('logCount').textContent=a.length;box.innerHTML='';
@@ -365,7 +389,9 @@ function renderLogs(){
     var t=document.createElement('div');t.innerHTML='<span class="tag">'+(e.kind==='site'?'Job site':'Log')+'</span>';
     var b=document.createElement('b');b.textContent=e.kind==='site'?e.name:(longDate(e.date)||e.savedAt);t.appendChild(b);d.appendChild(t);
     var s=document.createElement('div');s.textContent=[e.client,e.project,e.location,e.model].filter(Boolean).join(' \u00b7 ')+(e.kind==='log'?(e.signed?' \u00b7 signed':' \u00b7 not signed'):'')+' \u00b7 saved '+e.savedAt;d.appendChild(s);
-    var c=document.createElement('button');c.type='button';c.className='btn sm copyBtn';c.textContent='Copy to new log';c.addEventListener('click',function(){copyLog(e.id)});d.appendChild(c);
+    if(e.kind==='log'){var sg=document.createElement('span');sg.className='stTag';sg.dataset.s=e.status==='Closed out'?'closed':e.status?'complete':'draft';sg.textContent=(e.status||'Draft')+(e.status==='Closed out'&&e.closedAt?' '+e.closedAt:e.status&&e.completeAt?' '+e.completeAt:'')+(e.updatedAt?' \u00b7 Updated '+e.updatedAt:'');t.appendChild(sg);
+      if(e.signed&&e.full){var ro=document.createElement('button');ro.type='button';ro.className='btn sm reopenBtn';ro.textContent='Reopen to add comments';ro.addEventListener('click',function(){reopenLog(e.id)});d.appendChild(ro);}}
+    var c=document.createElement('button');c.type='button';c.className='btn sm copyBtn';c.textContent='Copy project';c.addEventListener('click',function(){copyLog(e.id)});d.appendChild(c);
     var x=document.createElement('button');x.type='button';x.className='btn sm';x.textContent='Remove';x.addEventListener('click',function(){delLog(e.id)});d.appendChild(x);
     box.appendChild(d)})}
 function renderMissing(){
@@ -391,20 +417,22 @@ function setDateTimeNow(d){d=d||new Date();$('flightDate').value=localDateStr(d)
 var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function longDate(iso){var m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso||'');return m?MONTHS[+m[2]-1]+' '+(+m[3])+', '+m[1]:(iso||'')}
 function syncPicDate(){$('picDate').value=longDate($('flightDate').value);}
-var syncId=null, sig=null, diag=null, restoring=false, curDrone='';
+var syncId=null, sig=null, diag=null, restoring=false, curDrone='', st=normSt(null);
+function normSt(s){s=s||{};return {status:s.status||'',completeAt:s.completeAt||'',closedAt:s.closedAt||'',updatedAt:s.updatedAt||'',comments:(s.comments||[]).slice()}}
+function nowStamp(){var n=new Date();return localDateStr(n)+' '+localTimeStr(n)}
 function els(){return Array.prototype.slice.call(document.querySelectorAll('[data-k]'))}
 function read(){var o={};els().forEach(function(e){o[e.dataset.k]=e.type==='checkbox'?e.checked:e.value});return o}
 function write(o){els().forEach(function(e){var k=e.dataset.k;if(!(k in o))return;if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]})}
 function droneById(id){for(var i=0;i<SPEC.drones.length;i++)if(SPEC.drones[i].id===id)return SPEC.drones[i];return null}
 function saveDraft(){
   if(restoring)return;
-  var d={v:read(),syncId:syncId,sig:sig,diag:diag,logId:logId};
+  var d={v:read(),syncId:syncId,sig:sig,diag:diag,logId:logId,st:st};
   if(!lsSet(KD,JSON.stringify(d))){d.diag=null;lsSet(KD,JSON.stringify(d));$('saveHint').textContent='Phone storage is full: the diagram is not kept after a reload. Save / Email the PDF now, or remove old saved logs.';}
   var id=curDrone; if(id) lsSet(KSPEC+id,JSON.stringify({weight:$('weight').value,dims:$('dims').value,asset:$('asset').value,model:id==='other'?$('model').value:'',serial:id==='other'?$('serial').value:'',tcReg:id==='other'?$('tcReg').value:''}));
 }
 function loadDraft(){
   var s=lsGet(KD); if(!s)return false;
-  try{var d=JSON.parse(s);restoring=true;write(d.v||{});syncId=d.syncId||null;logId=d.logId||null;sig=d.sig||null;diag=d.diag||null;}catch(e){return false}finally{restoring=false}
+  try{var d=JSON.parse(s);restoring=true;write(d.v||{});syncId=d.syncId||null;logId=d.logId||null;sig=d.sig||null;diag=d.diag||null;st=normSt(d.st);}catch(e){return false}finally{restoring=false}
   applyDrone(false);showSig();showDiag();syncPicDate();return true;
 }
 function applyDrone(fromUser){
@@ -435,11 +463,11 @@ function showSig(){
   else{st.textContent=locked?'locked until the form is complete':'not signed';st.dataset.s='no';}
 }
 function pos(e){var r=pad.getBoundingClientRect();return {x:(e.clientX-r.left)*pad.width/r.width,y:(e.clientY-r.top)*pad.height/r.height}}
-pad.addEventListener('pointerdown',function(e){e.preventDefault();if(locked)return;drawing=true;try{pad.setPointerCapture(e.pointerId)}catch(_){};var p=pos(e);pctx.strokeStyle='#000';pctx.lineWidth=3;pctx.lineCap='round';pctx.beginPath();pctx.moveTo(p.x,p.y);});
+pad.addEventListener('pointerdown',function(e){e.preventDefault();if(locked||st.status)return;drawing=true;try{pad.setPointerCapture(e.pointerId)}catch(_){};var p=pos(e);pctx.strokeStyle='#000';pctx.lineWidth=3;pctx.lineCap='round';pctx.beginPath();pctx.moveTo(p.x,p.y);});
 pad.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);pctx.lineTo(p.x,p.y);pctx.stroke();inked=true;});
-function endSig(){if(!drawing)return;drawing=false;if(!inked&&!(sig&&sig.uri))return;sig={uri:pad.toDataURL('image/jpeg',0.8),w:pad.width,h:pad.height,time:localTimeStr(new Date())};$('sigState').textContent='signed at '+sig.time;$('sigState').dataset.s='yes';saveDraft();try{addLog()}catch(_){}}
+function endSig(){if(!drawing)return;drawing=false;if(!inked&&!(sig&&sig.uri))return;sig={uri:pad.toDataURL('image/jpeg',0.8),w:pad.width,h:pad.height,time:localTimeStr(new Date())};$('sigState').textContent='signed at '+sig.time;$('sigState').dataset.s='yes';saveDraft();try{addLog()}catch(_){}renderStatus()}
 pad.addEventListener('pointerup',endSig);pad.addEventListener('pointercancel',endSig);pad.addEventListener('pointerleave',endSig);
-$('sigClear').addEventListener('click',function(){sig=null;showSig();saveDraft()});
+$('sigClear').addEventListener('click',function(){if(st.status)return;sig=null;showSig();saveDraft();renderStatus()});
 /* PHOTOS MODULE JS START (portable: J150/J100/Small Drone).
  * PhotoBox({el, key, maxPx, quality, cap, onChange}) -> {list(), clear(), render()}
  * Optional photos with captions, reorder and remove. Stored as JPEG data URIs in localStorage[key],
@@ -483,10 +511,10 @@ function PhotoBox(o){
     });
   }
   render();
-  return {list:function(){return photos.map(function(p){return {uri:p.uri,w:p.w,h:p.h,cap:p.cap||''}})},clear:function(){photos=[];changed()},render:render};
+  return {list:function(){return photos.map(function(p){return {uri:p.uri,w:p.w,h:p.h,cap:p.cap||''}})},clear:function(){photos=[];changed()},set:function(a){photos=(a||[]).map(function(p){return {uri:p.uri,w:p.w,h:p.h,cap:p.cap||''}});changed()},render:render};
 }
 /* PHOTOS MODULE JS END */
-var photoBox=PhotoBox({el:$('photoBox'),key:'dfl.photos',maxPx:1200,quality:0.7,cap:450000});
+var photoBox=PhotoBox({el:$('photoBox'),key:'dfl.photos',maxPx:1200,quality:0.7,cap:450000,onChange:function(){if(typeof st!=='undefined'&&st.status)markUpdated()}});
 /* ---- flight diagram: photo, blank sketch, or draw on a picture ---- */
 var DMAX=1200, DQ=0.7, DCAP=450000; // px, JPEG quality, max data-URI chars (~330 KB)
 var dc=$('diagCanvas'),dx=dc.getContext('2d'),dBase=null,dStrokes=[],dCur=null,dCol='#0a7a2f',dW=0.008,dDraw=false;
@@ -625,7 +653,7 @@ $('diagDrawFile').addEventListener('change',function(){loadPicked(this.files&&th
 $('diagFile').addEventListener('change',function(){loadPicked(this.files&&this.files[0],false);this.value=''});
 $('diagSketch').addEventListener('click',function(){if(diag&&diag.uri&&!confirm('Replace the current diagram with a blank sketch?'))return;dSetBase(null,1200,800,true);dFlatten();dShow();$('saveHint').textContent='Sketch with your finger.'});
 function dPos(e){var r=dc.getBoundingClientRect();return [(e.clientX-r.left)*dc.width/r.width,(e.clientY-r.top)*dc.height/r.height]}
-dc.addEventListener('pointerdown',function(e){if(!dc.width)return;e.preventDefault();dDraw=true;try{dc.setPointerCapture(e.pointerId)}catch(_){}dCur={c:dCol,w:Math.max(2,dW*Math.max(dc.width,dc.height)),p:[dPos(e)]};armHold(dCur.p[0]);dRedraw()});
+dc.addEventListener('pointerdown',function(e){if(!dc.width||st.status)return;e.preventDefault();dDraw=true;try{dc.setPointerCapture(e.pointerId)}catch(_){}dCur={c:dCol,w:Math.max(2,dW*Math.max(dc.width,dc.height)),p:[dPos(e)]};armHold(dCur.p[0]);dRedraw()});
 dc.addEventListener('pointermove',function(e){if(!dDraw)return;e.preventDefault();if(dCur.shape)return;var p=dPos(e);dCur.p.push(p);if(!dAnchor||Math.hypot(p[0]-dAnchor[0],p[1]-dAnchor[1])>holdTol())armHold(p);dRedraw()});
 function dEnd(){if(!dDraw)return;dDraw=false;clearTimeout(dHoldT);dAnchor=null;if(dCur)dStrokes.push(dCur);dCur=null;dRedraw();dFlatten()}
 dc.addEventListener('pointerup',dEnd);dc.addEventListener('pointercancel',dEnd);
@@ -646,7 +674,7 @@ function snapshotRecord(){
   var f=read(),c=counts(),d=droneById(f.drone),now=new Date();
   var short=d?(d.id==='other'?(f.model||'Other'):d.short):'(no drone)';
   return {f:f,flightDate:f.flightDate,recTime:f.recTime,aircraftShort:short,droneId:f.drone,checksDone:c.done,checksTotal:c.total,
-    signed:!!(sig&&sig.uri),sig:sig,diag:diag,photos:photoBox.list(),goText:sig&&sig.uri?'Signed by pilot in charge at '+sig.time:'Not signed',
+    signed:!!(sig&&sig.uri),sig:sig,diag:diag,photos:photoBox.list(),goText:st.status?statusText():(sig&&sig.uri?'Signed by pilot in charge at '+sig.time:'Not signed'),st:normSt(st),
     stamp:localDateStr(now)+' '+localTimeStr(now)};
 }
 /* ---- PDF (Letter, Helvetica, laid out like the original 4-page form) ---- */
@@ -669,7 +697,7 @@ function b64ToBin(b64){var raw=atob(b64),o=new Uint8Array(raw.length);for(var i=
 function uriBytes(u){return b64ToBin(u.split('base64,')[1])}
 var NAVY='0.051 0.231 0.4';
 function buildPdfBytes(rec){
-  var f=rec.f,imgs=[{name:'Im1',w:WWD_LOGO_W,h:WWD_LOGO_H,bytes:b64ToBin(WWD_LOGO_JPG_B64)}];
+  var S0=rec.st,f=rec.f,imgs=[{name:'Im1',w:WWD_LOGO_W,h:WWD_LOGO_H,bytes:b64ToBin(WWD_LOGO_JPG_B64)}];
   var sigName=null,diagName=null;
   if(rec.sig&&rec.sig.uri){imgs.push({name:'Im2',w:rec.sig.w,h:rec.sig.h,bytes:uriBytes(rec.sig.uri)});sigName='Im2'}
   if(rec.diag&&rec.diag.uri){imgs.push({name:'Im'+(imgs.length+1),w:rec.diag.w,h:rec.diag.h,bytes:uriBytes(rec.diag.uri)});diagName='Im'+imgs.length}
@@ -750,11 +778,16 @@ function buildPdfBytes(rec){
   SPEC.checks.forEach(function(c,i){if(i===0&&pages.length<3)newPage(false);checks(c)});
   y-=6;ensure(44);txt(X0,y-9,'SIGNATURE:',8.5,true);sigImg(130,34);
   newPage(false);
-  heading('Flight observations');block('Observations during flight',f.obs,260);
+  heading('Flight observations');block('Observations during flight',f.obs,S0&&(S0.status||S0.comments.length)?120:260);
+  var S=rec.st||{};
+  if(S.status){ensure(30);y-=4;var stl='STATUS: '+S.status.toUpperCase();txt(X0,y-10,stl,11,true,NAVY);y-=16;
+    para([S.completeAt?'Pre-flight complete '+S.completeAt:'',S.closedAt?'Closed out '+S.closedAt:'',S.updatedAt?'Updated '+S.updatedAt:''].filter(Boolean).join('   |   '),8.5,false);y-=2;}
+  if(S.comments&&S.comments.length){heading('Post-flight comments',true);
+    S.comments.forEach(function(c){var L=wrap(c.text,9.5,false,X1-X0-110);ensure(12*L.length+2);txt(X0,y-9,c.t,8.5,true);L.forEach(function(s,i){txt(X0+100,y-9-i*12,s,9.5,false)});y-=12*L.length+3;});y-=4;}
   ensure(90);y-=6;
   lv(X0,MID-X0-12,'Pilot in charge',f.pic||f.pilot,y-9);lv(MID,X1-MID,'Flight date',longDate(rec.flightDate),y-9);y-=24;
   txt(X0,y-9,'SIGNATURE:',8.5,true);sigImg(180,48);
-  para((rec.signed?'Signed by pilot in charge at '+rec.sig.time:'Not signed')+'.  Saved '+rec.stamp+'.  Drone: '+(f.model||'(none)')+(f.serial?', serial '+f.serial:'')+(f.tcReg?', TC '+f.tcReg:'')+'.  Checklist items ticked: '+rec.checksDone+' of '+rec.checksTotal+'.',7.5,false);
+  para((rec.signed?'Signed by pilot in charge at '+rec.sig.time:'Not signed')+(S.status?'.  Status: '+statusText():'')+'.  Saved '+rec.stamp+'.  Drone: '+(f.model||'(none)')+(f.serial?', serial '+f.serial:'')+(f.tcReg?', TC '+f.tcReg:'')+'.  Checklist items ticked: '+rec.checksDone+' of '+rec.checksTotal+'.',7.5,false);
   para('Record aid only. The pilot in command makes the final call.',7.5,false);
   (rec.photos||[]).forEach(function(ph,pi){ // extra pages: 2 photos per page with captions
     var nm='Im'+(imgs.length+1);imgs.push({name:nm,w:ph.w,h:ph.h,bytes:uriBytes(ph.uri)});
@@ -805,33 +838,88 @@ function saveOrEmailCore(){
 }
 function saveOrEmail(){
   var res=saveOrEmailCore();try{addLog()}catch(_){}
-  try{if(window.ChecklistSync&&ChecklistSync.enabled()){if(!syncId){syncId=newSyncId();saveDraft();}ChecklistSync.enqueue(ChecklistSync.fromDailyLog(res.record),res.bytes,res.filename,syncId);}}catch(e){}
-  return res;
+  syncRes(res);return res;
 }
+function syncRes(res){try{if(window.ChecklistSync&&ChecklistSync.enabled()){if(!syncId){syncId=newSyncId();saveDraft();try{addLog()}catch(_){}}ChecklistSync.enqueue(ChecklistSync.fromDailyLog(res.record),res.bytes,res.filename,syncId);return true}}catch(e){}return false}
+function pdfNow(){var rec=snapshotRecord();return {record:rec,bytes:buildPdfBytes(rec),filename:buildPdfFilename(rec)}}
+/* ---- v7: living log (pre-flight complete -> comments -> closed out) ---- */
+var POSTK=['obs','estMins'];SPEC.checks.forEach(function(c){if(c.id==='land'||c.id==='post')c.items.forEach(function(i){POSTK.push(i.k)})});
+function statusText(){return st.status?(st.status+(st.status==='Closed out'?' '+st.closedAt:' '+st.completeAt)+(st.updatedAt?' - Updated '+st.updatedAt:'')):''}
+function allowed(el){
+  if(el.closest('#s-photos,#s-cmt,#s-logs,#s-sync,#statusBox'))return true;
+  if(el.id==='btnComplete')return true;
+  if(el.dataset.k&&POSTK.indexOf(el.dataset.k)>=0)return true;
+  if(el.dataset.all==='land'||el.dataset.all==='post')return true;
+  return false}
+function applyLock(){
+  var on=!!st.status;document.body.classList.toggle('pfLocked',on);
+  document.querySelectorAll('[data-pfl]').forEach(function(e){e.disabled=false;e.removeAttribute('data-pfl')});
+  if(on)document.querySelectorAll('main section input,main section select,main section textarea,main section button,#s-date input,#s-date button').forEach(function(e){if(!allowed(e)&&!e.disabled){e.disabled=true;e.setAttribute('data-pfl','1')}});
+  renderStatus()}
+function renderStatus(){
+  var b=$('statusBox'),on=!!st.status;b.hidden=!on;b.dataset.s=st.status==='Closed out'?'closed':'complete';
+  $('btnComplete').hidden=on||!(sig&&sig.uri)||locked;
+  $('s-cmt').hidden=!on&&!st.comments.length;$('cmtAdd').disabled=!on;$('cmtText').disabled=!on;
+  if(on){$('pfStatus').textContent=st.status;
+    $('pfTimes').textContent=['Pre-flight completed '+st.completeAt,st.closedAt?'Closed out '+st.closedAt:'',st.updatedAt?'Updated '+st.updatedAt:''].filter(Boolean).join(' \u00b7 ');
+    $('btnClose').hidden=st.status==='Closed out';}
+  var ol=$('cmtList');ol.innerHTML='';st.comments.forEach(function(c){var li=document.createElement('li'),s=document.createElement('span');s.className='t';s.textContent=c.t+' ';li.appendChild(s);li.appendChild(document.createTextNode(c.text));ol.appendChild(li)})}
+function markUpdated(){if(!st.status||restoring)return;st.updatedAt=nowStamp();renderStatus();saveDraft()}
+function completePreflight(){
+  if(!(sig&&sig.uri)||locked||st.status)return null;
+  st.status='Pre-flight complete';st.completeAt=nowStamp();applyLock();saveDraft();try{addLog()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);var synced=syncRes(res);
+  $('saveHint').textContent='Pre-flight complete at '+st.completeAt+'. PDF saved: '+res.filename+(synced?'. Sent to the collector.':'.')+' Tap Email PDF to send it.';
+  return res}
+function mailtoHref(rec){var f=rec.f;return 'mailto:?subject='+encodeURIComponent('Daily flight log '+(rec.flightDate||'')+(f.client?' - '+f.client:''))+'&body='+encodeURIComponent('Daily flight log '+(rec.flightDate||'')+(f.location?' at '+f.location:'')+'. Status: '+(statusText()||'not signed')+'.\n\nThe PDF is attached (attach it from Downloads/Files if your mail app did not).')}
+function emailPdf(){
+  var res=pdfNow(),file=null,note=$('emailNote');try{file=new File([res.bytes],res.filename,{type:'application/pdf'})}catch(e){}
+  if(file&&canShareFiles(file)){navigator.share({files:[file],title:'Daily flight log',text:'Daily flight log '+(res.record.flightDate||'')}).then(function(){note.textContent='Share sheet opened \u2013 pick Mail to send the PDF.'}).catch(function(err){if(err&&err.name==='AbortError'){note.textContent='Share cancelled.';return}note.textContent='Could not share; try again.'});return {mode:'share',filename:res.filename}}
+  downloadPdf(res.bytes,res.filename);var href=mailtoHref(res.record),a=document.createElement('a');a.href=href;a.dataset.test='mailto';a.hidden=true;document.body.appendChild(a);try{a.click()}catch(e){}a.remove();
+  note.textContent='This phone/browser cannot attach files to email from here, and a mailto link can\'t carry attachments. Your mail app opens with the subject and text only; the PDF was downloaded ('+res.filename+') \u2013 attach it from Downloads/Files.';
+  return {mode:'mailto',filename:res.filename,href:href}}
+function addComment(){var v=$('cmtText').value.trim();if(!v||!st.status)return;st.comments.push({t:nowStamp(),text:v});$('cmtText').value='';st.updatedAt=nowStamp();renderStatus();saveDraft();try{addLog()}catch(_){}}
+function closeOut(){if(!st.status||st.status==='Closed out')return null;st.status='Closed out';st.closedAt=nowStamp();renderStatus();saveDraft();try{addLog()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);syncRes(res);$('saveHint').textContent='Log closed out at '+st.closedAt+'. PDF saved: '+res.filename;return res}
+function unlockPre(){if(!st.status)return false;if(!confirm('Unlock the pre-flight? This clears the signature. You will need to sign again. Comments are kept.'))return false;
+  sig=null;st.status='';st.completeAt='';st.closedAt='';st.updatedAt=nowStamp();applyLock();showSig();renderMissing();renderStatus();saveDraft();try{addLog()}catch(_){}
+  $('saveHint').textContent='Pre-flight unlocked. Signature cleared.';return true}
+function reopenLog(id){
+  var e=getLogs().filter(function(x){return x.id===id})[0];if(!e||!e.full)return;
+  if(id!==logId&&!confirm('Open this saved log to add comments? The log on screen now is replaced (it stays in Saved logs if it was saved).'))return;
+  var same=id===logId;restoring=true;
+  els().forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value=''});write(e.full.v||{});
+  sig=e.full.sig||null;syncId=e.full.syncId||null;logId=e.id;diag=e.full.diag||null;st=normSt(e.full.st);restoring=false;
+  if(!same)photoBox.set(e.full.photos||[]);
+  applyDrone(false);showSig();showDiag();syncPicDate();counts();renderMissing();applyLock();saveDraft();
+  $('s-logs').open=false;$('s-obs').scrollIntoView({block:'start'});$('saveHint').textContent='Reopened: add observations, flight time, landing/post-flight checks, photos or comments. Then Save / Email PDF.'}
 function applyDefaults(){var r={};try{r=JSON.parse(lsGet(KREM)||'{}')||{}}catch(e){}REMK.forEach(function(k){if(r[k])$(k).value=r[k]})}
 function remember(){var r={};REMK.forEach(function(k){r[k]=$(k).value});lsSet(KREM,JSON.stringify(r))}
-function newDay(){
+function newDay(){ // "Reset all": complete reset (saved logs, job sites and remembered pilot details for autofill-on-typing are kept in storage)
   restoring=true;
-  els().forEach(function(e){if(e.dataset.day){if(e.type==='checkbox')e.checked=false;else e.value=''}});
-  restoring=false;sig=null;syncId=null;logId=null;photoBox.clear();showSig();setDateTimeNow();counts();renderMissing();$('saveHint').textContent='New day started.';saveDraft();
+  els().forEach(function(e){if(e.type==='checkbox')e.checked=false;else e.value=''});
+  restoring=false;sig=null;syncId=null;logId=null;diag=null;st=normSt(null);applyLock();photoBox.clear();applyDrone(false);showDiag();showSig();setDateTimeNow();counts();renderMissing();$('saveHint').textContent='Reset all: blank log started.';saveDraft();renderLogs();
 }
-$('btnNew').addEventListener('click',function(){if(confirm('Start a new day? This clears today\'s date, weather, checklists, observations and signature.'))newDay()});
+$('btnNew').addEventListener('click',function(){if(confirm('Reset all? This clears every field and starts a blank log. Saved logs and job sites are kept.'))newDay()});
+$('btnCopyTop').addEventListener('click',function(){copyLog(null)});
 $('btnNow').addEventListener('click',function(){setDateTimeNow();saveDraft()});
 $('btnSave').addEventListener('click',function(){saveOrEmail()});
+$('btnComplete').addEventListener('click',completePreflight);$('btnEmail').addEventListener('click',emailPdf);$('cmtAdd').addEventListener('click',addComment);
+$('btnClose').addEventListener('click',function(){if(confirm('Close out this log? You can still reopen it later to add comments.'))closeOut()});$('btnUnlock').addEventListener('click',unlockPre);
 $('drone').addEventListener('change',function(){applyDrone(true)});
 $('flightDate').addEventListener('change',syncPicDate);$('flightDate').addEventListener('input',syncPicDate);
 REMK.forEach(function(k){$(k).addEventListener('change',remember)});
 document.querySelectorAll('[data-all]').forEach(function(b){b.addEventListener('click',function(){var c=SPEC.checks.filter(function(x){return x.id===b.dataset.all})[0];c.items.forEach(function(i){$(i.k).checked=true});counts();saveDraft()})});
 clearPad();
 if(!loadDraft()){applyDefaults();setDateTimeNow();applyDrone(false);showDiag();}
-counts();renderMissing();renderLogs();
+counts();renderMissing();renderLogs();applyLock();
 $('btnTpl').addEventListener('click',addTemplate);
-document.addEventListener('input',function(){counts();renderMissing();saveDraft()});
-document.addEventListener('change',function(){counts();renderMissing();saveDraft()});
+document.addEventListener('input',function(ev){counts();renderMissing();renderStatus();if(st.status&&ev.target.dataset&&ev.target.dataset.k)markUpdated();saveDraft()});
+document.addEventListener('change',function(ev){counts();renderMissing();renderStatus();if(st.status&&ev.target.dataset&&ev.target.dataset.k){markUpdated();try{addLog()}catch(_){}}saveDraft()});
 window.addEventListener('pagehide',saveDraft);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveDraft()});
 try{ChecklistSync.init({statusEl:$('syncStatus'),settingsEl:$('syncSettings')})}catch(e){}
-window.__DFL={getSyncId:function(){return syncId},read:read,snapshotRecord:snapshotRecord,buildPdfBytes:buildPdfBytes,buildPdfFilename:buildPdfFilename,saveOrEmail:saveOrEmail,newDay:newDay,missing:function(){return missing().map(function(r){return r[1]})},isLocked:function(){return locked},photos:function(){return photoBox.list()},classify:classify,diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,w:dStrokes[dStrokes.length-1].w,shape:dStrokes[dStrokes.length-1].shape||null}:null}},DCAP:DCAP,getLogs:getLogs,carryKeys:carryKeys,SPEC:SPEC,longDate:longDate};
+window.__DFL={getSyncId:function(){return syncId},read:read,snapshotRecord:snapshotRecord,buildPdfBytes:buildPdfBytes,buildPdfFilename:buildPdfFilename,saveOrEmail:saveOrEmail,newDay:newDay,missing:function(){return missing().map(function(r){return r[1]})},isLocked:function(){return locked},photos:function(){return photoBox.list()},classify:classify,diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,w:dStrokes[dStrokes.length-1].w,shape:dStrokes[dStrokes.length-1].shape||null}:null}},DCAP:DCAP,getLogs:getLogs,status:function(){return normSt(st)},completePreflight:completePreflight,emailPdf:emailPdf,closeOut:closeOut,unlockPre:unlockPre,reopenLog:reopenLog,addComment:addComment,getLogId:function(){return logId},carryKeys:carryKeys,SPEC:SPEC,longDate:longDate};
 })();
 </script>
 </body>
