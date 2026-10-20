@@ -174,6 +174,21 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
 .syncBody input{display:block;width:100%;min-height:52px;font-size:16px;padding:8px 10px;border:2px solid #000;border-radius:8px;font-family:inherit;background:#fff;color:#000}
 .syncLine{font-size:16px;font-weight:700;margin:2px 0 8px}
 .syncBody .hint{font-size:13px;margin:0 0 8px}
+
+/* Photos (optional) */
+.phBox{border:3px solid #000;border-left-width:10px;border-color:#1f3a4d;border-radius:14px;padding:10px 12px;margin:12px 0}
+.phBox h2{margin:0 0 6px;font-size:20px}
+.phBtn{display:block;width:100%;min-height:50px;border:3px solid #000;border-radius:12px;background:#1f3a4d;color:#fff;font:inherit;font-weight:800;font-size:17px;text-align:center;line-height:44px;cursor:pointer}
+.phBtn input{position:absolute;opacity:0;width:1px;height:1px}
+.phItem{border:2px solid #000;border-radius:10px;padding:8px;margin:10px 0 0}
+.phItem img{display:block;max-width:100%;max-height:260px;margin:0 auto 6px;border:1px solid #000}
+.phItem textarea{width:100%;box-sizing:border-box;min-height:52px;font:inherit;font-size:16px;border:2px solid #000;border-radius:8px;padding:6px}
+.phRow{display:flex;gap:6px;margin-top:6px}
+.phRow button{flex:1;min-height:44px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font:inherit;font-weight:800;font-size:15px}
+.phRow button.phDel{color:#b00000;border-color:#b00000}
+.phRow button:disabled{color:#555;border-color:#555}
+#phMsg{font-size:15px;font-weight:800;margin:8px 0 0}
+#phMsg.err{color:#b00000}
 </style>
 </head>
 <body>
@@ -411,6 +426,14 @@ input.bad{border-color:var(--r);border-width:3px;background:#fff4d6}
   <div class="qc qcOpt" id="qcOpt">
     <label><input type="checkbox" id="tailgateGiven" autocomplete="off"><span>Tailgate given<em>optional &mdash; does not block GO (recorded on PDF)</em></span></label>
   </div>
+</section>
+
+<section class="phBox" id="s-photos">
+  <h2>Photos <span style="font-size:14px;font-weight:700">(optional)</span></h2>
+  <div class="hint" style="margin:0 0 8px">Site, sky, weather-app screenshot, anything. Each prints on its own PDF page with its caption. Never blocks GO.</div>
+  <label class="phBtn" id="phAddLbl">+ Add photo (camera or library)<input type="file" id="phInput" accept="image/*" multiple></label>
+  <div id="phMsg" role="status" aria-live="polite"></div>
+  <div id="phList"></div>
 </section>
 
 <button type="button" id="go" disabled>GO locked</button>
@@ -892,6 +915,17 @@ function buildPdfBytes(rec){
       });
     }
   }
+  (window.__PHOTOS?__PHOTOS.list():[]).forEach(function(ph,k,all){
+    var name='Im'+(imgs.length+1);
+    try{imgs.push({name:name,w:ph.w,h:ph.h,bytes:b64ToBin(ph.b64)})}catch(e){return}
+    newPage();
+    var cap=wrapTxt('PHOTO '+(k+1)+' of '+all.length+(ph.cap&&ph.cap.trim()?': '+ph.cap.trim().replace(/\s+/g,' '):' (no caption)'),95);
+    cap.forEach(function(l,ci){emitLine(l,ci===0&&false)});
+    y-=6;
+    var mw=512,mh=y-BOT-6,dw=mw,dh=dw*ph.h/ph.w;if(dh>mh){dh=mh;dw=dh*ph.w/ph.h;}
+    y-=dh;
+    parts.push('q');parts.push(dw.toFixed(2)+' 0 0 '+dh.toFixed(2)+' '+imgX+' '+y.toFixed(2)+' cm');parts.push('/'+name+' Do');parts.push('Q');
+  });
   var NP=pages.length;
   if(NP>1)pages.forEach(function(pp,pi){pp.push('BT');pp.push('/F1 8 Tf');pp.push('480 22 Td');pp.push('(Page '+(pi+1)+' of '+NP+') Tj');pp.push('ET');});
   var streams=pages.map(function(pp){return pp.join('\n').split('@@N@@').join(String(NP))});
@@ -1309,7 +1343,7 @@ function loadDraft(){
     return true;
   }catch(e){return false}
 }
-function clearDraft(){try{localStorage.removeItem(DRAFT_KEY)}catch(e){}}
+function clearDraft(){try{localStorage.removeItem(DRAFT_KEY)}catch(e){}try{phClear()}catch(e){}}
 $('btnSave').addEventListener('click',function(){saveOrEmail()});
 $('s-tailgate').addEventListener('toggle',function(){var t=this.querySelector('.tgTap');if(t)t.textContent=this.open?'tap to close':'tap to open';});
 initCrew();
@@ -1322,6 +1356,62 @@ window.addEventListener('pagehide',saveDraft);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveDraft();});
 try{ChecklistSync.init({statusEl:$('syncStatus'),settingsEl:$('syncSettings')})}catch(e){}
 window.__J150={getSyncId:function(){return syncId},SPEC:SPEC,compute:compute,read:read,render:render,num:num,windToMs:windToMs,buildPdfBytes:buildPdfBytes,buildPdfLines:buildPdfLines,buildPdfFilename:buildPdfFilename,snapshotRecord:snapshotRecord,notReady:function(){return notReady(compute(read()))},saveOrEmail:saveOrEmail,setDateTimeNow:setDateTimeNow,getMode:getMode,setMode:setMode,activeQcs:activeQcs,getCrewState:function(){return crewState},observerName:observerName,saveDraft:saveDraft,loadDraft:loadDraft,isCanvasBlank:isCanvasBlank};
+
+/* ---- Photos (optional; never blocks GO) ---- */
+var PH_KEY='j150.photos',PH_MAX=10,PH_PX=1200,PH_Q=0.7;
+var photos=[];
+function phLoad(){try{var a=JSON.parse(localStorage.getItem(PH_KEY)||'[]');photos=Array.isArray(a)?a.filter(function(p){return p&&p.b64}):[]}catch(e){photos=[]}}
+function phStore(){try{if(photos.length)localStorage.setItem(PH_KEY,JSON.stringify(photos));else localStorage.removeItem(PH_KEY);return true}catch(e){return false}}
+function phMsg(t,err){var m=$('phMsg');m.textContent=t||'';m.className=err?'err':'';}
+function phRender(){
+  var L=$('phList');L.innerHTML='';
+  photos.forEach(function(p,i){
+    var d=document.createElement('div');d.className='phItem';
+    var img=document.createElement('img');img.src='data:image/jpeg;base64,'+p.b64;img.alt='Photo '+(i+1);d.appendChild(img);
+    var lb=document.createElement('label');lb.textContent='Photo '+(i+1)+' caption / notes';lb.style.fontWeight='800';
+    var ta=document.createElement('textarea');ta.className='phCap';ta.value=p.cap||'';ta.setAttribute('aria-label','Photo '+(i+1)+' caption');
+    ta.addEventListener('input',function(e){e.stopPropagation();p.cap=ta.value;if(!phStore())phMsg('Phone storage is full - caption not saved. Remove a photo.',true);});
+    lb.appendChild(document.createElement('br'));lb.appendChild(ta);d.appendChild(lb);
+    var row=document.createElement('div');row.className='phRow';
+    [['Up','phUp',i===0,function(){phMove(i,-1)}],['Down','phDown',i===photos.length-1,function(){phMove(i,1)}],['Remove','phDel',false,function(){if(confirm('Remove photo '+(i+1)+'?')){photos.splice(i,1);phStore();phMsg('');phRender();}}]].forEach(function(b){
+      var bt=document.createElement('button');bt.type='button';bt.textContent=b[0];bt.className=b[1];bt.disabled=b[2];bt.addEventListener('click',b[3]);row.appendChild(bt);});
+    d.appendChild(row);L.appendChild(d);
+  });
+  $('phInput').disabled=photos.length>=PH_MAX;
+  $('phAddLbl').firstChild.textContent=photos.length>=PH_MAX?'Photo limit reached ('+PH_MAX+')':(photos.length?'+ Add another photo':'+ Add photo (camera or library)');
+}
+function phMove(i,dir){var j=i+dir;if(j<0||j>=photos.length)return;var t=photos[i];photos[i]=photos[j];photos[j]=t;phStore();phRender();}
+function phDecode(file){
+  // createImageBitmap / <img> apply EXIF orientation (iPhone photos)
+  if(window.createImageBitmap){
+    return createImageBitmap(file,{imageOrientation:'from-image'}).catch(function(){return phImg(file)});
+  }
+  return phImg(file);
+}
+function phImg(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error('decode'))};im.src=u;});}
+function phCompress(src){
+  var w=src.width,h=src.height,k=Math.min(1,PH_PX/Math.max(w,h));w=Math.max(1,Math.round(w*k));h=Math.max(1,Math.round(h*k));
+  var cv=document.createElement('canvas');cv.width=w;cv.height=h;var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,w,h);cx.drawImage(src,0,0,w,h);
+  return {b64:cv.toDataURL('image/jpeg',PH_Q).split('base64,')[1],w:w,h:h,cap:''};
+}
+function phAddFiles(files){
+  files=[].slice.call(files||[]);var added=0,chain=Promise.resolve();
+  files.forEach(function(f){chain=chain.then(function(){
+    if(photos.length>=PH_MAX){phMsg('Photo limit reached ('+PH_MAX+').',true);return}
+    return phDecode(f).then(function(bm){
+      var p=phCompress(bm);photos.push(p);
+      if(!phStore()){photos.pop();phStore();throw new Error('quota')}
+      added++;
+    });
+  })});
+  return chain.then(function(){phMsg(added?(added+' photo'+(added>1?'s':'')+' added.'):'');phRender();},function(e){
+    phRender();phMsg(e&&e.message==='quota'?'Phone storage is full - photo not saved. Remove a photo or save/email this record, then tap New job.':'Could not read that picture. Try another photo or screenshot.',true);});
+}
+$('phInput').addEventListener('change',function(e){e.stopPropagation();var fs=this.files;phAddFiles(fs).then(function(){$('phInput').value=''});});
+$('phInput').addEventListener('input',function(e){e.stopPropagation()});
+function phClear(){photos=[];phStore();phMsg('');phRender();}
+phLoad();phRender();
+window.__PHOTOS={list:function(){return photos},add:phAddFiles,clear:phClear,KEY:PH_KEY,MAX:PH_MAX,PX:PH_PX};
 })();
 </script>
 </body>
