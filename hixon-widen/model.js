@@ -1,1 +1,0 @@
-window.HIXON_MODEL={"files": ["m/hw_0.glb", "m/hw_1.glb", "m/hw_2.glb", "m/hw_3.glb", "m/hw_4.glb", "m/hw_5.glb", "m/hw_6.glb"], "bytes": [10441204, 10929868, 10107592, 11418732, 8530756, 6622744, 7119520]};
