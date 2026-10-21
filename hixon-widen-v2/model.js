@@ -1,0 +1,1 @@
+window.HIXON_MODEL={"files": ["m/rest_0.glb", "m/rest_1.glb", "m/rest_2.glb", "m/rest_3.glb", "m/wall_0.glb", "m/wall_1.glb", "m/wall_2.glb", "m/wall_3.glb", "m/wall_4.glb", "m/wall_5.glb", "m/wall_6.glb"], "bytes": [17199544, 14622428, 14420760, 14384916, 16440532, 16394956, 15450440, 15698608, 15275480, 13674896, 7117980]};
