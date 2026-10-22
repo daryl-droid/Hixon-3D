@@ -186,12 +186,54 @@ input[readonly]{background:#eef3f8}
 .phRow button:disabled{color:#555;border-color:#555}
 #phMsg{font-size:15px;font-weight:800;margin:8px 0 0}
 #phMsg.err{color:#b00000}
+/* v-living: saved records, status, comments, site diagram (ported from Daily Flight Log v7) */
+header .hbtns{display:flex;gap:6px}
+header .hbtns button{padding:0 8px;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 14px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;margin:0 8px 10px 0}
+.btn.sm{min-height:40px;font-size:14px;padding:0 10px;margin:0 0 10px}
+.btn:disabled{color:#555;border-color:#555}
+.lvBox{border:3px solid #1f3a4d;border-left-width:10px;border-radius:14px;padding:10px 12px;margin:0 0 12px}
+.lvBox h2{margin:0 0 6px;font-size:20px}
+.lvBox textarea,.logsBody input[type=text]{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;border:2px solid #000;border-radius:8px;padding:6px;margin:0 0 8px}
+.lvHint{font-size:13px;font-weight:600;color:#333;margin:0 0 8px}
+.diag{border:2px dashed #000;border-radius:10px;min-height:50px;padding:8px;margin:0 0 8px;font-size:14px;font-weight:600;color:#333}
+.diag canvas{display:block;width:100%;height:auto;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.diagPick{display:flex;flex-wrap:wrap}
+.tools{border:2px solid #000;border-radius:10px;padding:8px;margin:0 0 10px;background:#eef3f8}
+.trow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px;align-items:center}
+.trow .btn.sm{margin:0}
+.sw{width:46px;height:46px;border-radius:50%;border:3px solid #000;cursor:pointer}
+.sw.on{outline:4px solid #0057ff;outline-offset:2px}
+.wd{min-height:44px;padding:0 12px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;font-weight:800;font-size:15px}
+.wd.on{background:#000;color:#fff}
+.snapHint{font-size:13px;font-weight:700;color:#000;margin:0 0 8px;min-height:18px}
+.snapHint.hit{background:#c8f0d2;border-radius:6px;padding:2px 6px}
+.logsBox{border:3px solid #0d3b66;border-radius:14px;margin:0 0 12px;overflow:hidden}
+.logsBox>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:50px;padding:8px 14px;background:#0d3b66;color:#fff;font-weight:900;font-size:18px;cursor:pointer}
+.logsBox>summary::-webkit-details-marker{display:none}
+.logsBox>summary #logCount{background:#fff;color:#0d3b66;border-radius:10px;padding:0 8px;font-size:15px}
+.logsBody{padding:10px 12px}
+.logItem{border:2px solid #000;border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:14px;line-height:1.3}
+.logItem b{font-size:15px}
+.logItem .tag{display:inline-block;font-size:12px;font-weight:800;background:#0b4f4a;color:#fff;border-radius:6px;padding:1px 6px;margin-right:6px}
+.logItem .btn{margin:6px 8px 0 0}
+.stTag{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff;background:#555}
+.stTag[data-s="complete"]{background:#1b5e20}.stTag[data-s="closed"]{background:#0d3b66}.stTag[data-s="draft"]{background:#5d4037}
+#statusBox{border:3px solid #1b5e20;border-radius:12px;background:#e8f5e9;color:#000;padding:10px 12px;margin:10px 0}
+#statusBox[data-s="closed"]{border-color:#0d3b66;background:#e3f2fd}
+#statusBox b.st{font-size:18px;display:block}
+#statusBox .btn{margin:8px 8px 0 0}
+#btnComplete{display:block;width:100%;min-height:54px;margin:10px 0;border:0;border-radius:14px;background:#1b5e20;color:#fff;font-family:inherit;font-weight:900;font-size:18px}
+.pfNote{font-size:13px;font-weight:600;margin-top:6px}
+#cmtList{margin:0 0 10px;padding-left:20px}#cmtList li{margin:0 0 6px}#cmtList .t{font-weight:800}
+body.pfLocked [data-pfl]{opacity:.75}
+body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
 </style>
 </head>
 <body>
 <header>
   <h1>Small Drone Checklist<small>Mini 5 Pro / Matrice 4E / other &ndash; works offline</small></h1>
-  <button type="button" id="btnNew">New job</button>
+  <div class="hbtns"><button type="button" id="btnCopyTop">Copy project</button><button type="button" id="btnNew">Reset all</button></div>
 </header>
 <main>
 
@@ -226,7 +268,7 @@ input[readonly]{background:#eef3f8}
 </div>
 
 <div class="jobBox" id="s-job">
-  <div class="sub">Job &amp; client <span class="u">(this job only &mdash; clears on New job)</span></div>
+  <div class="sub">Job &amp; client <span class="u">(this job only &mdash; clears on Reset all)</span></div>
   <label class="f"><span>Job name</span><input type="text" id="jobName" autocomplete="off" placeholder="e.g. field 12 survey"></label>
   <label class="f"><span>Client / Customer</span><input type="text" id="clientName" autocomplete="organization" placeholder="Company or customer name"></label>
   <label class="f"><span>Client contact <span class="u">(name or phone)</span></span><input type="text" id="clientContact" autocomplete="tel" placeholder="Name or phone"></label>
@@ -312,6 +354,16 @@ input[readonly]{background:#eef3f8}
   </div>
 </section>
 
+<div class="lvBox" id="s-diagram">
+<h2>Site diagram <span style="font-size:14px;font-weight:700">(optional)</span></h2>
+<div class="diagPick" id="diagPick"><label class="btn" for="diagDrawFile">Draw on a picture</label><input type="file" id="diagDrawFile" accept="image/*" hidden><button type="button" class="btn" id="diagSketch">Blank sketch</button><label class="btn" for="diagFile">Add photo only</label><input type="file" id="diagFile" accept="image/*" hidden></div>
+<div class="lvHint">Pick a screenshot or photo (e.g. a map) and draw on it with your finger, start a blank sketch, or add a photo as is. Prints in the PDF. Never blocks GO.</div>
+<div class="diag" id="diagBox"><div id="diagNone">No diagram added.</div><canvas id="diagCanvas" hidden></canvas></div>
+<div class="tools" id="diagTools" hidden><div class="trow" role="group" aria-label="Colour"><button type="button" class="sw on" data-col="#0a7a2f" aria-label="Green" style="background:#0a7a2f"></button><button type="button" class="sw" data-col="#f2c200" aria-label="Yellow" style="background:#f2c200"></button><button type="button" class="sw" data-col="#c40000" aria-label="Red" style="background:#c40000"></button><button type="button" class="sw" data-col="#0047b3" aria-label="Blue" style="background:#0047b3"></button><button type="button" class="sw" data-col="#000000" aria-label="Black" style="background:#000000"></button></div><div class="trow" role="group" aria-label="Line width"><button type="button" class="wd" data-w="0.004">Thin</button><button type="button" class="wd on" data-w="0.008">Medium</button><button type="button" class="wd" data-w="0.016">Thick</button></div><div class="snapHint" id="snapMsg">Hold still at the end of a stroke to snap: line, box, circle or triangle. For an arrow, flick a short barb back from the tip, then hold.</div><div class="trow"><button type="button" class="btn sm" id="diagUndo">Undo</button><button type="button" class="btn sm" id="diagClearInk">Clear drawing</button><button type="button" class="btn sm" id="diagClear">Remove picture</button></div></div>
+<label class="f"><span>What the diagram shows <span class="u">(optional)</span></span><textarea id="diagNote" rows="3" placeholder="e.g. Green = where we intend to fly, Yellow = landing zone, Red = caution area"></textarea></label>
+<button type="button" class="btn sm" id="diagLegend">Insert example legend</button>
+</div>
+
 <section class="phBox" id="s-photos">
   <h2>Photos <span style="font-size:14px;font-weight:700">(optional)</span></h2>
   <div class="hint" style="margin:0 0 8px">Site, sky, weather-app screenshot, anything. Each prints on its own PDF page with its caption. Never blocks GO.</div>
@@ -322,10 +374,24 @@ input[readonly]{background:#eef3f8}
 
 <button type="button" id="go" disabled>GO locked</button>
 <div id="why" role="status" aria-live="polite"></div>
+<button type="button" id="btnComplete" hidden>Complete pre-flight</button>
+<div id="statusBox" hidden><b class="st" id="pfStatus"></b><div id="pfTimes"></div>
+<div class="pfNote">Pre-flight items are read-only. You can still add photos and post-flight comments, then Save / Email again (same record, same sync row).</div>
+<button type="button" class="btn" id="btnEmail">Email PDF</button><button type="button" class="btn" id="btnClose">Close out log</button><button type="button" class="btn" id="btnUnlock">Unlock pre-flight (clears signatures)</button>
+<div class="pfNote" id="emailNote"></div></div>
+<div class="lvBox" id="s-cmt" hidden style="border-color:#1b5e20"><h2>Post-flight comments</h2>
+<ol id="cmtList"></ol>
+<label class="f"><span>New comment</span><textarea id="cmtText" rows="3" placeholder="e.g. Landed 11:40, all batteries recovered"></textarea></label>
+<button type="button" class="btn" id="cmtAdd">Add comment</button></div>
 <button type="button" id="btnSave">Save / Email record</button>
 <div id="saveHint" role="status" aria-live="polite"></div>
 <details class="syncBox" id="s-sync"><summary>Sync records <span id="syncStatus" data-state="off">Sync off</span></summary><div class="syncBody"><div id="syncSettings"></div><div class="hint">Optional. Paste the Sync URL and token once. When you tap Save / Email, a copy of the record and its PDF is also sent to the EcoDrone checklist sheet. With no signal it waits on this phone and sends later (status shows Queued). Email / PDF works the same either way. Blank URL = Sync off.</div></div></details>
-<div class="foot">Checklist aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. The drone, wind unit, Pilot/PIC and crew names are remembered. The current job's entries (except signatures) are kept on this phone so a reload does not lose them, until you tap New job. Save / Email builds a PDF on the phone (share sheet or download).</div>
+<details class="logsBox" id="s-logs"><summary>Saved records and job sites <span id="logCount">0</span></summary><div class="logsBody">
+<div class="lvHint">Every saved, completed or closed-out record is kept here on this phone. "Copy project" starts a new record with the job, client, crew, site, airspace, special considerations, mode details, site diagram and legend filled in. Date and time, weather, wind, NAV Drone answer, quick checks, signatures, comments, photos and status start fresh.</div>
+<label class="f"><span>Name this job site <span class="u">(optional)</span></span><input type="text" id="tplName" autocomplete="off" placeholder="e.g. North field"></label>
+<button type="button" class="btn sm" id="btnTpl">Save as job site</button>
+<div id="logList"></div></div></details>
+<div class="foot">Checklist aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. The drone, wind unit, Pilot/PIC and crew names are remembered. The current job's entries (except signatures) are kept on this phone so a reload does not lose them, until you tap Reset all. Save / Email builds a PDF on the phone (share sheet or download).</div>
 </main>
 <script>
 /* checklist-sync.js (offline outbox) */
@@ -781,6 +847,11 @@ function buildPdfBytes(rec){
       });
     }
   }
+  (function(){var L=window.__LIVE,dg=L&&L.getDiag();if(!dg||!dg.uri)return;var name='Im'+(imgs.length+1);
+    try{imgs.push({name:name,w:dg.w,h:dg.h,bytes:b64ToBin(dg.uri.split('base64,')[1])})}catch(e){return}
+    newPage();emitLine('SITE DIAGRAM',false);var lg=L.legend();if(lg)lg.split(/\n+/).forEach(function(t){wrapTxt(t.trim(),95).forEach(function(s){emitLine('  '+s,false)})});
+    y-=6;var mw=512,mh=y-BOT-6,dw=mw,dh=dw*dg.h/dg.w;if(dh>mh){dh=mh;dw=dh*dg.w/dg.h}y-=dh;
+    parts.push('q');parts.push(dw.toFixed(2)+' 0 0 '+dh.toFixed(2)+' '+imgX+' '+y.toFixed(2)+' cm');parts.push('/'+name+' Do');parts.push('Q');})();
   (window.__PHOTOS?__PHOTOS.list():[]).forEach(function(ph,k,all){
     var name='Im'+(imgs.length+1);
     try{imgs.push({name:name,w:ph.w,h:ph.h,bytes:b64ToBin(ph.b64)})}catch(e){return}
@@ -1127,7 +1198,7 @@ $('go').addEventListener('click',function(){
   this.classList.add('done');render();saveDraft();
 });
 $('btnNew').addEventListener('click',function(){
-  if(!confirm('Clear this job? (Drone, wind unit, Pilot/PIC and crew names stay. Job/client details, airspace, category, mode, weather, checks and Tailgate given are cleared.)'))return;
+  if(!confirm('Reset all? This clears every field and starts a blank record. Saved records and job sites are kept.'))return;
   ['jobName','clientName','clientContact','special','height','wind','gust','temp'].forEach(function(id){$(id).value=''});
   ['airspace','navDrone','cat'].forEach(function(id){$(id).value=''});
   $('miniWt').value='micro';
@@ -1219,13 +1290,298 @@ function phAddFiles(files){
     });
   })});
   return chain.then(function(){phMsg(added?(added+' photo'+(added>1?'s':'')+' added.'):'');phRender();},function(e){
-    phRender();phMsg(e&&e.message==='quota'?'Phone storage is full - photo not saved. Remove a photo or save/email this record, then tap New job.':'Could not read that picture. Try another photo or screenshot.',true);});
+    phRender();phMsg(e&&e.message==='quota'?'Phone storage is full - photo not saved. Remove a photo or save/email this record, then tap Reset all.':'Could not read that picture. Try another photo or screenshot.',true);});
 }
 $('phInput').addEventListener('change',function(e){e.stopPropagation();var fs=this.files;phAddFiles(fs).then(function(){$('phInput').value=''});});
 $('phInput').addEventListener('input',function(e){e.stopPropagation()});
 function phClear(){photos=[];phStore();phMsg('');phRender();}
 phLoad();phRender();
 window.__PHOTOS={list:function(){return photos},add:phAddFiles,clear:phClear,KEY:PH_KEY,MAX:PH_MAX,PX:PH_PX};
+/* ---- Living record + saved records/job sites + site diagram (ported from Daily Flight Log v7) ---- */
+(function(){
+var LKEY='micro.live',RKEY='micro.records',MAXREC=30,FROM='fromMicro';
+var LV=normSt(null),logId=null,diag=null,restoring=false;
+function normSt(s){s=s||{};return {status:s.status||'',completeAt:s.completeAt||'',closedAt:s.closedAt||'',updatedAt:s.updatedAt||'',comments:(s.comments||[]).slice(),sigs:s.sigs||null}}
+function nowStamp(){var n=new Date();return localDateStr(n)+' '+localTimeStr(n)}
+function liveSave(){var o={st:LV,logId:logId,diag:diag,legend:$('diagNote').value};
+  if(!lsSet2(LKEY,JSON.stringify(o))){o.diag=null;lsSet2(LKEY,JSON.stringify(o));$('saveHint').textContent='Phone storage is full: the diagram is not kept after a reload. Save / Email the PDF now, or remove old saved records.';}}
+function lsSet2(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+var DMAX=1200, DQ=0.7, DCAP=450000; // px, JPEG quality, max data-URI chars (~330 KB)
+var dc=$('diagCanvas'),dx=dc.getContext('2d'),dBase=null,dStrokes=[],dCur=null,dCol='#0a7a2f',dW=0.008,dDraw=false;
+function dRedraw(){
+  dx.fillStyle='#fff';dx.fillRect(0,0,dc.width,dc.height);if(dBase)dx.drawImage(dBase,0,0,dc.width,dc.height);
+  dStrokes.concat(dCur?[dCur]:[]).forEach(function(s){
+    dx.strokeStyle=s.c;dx.lineWidth=s.w;dx.lineCap='round';dx.lineJoin='round';dx.beginPath();
+    if(s===dFlashS){dx.shadowColor='#ffffff';dx.shadowBlur=Math.max(8,s.w*1.5)}
+    if(s.shape)shapePath(s.shape,s.w);else{s.p.forEach(function(p,i){i?dx.lineTo(p[0],p[1]):dx.moveTo(p[0],p[1])});if(s.p.length===1)dx.lineTo(s.p[0][0]+0.1,s.p[0][1]);}
+    dx.stroke();if(s===dFlashS){dx.shadowBlur=0;dx.shadowColor='rgba(0,0,0,0)'}});
+}
+function shapePath(sh,w){
+  if(sh.type==='triangle'){sh.pts.forEach(function(q,i){i?dx.lineTo(q[0],q[1]):dx.moveTo(q[0],q[1])});dx.closePath();return}
+  if(sh.type==='arrow'){
+    dx.moveTo(sh.x0,sh.y0);if(sh.qx!=null)dx.quadraticCurveTo(sh.qx,sh.qy,sh.x1,sh.y1);else dx.lineTo(sh.x1,sh.y1);
+    var bx=sh.qx!=null?sh.qx:sh.x0,by=sh.qx!=null?sh.qy:sh.y0,ang=Math.atan2(sh.y1-by,sh.x1-bx),len=Math.hypot(sh.x1-sh.x0,sh.y1-sh.y0);
+    var hl=Math.max(3.5*(w||4),Math.min(0.22*len,7*(w||4))),sp=0.5;
+    [ang+Math.PI-sp,ang+Math.PI+sp].forEach(function(a2){dx.moveTo(sh.x1,sh.y1);dx.lineTo(sh.x1+hl*Math.cos(a2),sh.y1+hl*Math.sin(a2))});return}
+  if(sh.type==='line'){dx.moveTo(sh.x1,sh.y1);dx.lineTo(sh.x2,sh.y2);return}
+  if(sh.type==='rect'||sh.type==='square'){var c=Math.cos(sh.a),s=Math.sin(sh.a),hw=sh.w/2,hh=sh.h/2;
+    [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]].forEach(function(q,i){var x=sh.cx+q[0]*c-q[1]*s,y=sh.cy+q[0]*s+q[1]*c;i?dx.lineTo(x,y):dx.moveTo(x,y)});dx.closePath();return}
+  dx.ellipse(sh.cx,sh.cy,Math.max(1,sh.rx),Math.max(1,sh.ry),sh.a,0,Math.PI*2);
+}
+/* Shape recognition (iPhone Markup style): classify(points) -> shape or null */
+function plen(P,a,b){var L=0;for(var i=a+1;i<=b;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);return L}
+function segDist(p,a,b){var dx_=b[0]-a[0],dy_=b[1]-a[1],l2=dx_*dx_+dy_*dy_,t=l2?Math.max(0,Math.min(1,((p[0]-a[0])*dx_+(p[1]-a[1])*dy_)/l2)):0;return Math.hypot(p[0]-a[0]-t*dx_,p[1]-a[1]-t*dy_)}
+function rdp(P,eps){if(P.length<3)return P.slice();var d=0,k=0;for(var i=1;i<P.length-1;i++){var e=segDist(P[i],P[0],P[P.length-1]);if(e>d){d=e;k=i}}
+  if(d<=eps)return [P[0],P[P.length-1]];return rdp(P.slice(0,k+1),eps).slice(0,-1).concat(rdp(P.slice(k),eps))}
+function straightFit(P){var a=P[0],z=P[P.length-1],ch=Math.hypot(z[0]-a[0],z[1]-a[1]),L=plen(P,0,P.length-1),dev=0;
+  P.forEach(function(p){dev=Math.max(dev,segDist(p,a,z))});return {ok:ch>0&&ch/L>0.9&&dev<0.08*ch+3,ch:ch,L:L,dev:dev}}
+/* Arrow gesture: draw the shaft to the tip, then flick ONE short barb back from the tip and hold.
+   Detected as a sharp reversal (>110 deg) near the end, with a short tail (6-45% of the shaft). */
+function arrowFit(P){
+  var n=P.length;if(n<8)return null;var L=plen(P,0,n-1),best=-1,bestAng=0;
+  for(var k=Math.floor(n*0.4);k<n-2;k++){
+    var tail=plen(P,k,n-1),shaft=L-tail;if(tail<0.06*shaft||tail>0.45*shaft)continue;
+    var b=P[Math.max(0,k-Math.max(2,Math.floor(n*0.08)))],c=P[k],z=P[n-1];
+    var v1=[c[0]-b[0],c[1]-b[1]],v2=[z[0]-c[0],z[1]-c[1]],m1=Math.hypot(v1[0],v1[1]),m2=Math.hypot(v2[0],v2[1]);if(!m1||!m2)continue;
+    var ang=Math.acos(Math.max(-1,Math.min(1,(v1[0]*v2[0]+v1[1]*v2[1])/(m1*m2))))*180/Math.PI;
+    var tipFar=Math.hypot(c[0]-P[0][0],c[1]-P[0][1]);var far=true;for(var j=k+1;j<n;j++)if(Math.hypot(P[j][0]-P[0][0],P[j][1]-P[0][1])>tipFar*1.02){far=false;break}
+    if(ang>110&&far&&ang>bestAng&&m2>=0.05*shaft){best=k;bestAng=ang}
+  }
+  if(best<0)return null;
+  var S=P.slice(0,best+1),sf=straightFit(S),a=S[0],z=S[S.length-1];
+  if(sf.dev<0.07*sf.ch)return {type:'arrow',x0:a[0],y0:a[1],x1:z[0],y1:z[1]};
+  // curved shaft: least-squares quadratic Bezier control point (chord-length parameters)
+  var cum=[0];for(var i=1;i<S.length;i++)cum.push(cum[i-1]+Math.hypot(S[i][0]-S[i-1][0],S[i][1]-S[i-1][1]));
+  var sx=0,sy=0,sw=0;S.forEach(function(p,i){var u=cum[i]/cum[cum.length-1],b0=(1-u)*(1-u),b1=2*u*(1-u),b2=u*u;sx+=b1*(p[0]-b0*a[0]-b2*z[0]);sy+=b1*(p[1]-b0*a[1]-b2*z[1]);sw+=b1*b1});
+  var qx=sx/sw,qy=sy/sw,err=0;S.forEach(function(p,i){var u=cum[i]/cum[cum.length-1];var x=(1-u)*(1-u)*a[0]+2*u*(1-u)*qx+u*u*z[0],y=(1-u)*(1-u)*a[1]+2*u*(1-u)*qy+u*u*z[1];err+=Math.hypot(p[0]-x,p[1]-y)});
+  err/=S.length;if(err>0.08*cum[cum.length-1])return null;
+  return {type:'arrow',curved:true,x0:a[0],y0:a[1],qx:qx,qy:qy,x1:z[0],y1:z[1]};
+}
+function triangleFit(P,size){
+  var n=P.length,far=0,k=0;for(var i=1;i<n;i++){var d=Math.hypot(P[i][0]-P[0][0],P[i][1]-P[0][1]);if(d>far){far=d;k=i}}
+  var eps=0.07*size,v=rdp(P.slice(0,k+1),eps).concat(rdp(P.slice(k),eps).slice(1));
+  v=v.slice(0,-1); // drop closing point
+  // merge vertices very close together or nearly collinear
+  var clean=[];v.forEach(function(p){if(!clean.length||Math.hypot(p[0]-clean[clean.length-1][0],p[1]-clean[clean.length-1][1])>0.08*size)clean.push(p)});
+  if(clean.length>3&&Math.hypot(clean[0][0]-clean[clean.length-1][0],clean[0][1]-clean[clean.length-1][1])<0.08*size)clean.pop();
+  var out=[];for(var j=0;j<clean.length;j++){var A=clean[(j+clean.length-1)%clean.length],B=clean[j],C=clean[(j+1)%clean.length];
+    var a1=Math.atan2(A[1]-B[1],A[0]-B[0]),a2=Math.atan2(C[1]-B[1],C[0]-B[0]),d2=Math.abs(((a1-a2)*180/Math.PI+540)%360-180);if(d2<160)out.push(B)}
+  if(out.length!==3)return null;
+  var e=0;P.forEach(function(p){e+=Math.min(segDist(p,out[0],out[1]),segDist(p,out[1],out[2]),segDist(p,out[2],out[0]))});e/=n;
+  return e<0.05*size?{type:'triangle',pts:out}:null;
+}
+function classify(P){
+  if(!P||P.length<4)return null;
+  var L=0,i;for(i=1;i<P.length;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);
+  var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;P.forEach(function(p){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);minY=Math.min(minY,p[1]);maxY=Math.max(maxY,p[1])});
+  var size=Math.hypot(maxX-minX,maxY-minY);if(size<8||L<10)return null;
+  var a=P[0],z=P[P.length-1],chord=Math.hypot(z[0]-a[0],z[1]-a[1]);
+  var arr=chord>0.25*size?arrowFit(P):null;if(arr)return arr;
+  if(chord/L>0.9||(chord>0.5*size&&straightFit(P).dev<0.05*chord)){ // near-straight: max deviation from the chord small
+    var dev=0;P.forEach(function(p){dev=Math.max(dev,Math.abs((z[0]-a[0])*(a[1]-p[1])-(a[0]-p[0])*(z[1]-a[1]))/chord)});
+    if(dev<0.08*chord+3)return {type:'line',x1:a[0],y1:a[1],x2:z[0],y2:z[1]};return null;}
+  if(chord>0.25*size)return null; // open curve: stay freehand
+  var tri=triangleFit(P,size);if(tri)return tri;
+  var Q=P.slice();var n=Q.length,cx=0,cy=0;Q.forEach(function(p){cx+=p[0];cy+=p[1]});cx/=n;cy/=n;
+  // best-fitting rotated rectangle (min-area box) vs ellipse (PCA); compare mean boundary error
+  var best=null;for(var d=0;d<90;d+=1){var t=d*Math.PI/180,c=Math.cos(t),s=Math.sin(t),x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    Q.forEach(function(p){var u=(p[0]-cx)*c+(p[1]-cy)*s,v=-(p[0]-cx)*s+(p[1]-cy)*c;x0=Math.min(x0,u);x1=Math.max(x1,u);y0=Math.min(y0,v);y1=Math.max(y1,v)});
+    var ar=(x1-x0)*(y1-y0);if(!best||ar<best.ar)best={ar:ar,t:t,x0:x0,x1:x1,y0:y0,y1:y1}}
+  var bt=best,rw=bt.x1-bt.x0,rh=bt.y1-bt.y0,ru=(bt.x0+bt.x1)/2,rv=(bt.y0+bt.y1)/2,ct=Math.cos(bt.t),st=Math.sin(bt.t);
+  var rcx=cx+ru*ct-rv*st,rcy=cy+ru*st+rv*ct,eR=0,eE=0;
+  var sxx=0,syy=0,sxy=0;Q.forEach(function(p){var X=p[0]-cx,Y=p[1]-cy;sxx+=X*X;syy+=Y*Y;sxy+=X*Y});var ea=0.5*Math.atan2(2*sxy,sxx-syy),ec=Math.cos(ea),es=Math.sin(ea),ex0=1e9,ex1=-1e9,ey0=1e9,ey1=-1e9;
+  Q.forEach(function(p){var u=(p[0]-cx)*ec+(p[1]-cy)*es,v=-(p[0]-cx)*es+(p[1]-cy)*ec;ex0=Math.min(ex0,u);ex1=Math.max(ex1,u);ey0=Math.min(ey0,v);ey1=Math.max(ey1,v)});
+  var erx=(ex1-ex0)/2,ery=(ey1-ey0)/2,ecx=cx+((ex0+ex1)/2)*ec-((ey0+ey1)/2)*es,ecy=cy+((ex0+ex1)/2)*es+((ey0+ey1)/2)*ec;
+  Q.forEach(function(p){
+    var u=(p[0]-rcx)*ct+(p[1]-rcy)*st,v=-(p[0]-rcx)*st+(p[1]-rcy)*ct;eR+=Math.min(Math.abs(Math.abs(u)-rw/2),Math.abs(Math.abs(v)-rh/2));
+    var U=(p[0]-ecx)*ec+(p[1]-ecy)*es,V=-(p[0]-ecx)*es+(p[1]-ecy)*ec,r=Math.hypot(U/Math.max(erx,1),V/Math.max(ery,1));eE+=Math.abs(r-1)*Math.min(erx,ery);
+  });
+  eR/=n;eE/=n;var scale=Math.max(rw,rh);
+  if(Math.min(eR,eE)>0.12*scale)return null; // too irregular: keep freehand
+  if(eR<=eE){var ang=bt.t;var deg=ang*180/Math.PI;if(deg<8||deg>82){ // near axis-aligned: square it to the axes
+      if(deg>82){var tmp=rw;rw=rh;rh=tmp}ang=0}
+    if(Math.abs(rw-rh)<0.15*Math.max(rw,rh)){var m=(rw+rh)/2;return {type:'square',cx:rcx,cy:rcy,w:m,h:m,a:ang}}
+    return {type:'rect',cx:rcx,cy:rcy,w:rw,h:rh,a:ang}}
+  if(Math.abs(erx-ery)<0.15*Math.max(erx,ery)){var r0=(erx+ery)/2;return {type:'circle',cx:ecx,cy:ecy,rx:r0,ry:r0,a:0}}
+  return {type:'ellipse',cx:ecx,cy:ecy,rx:erx,ry:ery,a:ea};
+}
+var HOLD_MS=600,dHoldT=null,dAnchor=null,dFlashS=null;
+function holdTol(){return Math.max(6,0.012*Math.max(dc.width,dc.height))}
+function armHold(p){dAnchor=p;clearTimeout(dHoldT);dHoldT=setTimeout(function(){
+  if(!dDraw||!dCur||dCur.shape)return;var sh=classify(dCur.p);if(!sh)return;
+  dCur.shape=sh;dFlashS=dCur;dRedraw();var m=$('snapMsg');m.textContent='Snapped to '+(sh.type==='rect'?'rectangle':sh.type==='arrow'&&sh.curved?'curved arrow':sh.type)+'. Lift your finger to keep it, or use Undo.';m.classList.add('hit');
+  setTimeout(function(){dFlashS=null;dRedraw();m.classList.remove('hit')},450);
+},HOLD_MS)}
+function dFlatten(){ // flattened JPEG kept with the log; shrink until under the cap
+  var q=DQ,uri=dc.toDataURL('image/jpeg',q),c=dc;
+  while(uri.length>DCAP&&q>0.35){q-=0.1;uri=c.toDataURL('image/jpeg',q)}
+  while(uri.length>DCAP&&c.width>300){var n=document.createElement('canvas');n.width=Math.round(c.width*0.8);n.height=Math.round(c.height*0.8);n.getContext('2d').drawImage(c,0,0,n.width,n.height);c=n;uri=c.toDataURL('image/jpeg',0.6)}
+  diag={uri:uri,w:c.width,h:c.height};liveSave();
+}
+function dSetBase(src,w,h,draw){ // src: image/bitmap/null; sizes already scaled
+  dc.width=w;dc.height=h;dStrokes=[];dCur=null;
+  if(src){var b=document.createElement('canvas');b.width=w;b.height=h;var x=b.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(src,0,0,w,h);dBase=b}else dBase=null;
+  dRedraw();dShow(draw);
+}
+function dShow(draw){
+  var has=!!(diag&&diag.uri)||dc.width>0&&!dc.hidden;
+  $('diagCanvas').hidden=!(diag&&diag.uri);$('diagNone').hidden=!!(diag&&diag.uri);$('diagTools').hidden=!(diag&&diag.uri);
+}
+function showDiag(){ // reload from saved flattened JPEG (drawing continues on top of it)
+  if(!(diag&&diag.uri)){dBase=null;dStrokes=[];dc.width=0;dc.height=0;dShow();return}
+  var im=new Image();im.onload=function(){dc.width=diag.w;dc.height=diag.h;var b=document.createElement('canvas');b.width=diag.w;b.height=diag.h;b.getContext('2d').drawImage(im,0,0);dBase=b;dStrokes=[];dCur=null;dRedraw();dShow()};im.src=diag.uri;dShow();
+}
+function loadPicked(file,draw){
+  if(!file)return;
+  function use(src,w0,h0){var s=Math.min(1,DMAX/Math.max(w0,h0));dSetBase(src,Math.max(1,Math.round(w0*s)),Math.max(1,Math.round(h0*s)),draw);dFlatten();dShow();
+    if(draw)$('diagBox').scrollIntoView({block:'center'});$('saveHint').textContent=draw?'Draw on the picture with your finger.':'Photo added.';}
+  function viaImg(){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){use(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(u)};im.onerror=function(){$('saveHint').textContent='Could not open that picture.'};im.src=u}
+  // createImageBitmap applies EXIF orientation (iPhone photos); <img> also does in current Safari
+  if(window.createImageBitmap){createImageBitmap(file,{imageOrientation:'from-image'}).then(function(bm){use(bm,bm.width,bm.height)},viaImg)}else viaImg();
+}
+$('diagDrawFile').addEventListener('change',function(){loadPicked(this.files&&this.files[0],true);this.value=''});
+$('diagFile').addEventListener('change',function(){loadPicked(this.files&&this.files[0],false);this.value=''});
+$('diagSketch').addEventListener('click',function(){if(diag&&diag.uri&&!confirm('Replace the current diagram with a blank sketch?'))return;dSetBase(null,1200,800,true);dFlatten();dShow();$('saveHint').textContent='Sketch with your finger.'});
+function dPos(e){var r=dc.getBoundingClientRect();return [(e.clientX-r.left)*dc.width/r.width,(e.clientY-r.top)*dc.height/r.height]}
+dc.addEventListener('pointerdown',function(e){if(!dc.width||LV.status)return;e.preventDefault();dDraw=true;try{dc.setPointerCapture(e.pointerId)}catch(_){}dCur={c:dCol,w:Math.max(2,dW*Math.max(dc.width,dc.height)),p:[dPos(e)]};armHold(dCur.p[0]);dRedraw()});
+dc.addEventListener('pointermove',function(e){if(!dDraw)return;e.preventDefault();if(dCur.shape)return;var p=dPos(e);dCur.p.push(p);if(!dAnchor||Math.hypot(p[0]-dAnchor[0],p[1]-dAnchor[1])>holdTol())armHold(p);dRedraw()});
+function dEnd(){if(!dDraw)return;dDraw=false;clearTimeout(dHoldT);dAnchor=null;if(dCur)dStrokes.push(dCur);dCur=null;dRedraw();dFlatten()}
+dc.addEventListener('pointerup',dEnd);dc.addEventListener('pointercancel',dEnd);
+['touchstart','touchmove'].forEach(function(ev){dc.addEventListener(ev,function(e){if(dc.width)e.preventDefault()},{passive:false})}); // no page scroll while drawing (iOS)
+document.querySelectorAll('.sw').forEach(function(b){b.addEventListener('click',function(){dCol=b.dataset.col;document.querySelectorAll('.sw').forEach(function(x){x.classList.toggle('on',x===b)})})});
+document.querySelectorAll('.wd').forEach(function(b){b.addEventListener('click',function(){dW=+b.dataset.w;document.querySelectorAll('.wd').forEach(function(x){x.classList.toggle('on',x===b)})})});
+$('diagLegend').addEventListener('click',function(){var n=$('diagNote');if(n.value.trim()&&!confirm('Replace the current text with the example legend?'))return;
+  n.value='Green = where we intend to fly\nYellow = landing zone\nRed = caution area\nBlue = water or other boundary\nBlack = roads, access and labels';n.dispatchEvent(new Event('input',{bubbles:true}));});
+$('diagUndo').addEventListener('click',function(){if(!dStrokes.length)return;dStrokes.pop();dRedraw();dFlatten()});
+$('diagClearInk').addEventListener('click',function(){dStrokes=[];dRedraw();dFlatten()});
+$('diagClear').addEventListener('click',function(){if(!confirm('Remove the diagram?'))return;diag=null;showDiag();liveSave()});
+/* ---- record state ---- */
+function sigOf(c){try{return c.canvas&&!isCanvasBlank(c.canvas)?canvasToPngDataUri(c.canvas):null}catch(e){return null}}
+function crewSnap(){return crewState.map(function(c){return {name:(c.name||'').trim(),present:!!c.present,sig:sigOf(c)}})}
+function allSigned(){var any=false,ok=true;crewState.forEach(function(c){var s=!!sigOf(c);if(s)any=true;if(c.present&&(c.name||'').trim()&&!s)ok=false});return any&&ok}
+function ready(){return !!goTime&&!$('go').disabled&&allSigned()}
+function draftObj(){saveDraft();try{return JSON.parse(lsGet(DRAFT_KEY)||'{}')||{}}catch(e){return {}}}
+var FRESH_V=['liftDate','liftTime','wind','gust','temp','humid','navDrone'];
+function carryOf(){var d=draftObj();FRESH_V.forEach(function(k){if(d.v)delete d.v[k]});if(d.c)delete d.c.tailgateGiven;delete d.tg;delete d.q;delete d.p;delete d.goTime;delete d.syncId;
+  return {draft:d,pilot:$('pilot')?$('pilot').value:'',crew:crewState.map(function(c){return (c.name||'').trim()}),diag:diag,legend:$('diagNote').value}}
+function getRecs(){try{return JSON.parse(lsGet(RKEY)||'[]')||[]}catch(e){return []}}
+function putRecs(a){while(a.length>MAXREC)a.pop();while(!lsSet2(RKEY,JSON.stringify(a))&&a.length>1)a.pop();renderRecs()}
+function entry(kind,name){var n=new Date();return {kind:kind,name:name||'',savedAt:localDateStr(n)+' '+localTimeStr(n),date:$('liftDate').value,job:$('jobName').value.trim(),client:$('clientName').value.trim(),signed:allSigned(),carry:carryOf(),status:LV.status,completeAt:LV.completeAt,closedAt:LV.closedAt,updatedAt:LV.updatedAt}}
+function addRecord(){
+  if(!logId){logId='R'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+  var e=entry('rec');e.id=logId;e.full={draft:JSON.stringify(draftObj()),pilot:$('pilot')?$('pilot').value:'',crew:crewSnap(),diag:diag,legend:$('diagNote').value,st:LV};
+  var ph=(window.__PHOTOS?__PHOTOS.list():[]);if(JSON.stringify(ph).length<700000)e.full.photos=ph;
+  var a=getRecs().filter(function(x){return x.id!==logId});a.unshift(e);putRecs(a);liveSave()}
+function addSite(){var nm=$('tplName').value.trim()||[$('clientName').value.trim(),$('jobName').value.trim()].filter(Boolean).join(' - ')||'Job site';
+  var e=entry('site',nm);e.id='S'+Date.now().toString(36);var a=getRecs();a.unshift(e);putRecs(a);$('tplName').value='';$('saveHint').textContent='Job site saved: '+nm}
+function resetCore(){var oc=window.confirm;window.confirm=function(){return true};try{$('btnNew').click()}finally{window.confirm=oc}}
+function setCrew(list){crewState=[];list.forEach(function(x){addCrewPerson(typeof x==='string'?x:x.name)});if(!crewState.length){addCrewPerson('');addCrewPerson('')}renderCrew();saveCrewNames()}
+function applyCarry(c){
+  resetCore();restoring=true;
+  setCrew(c.crew||[]);if($('pilot')&&c.pilot!=null){$('pilot').value=c.pilot;saveCrewNames()}
+  goTime=null;syncId=null;lsSet2(DRAFT_KEY,JSON.stringify(c.draft||{}));loadDraft();goTime=null;syncId=null;setDateTimeNow();
+  diag=c.diag||null;$('diagNote').value=c.legend||'';showDiag();restoring=false;
+  render();saveDraft();liveSave();applyLock()}
+function copyProject(id){
+  var e=null;
+  if(!id){if(!confirm('Copy this project into a new record? The current record is kept in Saved records.'))return false;try{addRecord()}catch(_){}e={carry:carryOf()}}
+  else{e=getRecs().filter(function(x){return x.id===id})[0];if(!e)return false;if(!confirm('Copy project "'+(e.name||e.job||e.client||e.date)+'" into a new record? The record on screen is replaced (it stays in Saved records if it was saved).'))return false}
+  applyCarry(e.carry||{});$('s-logs').open=false;window.scrollTo(0,0);
+  $('saveHint').textContent='Project copied to a new record. Fill in today\'s weather, wind, NAV Drone answer and quick checks, then GO and sign.';return true}
+function putSigsBack(list){return new Promise(function(res){
+  var n=0;(list||[]).forEach(function(s,i){var c=crewState[i];if(c&&s&&s.sig){c._pngStash=s.sig;n++}});
+  if(!n){res();return}renderCrew();setTimeout(res,120)})}
+function reopen(id){
+  var e=getRecs().filter(function(x){return x.id===id})[0];if(!e||!e.full)return Promise.resolve(false);
+  if(id!==logId&&!confirm('Open this saved record to add comments? The record on screen now is replaced (it stays in Saved records if it was saved).'))return Promise.resolve(false);
+  restoring=true;resetCore();var f=e.full;
+  setCrew(f.crew||[]);if($('pilot')){$('pilot').value=f.pilot||'';saveCrewNames()}
+  goTime=null;syncId=null;lsSet2(DRAFT_KEY,f.draft||'{}');loadDraft();
+  LV=normSt(f.st);logId=e.id;diag=f.diag||null;$('diagNote').value=f.legend||'';showDiag();
+  if(window.__PHOTOS){photos=(f.photos||[]).slice();phStore();phRender()}
+  render();
+  return putSigsBack(f.crew).then(function(){restoring=false;if(LV.status)LV.sigs=f.crew;applyLock();saveDraft();liveSave();
+    $('s-logs').open=false;$('statusBox').scrollIntoView({block:'start'});$('saveHint').textContent='Reopened: add photos or post-flight comments, then Save / Email PDF.';return true})}
+function delRec(id){if(!confirm('Remove this from the list?'))return;putRecs(getRecs().filter(function(x){return x.id!==id}))}
+function renderRecs(){
+  var a=getRecs(),box=$('logList');$('logCount').textContent=a.length;box.innerHTML='';
+  if(!a.length){box.innerHTML='<div class="lvHint">No saved records yet.</div>';return}
+  a.forEach(function(e){var d=document.createElement('div');d.className='logItem';d.dataset.id=e.id;
+    var t=document.createElement('div');t.innerHTML='<span class="tag">'+(e.kind==='site'?'Job site':'Record')+'</span>';
+    var b=document.createElement('b');b.textContent=e.kind==='site'?e.name:((e.date||'')+' '+(e.job||e.client||'')).trim()||e.savedAt;t.appendChild(b);
+    if(e.kind==='rec'){var sg=document.createElement('span');sg.className='stTag';sg.dataset.s=e.status==='Closed out'?'closed':e.status?'complete':'draft';sg.textContent=(e.status||'Draft')+(e.status==='Closed out'&&e.closedAt?' '+e.closedAt:e.status&&e.completeAt?' '+e.completeAt:'')+(e.updatedAt?' \u00b7 Updated '+e.updatedAt:'');t.appendChild(sg)}
+    d.appendChild(t);
+    var s=document.createElement('div');s.textContent=[e.client,e.kind==='site'?e.job:''].filter(Boolean).join(' \u00b7 ')+(e.kind==='rec'?(e.signed?' \u00b7 signed':' \u00b7 not signed'):'')+' \u00b7 saved '+e.savedAt;d.appendChild(s);
+    if(e.kind==='rec'&&e.full&&e.status){var ro=document.createElement('button');ro.type='button';ro.className='btn sm reopenBtn';ro.textContent='Reopen to add comments';ro.addEventListener('click',function(){reopen(e.id)});d.appendChild(ro)}
+    var c=document.createElement('button');c.type='button';c.className='btn sm copyBtn';c.textContent='Copy project';c.addEventListener('click',function(){copyProject(e.id)});d.appendChild(c);
+    var x=document.createElement('button');x.type='button';x.className='btn sm';x.textContent='Remove';x.addEventListener('click',function(){delRec(e.id)});d.appendChild(x);
+    box.appendChild(d)})}
+/* ---- status, lock, comments ---- */
+function statusText(){return LV.status?(LV.status+(LV.status==='Closed out'?' '+LV.closedAt:' '+LV.completeAt)+(LV.updatedAt?' - Updated '+LV.updatedAt:'')):''}
+function allowed(el){return !!el.closest('#s-photos,#s-cmt,#s-logs,#s-sync,#statusBox,#s-tailgate')||el.id==='btnSave'||el.id==='btnComplete'}
+function applyLock(){
+  var on=!!LV.status;document.body.classList.toggle('pfLocked',on);
+  document.querySelectorAll('[data-pfl]').forEach(function(e){e.disabled=false;e.removeAttribute('data-pfl')});
+  if(on)document.querySelectorAll('main input,main select,main textarea,main button').forEach(function(e){if(!allowed(e)&&!e.disabled){e.disabled=true;e.setAttribute('data-pfl','1')}});
+  renderStatus()}
+function renderStatus(){
+  var b=$('statusBox'),on=!!LV.status;b.hidden=!on;b.dataset.s=LV.status==='Closed out'?'closed':'complete';
+  $('btnComplete').hidden=on||!ready();
+  $('s-cmt').hidden=!on&&!LV.comments.length;$('cmtAdd').disabled=!on;$('cmtText').disabled=!on;
+  if(on){$('pfStatus').textContent=LV.status;
+    $('pfTimes').textContent=['Pre-flight completed '+LV.completeAt,LV.closedAt?'Closed out '+LV.closedAt:'',LV.updatedAt?'Updated '+LV.updatedAt:''].filter(Boolean).join(' \u00b7 ');
+    $('btnClose').hidden=LV.status==='Closed out'}
+  var ol=$('cmtList');ol.innerHTML='';LV.comments.forEach(function(c){var li=document.createElement('li'),s=document.createElement('span');s.className='t';s.textContent=c.t+' ';li.appendChild(s);li.appendChild(document.createTextNode(c.text));ol.appendChild(li)})}
+function markUpdated(){if(!LV.status||restoring)return;LV.updatedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}}
+function pdfNow(){var rec=snapshotRecord();return {record:rec,bytes:buildPdfBytes(rec),filename:buildPdfFilename(null,rec.mode)}}
+function syncRes(res){try{if(window.ChecklistSync&&ChecklistSync.enabled()){if(!syncId){syncId=newSyncId();saveDraft()}ChecklistSync.enqueue(ChecklistSync[FROM](res.record),res.bytes,res.filename,syncId);return true}}catch(e){}return false}
+function completePreflight(){
+  if(!ready()||LV.status)return null;
+  LV.status='Pre-flight complete';LV.completeAt=nowStamp();LV.sigs=crewSnap();applyLock();liveSave();try{addRecord()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);var synced=syncRes(res);
+  $('saveHint').textContent='Pre-flight complete at '+LV.completeAt+'. PDF saved: '+res.filename+(synced?'. Sent to the collector.':'.')+' Tap Email PDF to send it.';
+  return res}
+function mailtoHref(rec){return 'mailto:?subject='+encodeURIComponent('Small drone record '+(rec.liftDate||'')+(rec.jobName?' - '+rec.jobName:''))+'&body='+encodeURIComponent('Small drone record '+(rec.liftDate||'')+(rec.clientName?' for '+rec.clientName:'')+'. Status: '+(statusText()||'not complete')+'.\n\nThe PDF is attached (attach it from Downloads/Files if your mail app did not).')}
+function emailPdf(){
+  var res=pdfNow(),file=null,note=$('emailNote');try{file=new File([res.bytes],res.filename,{type:'application/pdf'})}catch(e){}
+  if(file&&canShareFiles(file)){navigator.share({files:[file],title:'Small drone record',text:'Small drone record '+(res.record.liftDate||'')}).then(function(){note.textContent='Share sheet opened \u2013 pick Mail to send the PDF.'}).catch(function(err){if(err&&err.name==='AbortError'){note.textContent='Share cancelled.';return}note.textContent='Could not share; try again.'});return {mode:'share',filename:res.filename}}
+  downloadPdf(res.bytes,res.filename);var href=mailtoHref(res.record),a=document.createElement('a');a.href=href;a.dataset.test='mailto';a.hidden=true;document.body.appendChild(a);try{a.click()}catch(e){}a.remove();
+  note.textContent='This phone/browser cannot attach files to email from here, and a mailto link can\'t carry attachments. Your mail app opens with the subject and text only; the PDF was downloaded ('+res.filename+') \u2013 attach it from Downloads/Files.';
+  return {mode:'mailto',filename:res.filename,href:href}}
+function addComment(){var v=$('cmtText').value.trim();if(!v||!LV.status)return;LV.comments.push({t:nowStamp(),text:v});$('cmtText').value='';LV.updatedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}}
+function closeOut(){if(!LV.status||LV.status==='Closed out')return null;LV.status='Closed out';LV.closedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);syncRes(res);$('saveHint').textContent='Record closed out at '+LV.closedAt+'. PDF saved: '+res.filename;return res}
+function unlockPre(){if(!LV.status)return false;if(!confirm('Unlock the pre-flight? This clears all signatures. Everyone will need to sign again. Comments are kept.'))return false;
+  crewState.forEach(function(c){if(c.canvas)clearCanvas(c.canvas);delete c._pngStash});LV.status='';LV.completeAt='';LV.closedAt='';LV.sigs=null;LV.updatedAt=nowStamp();applyLock();liveSave();try{addRecord()}catch(_){}
+  $('saveHint').textContent='Pre-flight unlocked. Signatures cleared.';return true}
+/* ---- hooks into the app ---- */
+var _snap=snapshotRecord;snapshotRecord=function(){var r=_snap.apply(this,arguments);r.status=LV.status;r.statusText=statusText();r.comments=LV.comments.slice();r.diagLegend=$('diagNote').value.trim();return r};
+try{var _from=ChecklistSync[FROM];ChecklistSync[FROM]=function(r){var o=_from.apply(this,arguments);if(r&&r.status)o.goStatus=(o.goStatus||'')+' | '+r.statusText;return o}}catch(e){}
+var _lines=buildPdfLines;buildPdfLines=function(rec){var L=_lines.apply(this,arguments);
+  if(rec&&rec.status)L.splice(2,0,'STATUS: '+rec.statusText);
+  if(rec&&rec.comments&&rec.comments.length){L.push('');L.push('POST-FLIGHT COMMENTS');rec.comments.forEach(function(c){wrapTxt(c.t+'  '+String(c.text).replace(/\s+/g,' '),95).forEach(function(s,i){L.push((i?'    ':'- ')+s)})})}
+  return L};
+var _soe=saveOrEmail;saveOrEmail=function(){var r=_soe.apply(this,arguments);try{addRecord()}catch(_){}return r};
+var _cd=clearDraft;clearDraft=function(){_cd.apply(this,arguments);LV=normSt(null);logId=null;diag=null;$('diagNote').value='';showDiag();liveSave();applyLock()};
+$('btnCopyTop').addEventListener('click',function(){copyProject(null)});
+$('btnTpl').addEventListener('click',addSite);
+$('btnComplete').addEventListener('click',completePreflight);$('btnEmail').addEventListener('click',emailPdf);$('cmtAdd').addEventListener('click',addComment);
+$('btnClose').addEventListener('click',function(){if(confirm('Close out this record? You can still reopen it later to add comments.'))closeOut()});$('btnUnlock').addEventListener('click',unlockPre);
+$('diagNote').addEventListener('input',function(){liveSave()});
+$('s-photos').addEventListener('click',function(ev){if(ev.target.tagName==='BUTTON')setTimeout(markUpdated,0)});
+$('s-photos').addEventListener('change',function(){setTimeout(markUpdated,600)});
+function after(){if(!restoring){applyLock()}}
+document.addEventListener('input',after);document.addEventListener('change',after);
+setInterval(function(){var h=LV.status||!ready();if($('btnComplete').hidden!==!!h)$('btnComplete').hidden=!!h},700);
+document.addEventListener('pointerup',function(){setTimeout(renderStatus,50)});document.addEventListener('touchend',function(){setTimeout(renderStatus,50)});
+try{var o=JSON.parse(lsGet(LKEY)||'null');if(o){LV=normSt(o.st);logId=o.logId||null;diag=o.diag||null;$('diagNote').value=o.legend||''}}catch(e){}
+showDiag();
+if(LV.status&&LV.sigs){restoring=true;putSigsBack(LV.sigs).then(function(){restoring=false;applyLock()})}
+renderRecs();applyLock();
+var A=window['__MICRO'];if(A){A.snapshotRecord=snapshotRecord;A.buildPdfLines=buildPdfLines;A.saveOrEmail=saveOrEmail}
+window.__LIVE={getDiag:function(){return diag},legend:function(){return $('diagNote').value.trim()},status:function(){return normSt(LV)},ready:ready,completePreflight:completePreflight,emailPdf:emailPdf,closeOut:closeOut,unlockPre:unlockPre,reopen:reopen,addComment:addComment,copyProject:copyProject,getRecs:getRecs,getLogId:function(){return logId},classify:classify,
+  diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,shape:dStrokes[dStrokes.length-1].shape||null}:null}},DCAP:DCAP,KEYS:{live:LKEY,recs:RKEY}};
+})();
 })();
 </script>
 </body>
