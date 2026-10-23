@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SMJV Flight Execution v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SMJV Flight">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="light">
+<style>
+/* SMJV Flight Execution (copy of Daily Flight Log v7): dark tones, no purple/pink */
+:root{--g:#0a7a2f;--r:#b00000;--ink:#000;--mut:#333;--sc:#263238}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#fff;color:var(--ink);font:18px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+header{background:#000;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:21px;flex:1;line-height:1.1}
+header h1 small{display:block;font-size:13px;font-weight:400;opacity:.9}
+header .hbtns{display:flex;flex-direction:column;gap:6px}
+header button{min-height:44px;padding:0 12px;border:2px solid #fff;border-radius:10px;background:#000;color:#fff;font-family:inherit;font-weight:700;font-size:15px}
+.brand{display:flex;align-items:center;padding:8px 0 2px;margin:0 0 4px}
+.brand img{display:block;height:64px;width:auto;max-width:70%}
+.brand .ft{margin-left:auto;font-size:24px;font-weight:900;font-style:italic;color:#1f5f99}
+section>h2{text-transform:uppercase;letter-spacing:.02em}
+main{max-width:620px;margin:0 auto;padding:10px 12px 24px}
+section{border:3px solid var(--sc);border-left-width:10px;border-radius:14px;padding:12px;margin:0 0 12px}
+section>h2{margin:-12px -12px 12px;padding:9px 12px;background:var(--sc);color:#fff;border-radius:8px 8px 0 0;font-size:19px;display:flex;align-items:center;gap:10px;line-height:1.15}
+h2 .n{background:#fff;color:var(--sc);border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.grid>.full,.grid>.static,.grid>.dcard,.grid>.btn{grid-column:1/-1}
+label.f,div.f{display:block;margin:0 0 10px;min-width:0}
+label.f>span,.lbl{display:block;font-size:14px;font-weight:700;margin-bottom:3px;line-height:1.2}
+.u{font-weight:400}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=time],select,textarea{display:block;width:100%;min-width:0;min-height:50px;font-size:18px;padding:8px 10px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;-webkit-appearance:none;appearance:none}
+textarea{min-height:110px;line-height:1.35}
+select{background-image:linear-gradient(45deg,transparent 50%,#000 50%),linear-gradient(135deg,#000 50%,transparent 50%);background-position:calc(100% - 22px) 22px,calc(100% - 14px) 22px;background-size:8px 8px;background-repeat:no-repeat;padding-right:36px}
+input:focus,select:focus,textarea:focus{outline:4px solid #0057ff;outline-offset:1px}
+input[readonly]{background:#eef3f8}
+.static{font-size:15px;font-weight:700;margin:2px 0 8px;padding:6px 9px;background:#eef3f8;border-left:6px solid var(--sc);border-radius:6px}
+.dcard{border:2px solid #000;border-radius:10px;padding:8px 10px;margin:0 0 10px;background:#eef3f8;font-size:15px;font-weight:700;line-height:1.35}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 14px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;margin:0 8px 10px 0}
+.btn.sm{min-height:40px;font-size:14px;padding:0 10px;margin:0 0 10px}
+.cnt .btn.sm{margin:0 0 0 8px}
+.btns{display:flex;flex-wrap:wrap}
+.diag{border:2px dashed #000;border-radius:10px;min-height:70px;padding:8px;margin:0 0 8px;font-size:14px;font-weight:600;color:var(--mut)}
+.diag canvas{display:block;width:100%;height:auto;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.diagPick{display:flex;flex-wrap:wrap}
+.hint2{font-size:13px;font-weight:600;color:var(--mut);margin:-4px 0 8px}
+.tools{border:2px solid #000;border-radius:10px;padding:8px;margin:0 0 10px;background:#eef3f8}
+.trow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px;align-items:center}
+.trow .btn.sm{margin:0}
+.sw{width:46px;height:46px;border-radius:50%;border:3px solid #000;cursor:pointer}
+.sw.on{outline:4px solid #0057ff;outline-offset:2px}
+.wd{min-height:44px;padding:0 12px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-family:inherit;font-weight:800;font-size:15px}
+.wd.on{background:#000;color:#fff}
+.snapHint{font-size:13px;font-weight:700;color:#000;margin:0 0 8px;min-height:18px}
+.snapHint.hit{background:#c8f0d2;border-radius:6px;padding:2px 6px}
+.dt{border:3px solid #000;border-radius:14px;padding:10px 12px 2px;margin:0 0 12px;background:#eef3f8}
+.dt .sub{font-size:17px;font-weight:800;margin:0 0 6px}
+.cnt{font-size:14px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;flex-wrap:wrap}
+.qc{display:grid;grid-template-columns:1fr;gap:6px}
+.qc>label{position:relative;display:block;cursor:pointer}
+.qc>label>input{position:absolute;opacity:0;width:1px;height:1px}
+.qc span{display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 8px;border:2px solid #000;border-radius:10px;font-weight:700;font-size:15px;line-height:1.15;background:#fff}
+.qc span::before{content:"";flex:none;width:26px;height:26px;border:3px solid #000;border-radius:6px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:19px;color:#fff}
+.qc input:checked+span{background:#c8f0d2;border-color:var(--g)}
+.qc input:checked+span::before{content:"\2713";background:var(--g);border-color:var(--g)}
+.qc input:focus-visible+span{outline:4px solid #0057ff}
+.sigWrap{border:2px solid #000;border-radius:10px;background:#fff;margin:0 0 6px;touch-action:none}
+#sigPad{display:block;width:100%;height:140px;touch-action:none}
+.sigLine{font-size:14px;font-weight:700;margin:0 0 8px}
+#sigState[data-s=yes]{color:#05501f}
+.miss{border:3px solid var(--r);border-left-width:10px;border-radius:10px;padding:8px 10px;margin:0 0 10px;background:#fff4d6}
+.miss.ok{border-color:var(--g);background:#c8f0d2}
+.miss b{display:block;font-size:16px;margin:0 0 6px}
+.miss ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.miss button{min-height:40px;padding:4px 10px;border:2px solid #000;border-radius:8px;background:#fff;color:#000;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;text-align:left}
+.sigWrap.locked{background:#e0e0e0;position:relative}
+.sigWrap.locked::after{content:"Signature locked until the form is complete";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#000;text-align:center;padding:8px}
+.need{outline:3px solid var(--r);outline-offset:2px}
+.logsBox{border:3px solid #0d3b66;border-radius:14px;margin:0 0 12px;overflow:hidden}
+.logsBox>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:50px;padding:8px 14px;background:#0d3b66;color:#fff;font-weight:900;font-size:18px;cursor:pointer}
+.logsBox>summary::-webkit-details-marker{display:none}
+#logCount{margin-left:auto;font-size:14px;background:#fff;color:#000;border-radius:8px;padding:2px 8px}
+.logsBody{padding:10px 12px}
+.logItem{border:2px solid #000;border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:14px;line-height:1.3}
+.logItem b{font-size:15px}
+.logItem .tag{display:inline-block;font-size:12px;font-weight:800;background:#0b4f4a;color:#fff;border-radius:6px;padding:1px 6px;margin-right:6px}
+.logItem .btn{margin:6px 8px 0 0}
+.stTag{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff;background:#555}
+.stTag[data-s="complete"]{background:#1b5e20}.stTag[data-s="closed"]{background:#0d3b66}.stTag[data-s="draft"]{background:#5d4037}
+#statusBox{border:3px solid #1b5e20;border-radius:12px;background:#e8f5e9;color:#000;padding:10px 12px;margin:10px 0}
+#statusBox[data-s="closed"]{border-color:#0d3b66;background:#e3f2fd}
+#statusBox b.st{font-size:18px;display:block}
+#statusBox .btn{margin:8px 8px 0 0}
+#btnComplete{display:block;width:100%;min-height:54px;margin:10px 0;border:0;border-radius:14px;background:#1b5e20;color:#fff;font-family:inherit;font-weight:900;font-size:18px}
+.pfNote{font-size:13px;font-weight:600;margin-top:6px}
+#cmtList{margin:0 0 10px;padding-left:20px}#cmtList li{margin:0 0 6px}#cmtList .t{font-weight:800}
+body.pfLocked section [data-pfl]{opacity:.75}
+#btnSave{display:block;width:100%;min-height:58px;margin:12px 0 6px;border:0;border-radius:14px;background:var(--g);color:#fff;font-family:inherit;font-weight:900;font-size:20px}
+#saveHint{font-size:14px;font-weight:600;margin:0 0 6px;min-height:18px}
+.foot{font-size:13px;color:var(--mut);margin-top:10px}
+[hidden]{display:none!important}
+/* PHOTOS MODULE CSS START (portable: J150/J100/Small Drone) */
+.phBox .phAdd{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 16px;border:2px solid #000;border-radius:10px;background:#fff;color:#000;font-weight:800;font-size:16px;cursor:pointer;margin:0 0 10px}
+.phBox .phItem{border:2px solid #000;border-radius:10px;padding:8px;margin:0 0 10px;background:#fff}
+.phBox .phItem img{display:block;max-width:100%;max-height:240px;margin:0 auto 6px;border:1px solid #555}
+.phBox .phItem textarea{display:block;width:100%;min-height:60px;font-size:16px;padding:6px 8px;border:2px solid #000;border-radius:8px;font-family:inherit;margin:0 0 6px}
+.phBox .phRow{display:flex;flex-wrap:wrap;gap:6px}
+.phBox .phRow button{min-height:40px;padding:0 10px;border:2px solid #000;border-radius:8px;background:#fff;color:#000;font-family:inherit;font-weight:700;font-size:14px}
+.phBox .phNote{font-size:13px;font-weight:600;color:#333;margin:0 0 8px}
+.phBox .phWarn{font-size:14px;font-weight:700;color:#000;background:#fff4d6;border:2px solid #b00000;border-radius:8px;padding:6px 8px;margin:0 0 8px}
+/* PHOTOS MODULE CSS END */
+/* Sync (v5/v12) */
+.syncBox{border:3px solid #000;border-radius:14px;margin:12px 0 10px;background:#fff;overflow:hidden}
+.syncBox>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;background:#263238;color:#fff;font-weight:900;font-size:18px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.syncBox>summary::-webkit-details-marker{display:none}
+.syncBox>summary::marker{content:""}
+.syncBox>summary:focus-visible{outline:4px solid #0057ff;outline-offset:-4px}
+#syncStatus{margin-left:auto;font-size:14px;font-weight:800;padding:3px 9px;border-radius:8px;background:#fff;color:#000}
+#syncStatus[data-state=synced],#chkStatus[data-state=synced]{background:#c8f0d2;color:#05501f}
+#syncStatus[data-state=queued],#chkStatus[data-state=queued]{background:#ffc61a;color:#000}
+#chkStatus{padding:2px 8px;border-radius:6px}
+.syncBody{padding:10px 12px 4px}
+.syncBody input{display:block;width:100%;min-height:52px;font-size:16px;padding:8px 10px;border:2px solid #000;border-radius:8px;font-family:inherit;background:#fff;color:#000}
+.syncLine{font-size:16px;font-weight:700;margin:2px 0 8px}
+.syncBody .hint{font-size:13px;margin:0 0 8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Flight Execution<small>SMJV v2 &ndash; Daily flight log &ndash; works offline</small></h1>
+  <div class="hbtns"><button type="button" id="btnCopyTop">Copy project</button><button type="button" id="btnNew">Reset all</button></div>
+</header>
+<main>
+<div class="brand" id="brand"><img id="smjvLogo" alt="Surerus Murphy Joint Venture logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCABsARgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9UjkrxUT5BwR1qVshTiq8+Wyc/d5qZO2pN7J2Rmav4n0Xw+6pqV9FCX4G9gM1mD4k+D84/tq3x/vivEfj5q7XniyPTg3y20W489zXmGG/vmvw/iPxSxGU5jUwlGmpKL6n6Rk/A9LHYSFepNxuj6+PxJ8HjprVv/30KT/hZHhD/oNW/wD32K+QsN/eP50Yb+8fzrxP+IxY1/8ALmH4np/8Q7of8/WfXp+JHhFuDrNvj/fFS2nj/wAL3tzFbW2rQvJI21VDjJNfHvzf3j+ddr8INMOp+N7T5SyQK0vrgjpXp5P4p47M8dTwqpJczS0OLMeB8NgcNPEuo3ZH1cHbgjnNc74z+JXgT4e2P9o+M/FOnaRbkbla6nVC30B5Na2oXi6fps96c/6PCXwOp2qTX4N+PvFnxA/ba/aofwfqXid7K0v9WksLKGRz5VvCjleFBxnC/rX7xHY/M9nZH7CaV+2t+zLrGorpln8WtE88tsxJPsHXHUjHWvY9F13SdesE1LRtStb61kGUmt5RIjD6jivy1+Iv/BHKHQvA99q/gX4h3V9rtjbNcLbTRbUlKgkr6jODiuR/4Jl/GD4xfDv4vxfCXxfZazP4X1UyWgFzHIyWlwpAGGI4BIqgP161bWNO0Swn1bVr2Kzs7ZC8s0rBVRR3JPSuW8JfGb4YePNSfR/B3jbS9WvY1LtBbTh2VR3IHSvBv+Ck3j9fA37LviJllMdzqyiyjPQ7mODivk7/AIIw+CJ7nW/GnxAuQzxwwR2Ebs2WDMck/XgUAfq6Gyu4H1H5Vwmu/Hb4ReGNcfw3r3xB0Wx1ONgjWst0qyBj0GK7a5kW3geaRsCNCzccAAZJ/SvwL1/ULz4+ft4XBSWV01PxX5QXdkCOOQLj6fLQB+7Pif4heDPBujxeIfE/iSy03TZyoiubiUKjFhkYNceP2oPgBgFvix4d56f6YtfCf/BYPxi+heAPBXwztJAolYTsiHkBAAPwrxb9l/8A4Jnax+0D8JNO+J9145k0b+1JZFitmiJYovG/8c0Afq7Y/tI/AvUblbSz+Knh6SRzhV+2IM/rXolhqNlqdtHe2F1FcQSjMcsThlceoIr8XP2lv+CY3iv4DfDO++J2kfEOLU4dJVXuYWDRsUPG5TmvfP8AgkB8cPFvi/RPEXw08R6nc6hFo/lz2ckrl/LjOMrk0AfoF41+KPgH4d/Zv+E18V6doxu8+QLucJvx6ZrmB+1D8AMA/wDC2PDoz63q1+W3/BYL4hS698cdC8EWdyxj0TT0LRqekrnv71u/Cj/gknrPxB+HPh/xrqXxJOnz6zZpd/ZjGSYw/IH5UAfpd/w1D+z/ANf+Fs+Hv/A1K7Xw54x8NeLNFHiPw5rVpqGmtki5glDRkDqcivzKf/gjHfhcj4t7sf8ATI19i6l4a0z9lD9j/VtB0+/WVfDOgzoszDb5sxRhk++TQB31x+018BraeS2uPip4ejliYxuhvFBVh1BqH/hqH4AtgJ8V/DpJPGb1RX4c/spfs665+1v8VdR8MLrkmnRGKbUZ7rBZQS5Iz+PFfYN9/wAEZdbhtZHsfixEblVzGskbBSw6A+melAH6deGfHPhHxlB9p8K+JNO1aIY+a0uFlwD67TxWhq2s6doNjPquq3kVrZ2qeZPPK21I19STX4K/ss/Ef4ifs0/tV6b4L/ty4kt49bOh6pbRykwzAvsLAdOCQfwr9S/+Cj3xC/4Q39lbX7i3n8ifWFjs4xnBYSdQPwNAHu/hD40fC7x5qLaP4O8c6Vq16imR4ba4V2VfUgdOtdsJBt3diBj3r8of+CMHgqe71nxl8QbqMvHDFFZQSMc4JOSP0r9VruVLa2lupXwkS+Y3sEGTj8qAOL8RfHb4S+F9cbw3r3j3RrLU42CvbS3IWQMegxXVz69pNppQ1q71C3gs9nmGeWVVQKejEnjFfgrrt/d/Hv8AbscW80k0epeKdiBs42RyZI+ny19Jf8FXf2gPF/hrVNC+AvhrUrnT9Nt9NjuL3yH2mfI2hcjnHH60AffWuftpfsy+Hr8aZqfxa0VZ84wkwcZzjqBiu/8AA3xc+HHxJg8/wR4x0vVxjcUtrlWcD1K9a/L/AOAv/BJ7SPih8KtD+IHiz4kT219rlot3HDbpvjRWyVUnru9a8G8XfCr48/sLftCWlj4Vu9T1CK1eO7gntEkaK5tyeVdRkZxxQB+9UbZHJorkvhX4ul8dfD7QvFs9rLbTanZxzyxSrtZWKjII+uaKAOvboaq3swt4Xl/ujJqZ3XkZ9q5/xvqceleG768eQLiMgZ9cVxZjWVDCzqPZJm2GpurWjTXVnyt451FtU8Wajdli26YoCfQVhVJczGeZpc5LyF2/Go6/iTNMRLGYupXlu2z+kMDR+r4aFFdEFFFFef6nUGGOQvWvZv2ddL83UNQ1EjICiJSB0x1rxk5GK+mPgVpCWPg9bkxgPdMXOR1Ffpfhfl/13O4ya0irnxvG+L+rZW4LeWh6HdW8N3bvbTAGOVGjYYySCOn5Zr8SP2vv2J/jP+zv8UNR+Kfw003Ub3w3NfPqNlqOmAvLZOzFtrqoyMHPbFfpn+23+0z4m/Za+HOn+PNA8IW+ui5vhZzpPK0YhBX5WBXp8x/Q1zP7E37Z9n+1X4e1seLLPRtH1iyuDENPWbcHhK9933uh/Ov6tPxFPSx8Xfs/f8FcvHvhBrPwz8ctBTxFpcQSE39uuy9hAOCzr0bv3zX6gfBz4ifCr4yeEbTx78MptOvLCdgzPFGoeB+pSQdVYZr4d/4Kf/s8fs3aN8J7/wCKGkWOk6B4yhuIhbx2DKgvdzfOrRLhc7cnOB0rm/8AgivN4nNv4+t2aY+HkeB13ElBOVO7b2zjbn6UBsbH/BZ3xy9t4R8IeBYZ0/0+4e8lQHnA6HFev/8ABKTwKvhP9mWDWJLMxXOuXclwzEYLqB8ua+Lv+Cvl/q15+0ZpenajbtFp9tp0a25PRgTywr9Mv2OdQ8HRfs7eC7Lw3rljcxQaZGJRHKu5X/iyM8UAdb+0P4xg8A/BXxr4rnuvs4sdGuGjc/8APRlYLj05Ir8fv+CXnhC98d/tXx+Jr2Dz49Mgn1KYuMje5yD7HJr7E/4Kv/tHeGvD3wYPwg8O+ILS517xNcRfaYbeYMYbSNtxLEfdJIA/OuQ/4I/fCafw74E8T/GXWbIwjUn8myeRcboYwS7D8RQB85f8FZvHieJv2j/7BidzDoFlHCyk5G88n6Hiu++C/wDwVi0/4NfCvw58NbX4KtdLoNmtuJzqaxidgcl8bMrz+leC6+l1+0B+3XJY7ftsepeJ/L2NyGhSQ9QevAr9jfiV+yF8B/iP4BvfBmofDbQ7UXFt5UFxbWqQzRShSEcOoznIFAH5Q/tH/t8/Gf8Aa80uH4ZeFvBR0rTbt1Mtnp5a4nuWzgByoGAPpX3T/wAEyv2V/EnwD+HWoeL/AB/p/wBh13xFtlFtLw9vAoyob6+nvXwv+yp491v9i79ry++HHjWKFtPm1FtIv2niX5gW/dTqx5GQQcj1r9lfip4utPC/wm8Q+MmmDQ2mkTXKyKQdwEeQc96APwT/AGyPG138Qv2qPF+u21u08kWqG1giX595jbC4HU17noP/AAUp/bL8O6JYaHpvgqwS0022itoFOiTghEUKM+/Fef8A7B2h2/xJ/bH0jWddmt2tba8uNWvDdMoWRVOSCW4//XX7ji++GwGDceG+OOPJxQB+X/wS/wCCgv7Z3xM+KvhrwNqHhbTobTV7+OG6kOkzJthz853E4B25r6U/4KsePH8I/ssT6I0xS58Q3sVluU4zjDP9M819Zadc+BZLtF0qbRjcZyv2cxGT6jbyK/L/AP4LQ+PpbjW/Bnw8hugUt4ZL24iBPDngHrQB8x/sTftiWP7JOpa9q8nw9PiO41m3S3En237P5Cq2T1Vgc/Svob4hf8Fk/HfiPQ7rRfh78MrbQru8jaJbue8M7wkjG9FVQCeuK+nf+Cd/7Ovw/X9l3RNQ8a+AdG1G+1ppLlpry0SVzGT8vzMMjj0xXxR/wUF/Z9H7J/xz0L4q/CzTY7LRtTnW+tIfLEsMF0jfNGQwIKn0OeKAJP2CP2Rviv8AGL436Z8ZfiHol/aeHNMvDqs1/qEZia/uCdyhFYZbJOc9MLXvH/BZrxv9h8G+C/h/byEC8uZLxwOypwvf+lfbH7Lnxq0f49fBvQPH2jGCGWe3WK9toQAtvcKMSDA4HPPSvy4/4LA6pq93+0VpOn35kj0+20qM2+4/Kdx+ZhQB9o/8En/An/CLfszW+sSptm169lujgclRwM/l+tfSH7RPjE+APgf448XLKsb6Zot1LEx/56bCEH/fRFcb+xrqXgyL9nTwXaeGtd0+4ig02PzSkq5V/wCLIzwea+cv+Crv7SHhjQPgu/wh0PXLe61zxRMguYbaUOYLZGzliOmWC8UAfHP/AAS88HzfED9q2HxHe27TRaXBNqEkhGcOWOCT2OSa+wP+CmX7E3i/43fY/iv8LLH+0Nd0m2+z3emx8S3EQ5BQnjIrif8Agk58NdU8E/Czxz8cpdJaS4vIHh06GRSBOkSliR7Fjj8q6f4E/wDBUbWviZ8dbL4X+OfBui+GtOuLmW1N0bp9wlU4UHdlQTQB8WfA79uL9pf9ku6XwPqNtcXmk2b+W2h63E8bxAHBEZPzKefcV+nv7LX7b3wR/aulTSf7Mt9I8Y28O5tL1BFZ2QdfLcj58HPHXmvS/jZ8EP2ffjT4ZmHxT8PaDdQiEsdTMiRTxepE6kPgfUg1+KPwG0t/C/7Z2iaH8MdSuLu20/xO1tZ3MTbjJarIRyRjPyZycDrQB/QdbwxQRrFEoVFGFAGAB2AA4opbQMYUL5yRk59fSigBSByW9a8w+PGqLZeETaBwHuZAoHrzzXp7EFSoOCa+ff2idUEup2emqciIF2HvXxPHuO/s/Iq009WrL5nvcMYV4rM6UXsnc8dB3Y/L8qKSPjlup5pa/kCcr6H9BPR2QUdxRRnHNSm2DeqRJFE088cCg5kYKPxNfY3g6wj0rw1Y2YABSBcj3xXxPq3iy38EWreKby1+1R6eyymEfx89KvQ/8FH4BEI1+Hs20Lt5nH8q/ffBzBRhCtjJb7I/HPEzOcPha1LC1Jd2fVvxm+EvhT43fD/VPh54xtRPY6hFgEjmOT+F19xX5Z+Lv+CVX7RPw88QXGp/Bjxms9qD+5lW4aCfbnhTjGa+of8Ah5BH3+H8h+swNDf8FIo2IT/hXsp3cAecPSv3RV4s/Kv7dwbXxHytov8AwTE/as+J2rWh+K/jQQafHJ+9a4u3ncKeuwEnnGa/Tz9nj4AeCf2c/h9aeBfBtoFSP95dXJX95cykYLN+lL+z/wDGGf41+DT4ufQn0tGnaKNGbOVXuDWl8bPi94e+B/w51X4k+JIZZbHSUVmjjIDSMxwAM961TvqepTqRqxU4bM8j/bM/Yw8L/tUeHoGa7GmeItNRhZ3wXO7P8Le3Svz4T/gnJ+238PJ5NO8GeKilk7HDWWoOibc/3QcDIr6n8L/8Fe/gv4r8Q6b4dsvBPiNLjUriO1Vn2bQzHGTgdOa+8FuYHskvThImjWTJ4wCM8/hTND8ovhJ/wSU+JHifxRB4j+P/AIyT7KrrLLBFKZppgDnaWY8Cv0mm+HFn4T+Edz8Ovhlp9vp6W+mSWVhFjaqllwGPpk18oeOf+CuPwJ8F+MdY8JHwtr+onSruSza6gRDHIyEqxUk8gEGvov8AZl/aU8OftO+BJ/HvhXRNQ06yhuTagXowxK9TxwaAPjP9kb/gnN8WPhN+0Ja/Fv4i6lpU1nZvNdAW8paQyseOPxPNfpesQCAc9AD+dfHHxQ/4KZ/Cn4afFq8+EVz4V1vUdUtblLPzrdFMbyt0ANfYWm3f9oadbagsTR/aYklCScMu4ZwR+NAH57/t5/8ABPjxv8fvivp/xM+E9xptjdvarDqImYoXlTGyQY9AK9p8V/Bz46eJv2Nz8Gbm+sD4wksI9OmuTKfLeIcFievSu2/aj/aq8Efsq+F9O8S+MrG9vk1O5a2hhtgC5wMnr9al/Z2/ae8LftFfD67+I2g6JqWmabaPIrfagNzBOcjFAH5i6f8A8Ek/2o9HuDd6V4l0i0mYMvmw3To2CeRkVpJ/wS7/AGxGwW+IFkTnH/ISl9frX0x4h/4LCfBDQdcv9F/4Q/xDcmxneAzRooRyGxkc+1Z//D5v4HdP+EI8TfTYmP50AZ37Gn7BPx1+D3xltPHXxS8Wpe6bYwP5UUV875lI6kE81mfto/sAfHj9o347Xfj/AEnUtHj0cxxW9tHPMwdYx944+ma+l/2ev2+/gJ+0Xq6eGPDOq3Gna46MyWF/HtdgOTtPQ/Svb/iV490j4Z+BNa8f64jvZaHaPczoo+Z1QElV9zQBB8JfBEXw3+Gvh3wRnd/Y2nw2rEdCyrzivK/22f2cZf2l/gvdeCtMNvFrtvMl1ps85wsbg4bp2YHFfPK/8FmPgcqhT4I8SnHyk7UAJ5zjmrGm/wDBZH4A3t9Ha3vhTxHZQu4DXDxqwQepAoA6j/gnp+y98dv2YDr/AIc8f6hp1x4d1EpcQJbyFjFOBhgB6H1r0D9sv9jHw5+1T4bt83P9meI9MVms71VB3A/wN/s+1evfCH4yfD344eEYPGvw48QRalpr5BZB88Z7pIvY5rxP9pz/AIKA/DD9mLxpaeBfFGh6pqd9c2wus2W0KgJ4BzQB8Dr/AME4/wBtz4fzS6V4L8TlbAkhTZag8aEZ67c8Hmu5+E3/AASS+JfiXxVB4k+P/jESWiSLJNbxTGWacAg7Wcn5c81+nnwy8e2PxO8D6P4602xlsrfWrUXcMU4HmKCOM155+1L+1F4L/ZY8I6f4s8Y6Xe38Wo3htIYLRQXZwpO7nsMH8xQB6T4N8B+F/APhKx8FeG9Lhs9JsoPJjt1XbkYwSfUnvX57/tU/8Eq9Q8aeMrz4hfBHXYNPvL6U3UthMSiCUnJKMOlfUPwX/bJ8O/HH4U+I/it4U8Ga4LHw9uL28qL5k5VSW2fl+lcT8Df+Ck/wi+OPxKtvhfYaBq+katd70hOoKqo0g6r7UAfEw/4J+ft46yB4Z1HxdcLpvEbebqknl7BwQRnOK+w/2J/+Cdeh/s43q+PPGt7BrXi4qREwX91a56lM9+nPtX2oTjGCQF67efwHqc9vevkn9oX/AIKR/Bn9n3x9L8OtVsdS1vUrZR9rGnqHjt3P8BJ/i5HTvQB9dJgAEnOf85orzv4GfFuP42eA7Px9beGNS0O11HLQQ6gu2VkHRiO2aKAPQZSqRlm4AGc18nfFrVjqvjS7ZeVhPlg5r6h8Q3qWmj3N0z7dkTH9K+N9Vne+1C5vXYkyTMeT1Ga/E/GHMOTB08JF6t3Z+h+H+F5sTKs+isVMEdqKUnNJ/Sv5zcWz9cTdrtBRjNJjd0PeiTODtyCO9WlKJE3G6R5N+0Lq32XwnFpkbHfezYI/2Rk/0r50jCgfdHPTgdK9Y/aH1Uz+IrPSEYFbWLe31JrygYwOOQMV/Ufh5gVgslp23k7s/kHxMzF4/PqivpBcvzHADPI/SmbSZVVTznjinr1roPh5oMvibx3omhRR72vL6KPHbG4H+lfeRu3Y/P6dNVJxSXY/VH9mLwr/AMIl8FvDunbdry24uH+XBy4zXzF/wWA8d/8ACOfs86Z4QSUCXxJqqqQD8wSJdxP0Oa+5dGsYtL0m10+KMKttAkYA6cKBx+Vfkn/wWN8Z/wDCR/GPwb8NbC4Z202xVpYgeBLNIQD/AN8kV6cFaNmfreGp+ypRguiPjjRfB8/gfxT8Mdd8p0k1h4L/AGyfLlTLgH6V+0X7Zvx/T4G/suXfiCG6RNZ1jTo9P09QRnzZYwNwH+yK/NT9trwi/wAP/FXwU0lkFuLXw7YCTsFcOpz+ua3P22/iZqn7SXxg8A/ArwZcPfWun21naEQneHnkRd7j6DNWbnyH4h8E6jp3gTSvH+syMZfEt7dLbB87mji27pcnqGdmHP8Adr9t/wDgn14dt/hn+xj4f1S4jMZubK41eYH/AGst/KvzI/br0XT9J+M/hH4DeGYsW3gfQtO0Aov3XupD5kr49Szn9K/VL4xapa/BH9ia7SEi1bT/AAxFZxheMSNGFx+tAH5P/CKwl+PP7eFlMwaWO98TyXrlh92KKTP5YFfvxCiwxrGBhVGAPQCvxe/4JD+DH8S/tAar4zu7YSR6PZSSb2H/AC0kP86/aAuQNpPI49umaAPyS/4LRePDeeOvBfw7t5QUsLGTUJQDna8jkAEeuFH519EfAeKH4Df8E5LjxC37m4k0S4vf3nUySqcCvz//AG4PETfGv9uPWdJ0uUzQx6ra6HAq/Njywsbf+PBq+7f+Cj3iCD4V/sYaT4AtSIZ9QS0sAsZx8saAtx7/ANaAPgv/AIJ7/AXwj+0l+0DdaR8QtKfUNCtrSa/ukSRo8tnKgketfpzdf8EyP2NVtZA/w9nhGwgyDVJsIoH3jk4GOetfld+ybZ/tceHbTV/Gn7OPh6/uLe5xaXV1BGD06AFiOlanxD/a3/bS1XxBJ8LfGnjbVdCv55Vsri0lAtz8/ADN6YJ5HBoA5ldF0/4Q/tl2WgfC3WZrmz0nxTDa2U+/cWQyBSpZeCMHHviv1N/4Ke/EV/CH7JV9ZSXBgvfEcsNmmB1yAXAz9a8N/Ym/4JpeJPCnjXTPjL8atQtJ5bRheWVhC/nb5CcrI7d/UVkf8FovHrhvBPw3gnQBTLqMyA5wSMD6dKAPO/8AgmP+yB8Lvj/p3izxJ8WfDj6xYWTRW1mn2h4tknVj8p549a9l/bq/YK/Zk+FPwE1jx74K02bw3q2lPGbZzePIk7FgDHhyecHtjpXyF+zr+0h+1b8DfAz6D8JfB922j3sxu/P/ALIeTzCRgNuxz3rW8bS/t4ftmXtloXiPw34gurHzVIha2NvZxnsz5xkCgD3X/gizrGtnxF4/0gTStpCW9vPsYnZHKWb5sepAGcV8/wD7a/iO4+Mf7bWo6NBMLiGPUoNKhHYKGAK/nmv0z/ZQ/ZtsP2NPgDrl1q9xDdeIJbObUNVuVPyhkjYrGD6A8V+Ofhfwh8R/2ivj1qVv8OIC+v6nqM97A3mlPLwx+bd2oA/oR+HOl6Z4U8B6D4bheKFLGwgg2bx8pCAYH41+Xf8AwWh+IcOo+M/BXw7s7xZRp9lJqN1EG4DyNhfxwD+tceP2Hv8AgomqrnxRfYzx/wAT5/lPevknx14c+IEnxbPw/wDH+rTat4is9Rh0aV3uDcHIfaEDnk43NQB+0X/BOD4bxeF/2SPD9rqNqjNryy3si7BlkkOBnI9M1+ZX7XHgDW/2S/2t38SaBC9pam9TW9NdMjKFsso7evFft38JvC9v4N+HHhrwxZxCNNN0y3hCkcBggz/Wvkr/AIKq/AOD4jfBP/hYOm2iHV/CTCZnOATbHG8Z/D9aANX48ft9+Efh9+y5ovxS8O3UV14k8YacE0iy3g+VcGPEkjgdkYk8/wARFfn1+w1+zN4k/a4+Mtx8QPHslxc6Dp12L/VbyYEi7uC2REp7nqTjgcdK8H+Cfwv+If7R3j7w58JvDs11dBGKx+YxaOxtywaSQ9hwf5V/QP8AAb4KeFPgJ8O9N+HfhC0SK30+MCWYLhriTA3SMe5Jz+lAHcaPpFhoenW2kaZbR29raRrFDGgwFRQAB+lFaCgcfSigDl/Hthqeq+Gbuz0lA9xOhUAnFfPg+CnjmRyFtYyepG7vX1MVOcbCcUoTnc2Oe2K+L4i4KwfEtRVcVKWitZHvZTxHi8mg40EtT5ZPwP8AHIODaxg/71Mb4HePGOFtI89Pv19VeWCegqC+mS0tZrpsKIo2ck9sDNfO/wDEJMlUdXL7z2Xx/mcV0+4/P3x7478OfDvxBceF/EV7tvrc/vFjGQtc4Pjp4BRSP7QlPfla8Z+N3iNvF3xQ8Q608gcTXsiqR02qcCuEMYA5AwfavP8A+IWZRGWjkfC4nxfzmE5UoKNr/M6Hx/4gh8T+Lr7WLV90EjAR5HOKwh0pq+mKdX6JgcJTwOGhhqe0UkflGOx1TMMTPFVfik22LnFe9fsVeFP+El+OOmTPEXj01Wum9BgYH868DIGOcAnIyT7Gvt//AIJx+Ft8/iLxfKpACpaoSPzxXfR95nTk9H2+MjF9D7nAAVcjA7knpwa/Dn4/ag/x4/4KMHSQd0DeIrXTExz+7i4Y/mpr9xLiEywvGrFC6kAjnHpXyR8Ov+CcXwv8CfGqP42t4j1bUdYjvJdQEU2NnnSMWJz7Z4r0kfqFrHxx/wAFi9Jh0vxv4Fnty6yRaWLdfYJ8uf0FV/8Agkz8Grjxb8RdX+O3ihWmsvDFuyWsswzunK4yCfRQa/QD9qj9ivwF+1VdaTdeLtYv7CTSQwjNqB8wb1rr/gv+zZ4M+B3wnn+Ffg6e4W1ukmWa6fHms0ikE/XBOKYz8bdGN3+0B/wUPjZ5fOj1Hxo7A5ypgt3O3/x2Ov1D/wCCjvg3xJ4o/ZR1/SfDFvLLJaeXM8cakl4k64A56Csv4F/8E2vhV8D/AIrWfxa0vxDqmpanZtNJGlyo2B5Acn68mvrW7021v7OSwvbaKWCdGjmjcAq6kYIoA/GT/gl7+0/8J/gFq/iPQ/ife/2QdYKGG+dMqNvVG719u/HL/gpZ+zt4I8DaheeDvF8fiLXpbd1sbO0QnErKVDMfbNc78ZP+CS3wO+Imt3XiDwtq+oeFbi8YvLFbqskO4nJKpgAVyXg//gjP8J9K1GO68VfEDWNXgRg5hjgWAHHbPPWgD5S/4J2/BvxR8fv2lh8UfEdnJNpukXkmrXt3LGSkty5JCgtwTk5r2L/gs546abXvCPgCGdTDaxNeSxhvm3HgcdK/S/4V/CPwJ8GvC0Pg/wCHvh+DSdMgwSkQBaU4xlzgEn/GvAv2jP8Agnn8Of2kPiH/AMLC8XeKNWtrnykhSC3A2KF9M0ATf8E1/AS+Cv2WfDUj2piudXJv59y8sD0r50/4K/8AwAt7vw7o/wAevDmnrFfaXMtjqkkCbWaJseW5wMkrwMmv0X8BeD9O8A+ENI8G6QzGz0i0jtIC3Uqvc+9Z3xY+GegfF7wBrPw98TgnTtXgaCUqoLLk5DDPegD5h/4JjftEH4zfA638Ma3fedr/AIRIs5wxy0keP3b5/wB0459K/PH/AIKUeMT8Sf2u9Q0SyLOmnNDpkQHzAsSAcfnX6a/sz/sF+C/2YPFl74o8GeMtauTf23kXFrPs8t+flbGOo/rXLa1/wTD+FniL4uS/FzWfFWsXOoTaqNUe3YDy9wIIXr04oA+hPgL8PdL8F/B3wj4Z+wW0r2WlW4ZmhXJYqCecV6LHZWlsNsFskeTg7Fx/LFPs7ZLO3itYlxHCixoPRVUAVO4ypA4PqKAPnH9v3x4PAX7K3jXU0uPLmvLddPgOeS0pHH5A18A/8EbvA8ms/FjxL43ni3x6XYeUHK5xJIe3pX6V/tM/s66D+0t4BHw+8Tavd2Fgt2l27W2NzlRwKxv2Wf2R/A/7Kuk6tpPg3Ub29bVZVknmucbjgcdPpQB6/wCLNag8M+GtT1+UL5em2c105JxwiFj/ACr8Ff2XNJl+N37cOhXUzNIl74nuNamJBb5I3Moz+QFfvB8QvBsXj7wXrPg25vZrSHWLWS0kmi/1iK6kEj35r5u/Zu/4J3fC39m/4i/8LH8N63qWpaglo1vH9rAAQtjcRj6frQB9YxFQgIGFwMCvkf8A4Kg+Ox4N/Zc1y0iumjuNbkSxQBsEhjkj8hX12obAz1xzivD/ANqT9lrwz+1F4asfDPirW77TrWxn+0D7KAd7YI5zQB8Jf8EWPALy6n46+Is8SlY4IdNgcqNwLEs2D7gYr9XYkK5JAGfTpXjf7MP7Mngz9l3wVdeDPBt1c3cF7d/a5Zrj77NtAH9fzr2cdKAFooooAKQ0tI3SgBGbHIrgfjl4oTwj8K/Euus23yLCQIfVmXA/nXeEgDmvl/8Ab78WLofwd/sdJSsus3aQj/dUbiP0qJuyOLH1VRw0pPsfmzcTtcXMtxIcvLIzt9SeajpqHcS2evP14x/Snc+hrync/KJScnzLqFHtR+Bo6Nk+lK7Ek2M43nPTpzX6kfsR+Ez4b+COm3U0W2XU3a7Jx1UnC/1r8w9HsZNT1e00+GPfJPcRxqvqScf1r9l/h5oMHhbwLoeiRoFSzsIojkfKDtyf1NdeFinqfVcL0Oeq6r6HVB1HUDnmnCRehIz6V8R+OP2vvH0P7Smh+HPCn2NvhvBrsXhjVLgqhkuNQkRmIQnB2jaO1faYfKgnH9/d1A5HOPxP5V3H3ZZDL2NJuTqpHvXw7e/tXfFrXfFPiHwf4LaxkvdZ8Tv4e8NPNB+7tUiA82Zs8MRzge1aOtfHX4y/s/eJfEngz4q+MLHxYF8KXWv6bqEdksD280Qx5bovDAsQBQB9pZHYcUgeM8BhXwFd/tl/Frwh8QfhBoHiV7W50vVNGsL/AMaXKW/FvLfuRAv/AEzwBj8K6TVvjf8AHXxX8I/HnxW8KeOdP0Ox0DX7yDTFl09ZfOtIW2IuT13MDQB9tbl7mk8yMjIYYrwb9nMfHTUfA3/CYfFXx1puryaxpqXVja2+nLbi1dlLfN/e5xXjsP7XXj6L4BXNxm3ufihq3iy58I6JaxxpmS5E2BKY+6pEMn6UAfbgdD0Io3Jn7wzX53ar+1J8VtQ+L/ifwBF8ddO8N23hiS00dHHh43ov7wRqJ5Aw+4PM3ACutuv2ufiD4I+P1p8PPFOp2uo+FItKEN1qwtUiDamYt447cdvegD7j3J60ErXwf4v+Nv7ST/szW/x30fx1pulXAvZljspNKR/tcbzbIUFdWnjz9pDwZ4g+GXgnxT4+03Wta8c6pFdXMcemLD9ksEizNH/tc7eaAPsUlQecfjS719a+Hfj5+1p8Q/BGvfFC38N6vp9pYeF/7N0zTXlgVx9uuD85JH39q5O32rE+Fv7VXxQHxBfTrr4naT8QfDkWg3WpatqFnpX2aLSZYo8oCcdSx20Affm5eMUu5T3r4C/Z4/aI+Lfxm1rRpbr482FtLqVw0jaEfDbDbb7vlUz7RnIHWvc/jj8UviNcfE7w18BfhFf2Wm63rVrJqeo6tdRCUWVmh2kqjcFy2MZ96APokMuOBS7h618keLfir+0H8BfBF/pPjqXSfFHiPVNXt9J8I6jFCImull4aSeNeF8r9QaoX/wATP2g/gT468O6T8VPG+keKdN8VWdw8qx2SW7WNwiFzs2ffUYxk80AfYwdT905+lG5evSvzZ0b9vD4sD4SeO9V1e9sJPFbX4g8MRC3A2QuGJkKnqAoJ/CrUv7W/xlvLL4VeHdd+Leg+CtW8R+FpfEuvane6arqgklK28ccY7lMH8aAP0cBUng0EqOpFfn9/w2P8Zh8C7RbJLC/+IGsandW+i3b24gju7KHk3RiboMDg+9bXxK/a++J/h39mTwT4+8Kw2974u1+6WK6jWBH3LCczsq/RSPxoA+59yUbxx159q+P/AA9+0L8SfjT4y1vRfhNrNna2Fp8Oo9XgkkgSUjVrjPlgkcjaEIx71T+CH7T/AMVP2hfE/hvwx4X00aOPDtr5nj26mtSQl+pKNaxA9CdhYntuoA+zFYNxRUds+5MY6AZx05ooAmpDS0h7fWgBjrkcdiD096+If2+vDvxA8Z63oGh+FvDeo6hY2ULTStbQllEhPcj2r7fPXHvSOikZqZx5lY5MZhVi6Tot2TPxqHwN+LoGf+Fe643bm2Y0f8KO+Ln/AETrW/8AwFNfsiih1yePYUpRcZrn+qq+586uF6DS99/d/wAE/G7/AIUd8Xf+id65/wCAxpP+FH/F0Dn4ea4P+3Y1+yIUGgoMUfVYjXClBvSb+4/LD4B/AT4jXPxX8PHXvCGp2NjBdLcSTz25VVK9Aa/TDxbpOtat4R1LR/DepLp+o3Nm0FvdMpYROVwHwPTr+FdB5aqNw60+IYA9xWtOl7PY9rLcsjl0HGLufGj/APBOLwZYaFot5ofiW/j8XaZq8Gt3GpTTO0FzdI4Z3Mfq3Ir234y+A/jF4lGh6h8JvHltoVzphl+12txBugvFdcAkHOCuSR9a9hIzQAP6VqekfJP/AAxdrnh7wb4Vk8GeNktvG/hi/m1M6nLADFdzTHMgdfT0qDxD+xr40+IWkeINV+IXxDivfFniFbe1kuYrfEFrZJKrvDEvbdtAP1r69JxR2zQB8sa7+xdZ+Jm+KZ1jxGjjx5p2nafpZSEg6UlnGFix6/Nk8Vdsv2R7zTv2ZdJ/Z+sfFQie3lhk1DUPL/4+iJN78deTX00MUtAGXo+kQaNo1ppECqIrSBIV44wq7f6V8z/DX9iqHwb+0Brnxm1rxONStJbq5vdC0vyfk065uQBLJ154Ufr619V9aMUAfH/gH9lH44/DzXNZu9K+Jnhq4std16fW7xbnSA87PK5Yrvx2HSpvHP7DbePvB3jXSNY8WxDWfFWsR6rBfxQFDaFQF2j6jPT1r66wByBQaAPnrxn+zBJ4l+EvgT4TWviFbXT/AAre2d1esIebxYDu2fRjVj44fAjxp4s8e+Evit8MPEtnpfiLwpBcWUUd9B5kDwTKAxA/vCvfaWgD5L039iu9lttHfxV4zj1S+k8SHxH4gkkttyX0uAFjVegVccVb8Q/sf6ml58Tbf4feJrHQtH+ItgIpLRbMZtrj+JlPo3evqjA9KKAPnH4E/An4w/C660TTfEfjTw1qWgaRaLbLDaaOsM5CAhTv9eea0fjF8DfHet/EnSPjH8JfFNno/iXT7GTTLmO+h82G5tmORkeoOD+Fe+4FDUAfMnij9ljxr4w+HNrY+I/ijc3vjbTtZ/t2x1UwjyoZv+eax9kIyv41Quf2Wvid8QLrUvE/xe+IlpqHiA6ZLpukfY7YpbWIkXa0gXqWOTX1SOT+ApcUAfDWo/8ABN+G6n1O6j8ZxJJdeG4tEtMwMRBN92W469Sm7869Z8B/sj+HvDvxH1Txz4qTT/EFs+haZoGkWdxagiygtYwhwGyPmI3GvoyloA+W/F/7Evhb4n/EXVPGfxF1aaa1W3FloNhppNrHpsAGDjHGW68VQ8CfsUXHhW78JWmpeLUv9B8JNffZrExtllnBCgse6hjzjmvrLFGBQB87fsu/sq2v7N7+M5INbXU38R6n9ptZDFse2tgCY4fcBmP5V1X7O3wNX4I6Frdjc6lHqGoa9rl3rV1cJD5YLTOWC+5A4zXr+BRQAi5zkiinUUAf/9k="><span class="ft">Flight Execution</span></div>
+<div class="dt" id="s-date"><div class="sub">Today</div><div class="grid">
+<label class="f"><span>Flight date</span><input type="date" id="flightDate" data-k="flightDate" data-day="1"></label>
+<label class="f"><span>Time</span><input type="time" id="recTime" data-k="recTime" data-day="1"></label>
+</div><button type="button" class="btn sm" id="btnNow">Set to now</button></div>
+<details class="logsBox" id="s-logs"><summary>Saved logs and job sites <span id="logCount">0</span></summary><div class="logsBody">
+<div class="hint" style="font-size:13px;font-weight:600;margin:0 0 8px">Every saved or signed log is kept here on this phone. "Copy project" starts a new log with the drone, pilot, client, project, site, coordinates, airspace, frequencies, emergency plan, hazards, diagram and legend filled in. Date and time are set to now; weather, NAV CANADA answer, checklists, observations, actual flight time, comments, photos, signature and status start blank.</div>
+<label class="f"><span>Name this job site <span class="u">(optional)</span></span><input type="text" id="tplName" autocomplete="off" placeholder="e.g. North loop pipeline"></label>
+<button type="button" class="btn sm" id="btnTpl">Save current details as job site</button>
+<div id="logList"></div></div></details>
+<section id="s-drone" style="--sc:#0d3b66"><h2><span class="n">1</span>Drone information</h2><div class="grid"><label class="f full" id="w-asset"><span>Asset unit number</span><input type="text" id="asset" data-k="asset" autocomplete="off"></label><label class="f full"><span>Drone</span><select id="drone" data-k="drone"><option value="">Choose drone...</option><option value="j150">EAVision J150</option><option value="j100">EAVision J100 (EA-J100)</option><option value="m4e">DJI Matrice 4E</option><option value="mini">DJI Mini 5 Pro</option><option value="other">Other drone (type details)</option></select></label><div class="dcard" id="dCard" hidden></div><label class="f" id="w-model"><span>Model name</span><input type="text" id="model" data-k="model" autocomplete="off"></label><label class="f" id="w-tcReg"><span>TC registration number</span><input type="text" id="tcReg" data-k="tcReg" autocomplete="off"></label><label class="f full" id="w-serial"><span>Serial number</span><input type="text" id="serial" data-k="serial" autocomplete="off"></label><label class="f" id="w-weight"><span>Weight of drone (kg)</span><input type="text" id="weight" inputmode="decimal" data-k="weight" autocomplete="off"></label><label class="f" id="w-sfoc"><span>SFOC</span><input type="text" id="sfoc" readonly data-k="sfoc" autocomplete="off"></label><label class="f" id="w-dims"><span>Dimensions of drone (mm)</span><input type="text" id="dims" placeholder="L x W x H" data-k="dims" autocomplete="off"></label></div></section>
+<section id="s-pilot" style="--sc:#2f3e1f"><h2><span class="n">2</span>Pilot information</h2><div class="grid"><label class="f" id="w-pilot"><span>Pilot</span><input type="text" id="pilot" data-k="pilot" autocomplete="off"></label><label class="f" id="w-pilotPhone"><span>Phone number</span><input type="tel" id="pilotPhone" data-k="pilotPhone" autocomplete="off"></label><label class="f" id="w-cert"><span>Certificate number</span><input type="text" id="cert" data-k="cert" autocomplete="off"></label><label class="f" id="w-pilotEmail"><span>Email</span><input type="email" id="pilotEmail" data-k="pilotEmail" autocomplete="off"></label></div></section>
+<section id="s-client" style="--sc:#0b4f4a"><h2><span class="n">3</span>Client information</h2><div class="grid"><label class="f" id="w-client"><span>Client</span><input type="text" id="client" data-k="client" autocomplete="off"></label><label class="f" id="w-clientPhone"><span>Phone number</span><input type="tel" id="clientPhone" data-k="clientPhone" autocomplete="off"></label><label class="f" id="w-project"><span>Project</span><input type="text" id="project" data-k="project" autocomplete="off"></label><label class="f" id="w-clientEmail"><span>Email</span><input type="email" id="clientEmail" data-k="clientEmail" autocomplete="off"></label><label class="f full" id="w-clientRep"><span>Client rep</span><input type="text" id="clientRep" data-k="clientRep" autocomplete="off"></label></div></section>
+<section id="s-flight" style="--sc:#34495e"><h2><span class="n">4</span>Flight information</h2><div class="grid"><label class="f" id="w-purpose"><span>Flight purpose</span><input type="text" id="purpose" data-k="purpose" autocomplete="off"></label><label class="f" id="w-estStart"><span>Est. start time</span><input type="time" id="estStart" data-k="estStart" autocomplete="off"></label><label class="f" id="w-estEnd"><span>Est. end time</span><input type="time" id="estEnd" data-k="estEnd" autocomplete="off"></label><label class="f" id="w-location"><span>Flight location</span><input type="text" id="location" data-k="location" autocomplete="off"></label><label class="f" id="w-estMins"><span>Est. actual flight time (mins)</span><input type="text" id="estMins" inputmode="numeric" data-k="estMins" autocomplete="off"></label><label class="f" id="w-lat"><span>Flight coordinates: latitude</span><input type="text" id="lat" inputmode="decimal" data-k="lat" autocomplete="off"></label><label class="f" id="w-alt"><span>Flight altitude (m AGL)</span><input type="text" id="alt" inputmode="numeric" data-k="alt" autocomplete="off"></label><label class="f" id="w-lon"><span>Flight coordinates: longitude</span><input type="text" id="lon" inputmode="decimal" data-k="lon" autocomplete="off"></label><button type="button" class="btn sm" id="btnGps">Use phone GPS</button><div class="f full" id="diagField"><span class="lbl">Flight diagram <span class="u">(optional)</span></span><div class="diagPick" id="diagPick"><label class="btn" for="diagDrawFile">Draw on a picture</label><input type="file" id="diagDrawFile" accept="image/*" hidden><button type="button" class="btn" id="diagSketch">Blank sketch</button><label class="btn" for="diagFile">Add photo only</label><input type="file" id="diagFile" accept="image/*" hidden></div><div class="hint2">Pick a screenshot or photo (e.g. a map) and draw on it with your finger, start a blank sketch, or add a photo as is.</div><div class="diag" id="diagBox"><div id="diagNone">No diagram added. The PDF keeps the blank diagram box for a sketch.</div><canvas id="diagCanvas" hidden></canvas></div><div class="tools" id="diagTools" hidden><div class="trow" role="group" aria-label="Colour"><button type="button" class="sw on" data-col="#0a7a2f" aria-label="Green" style="background:#0a7a2f"></button><button type="button" class="sw" data-col="#f2c200" aria-label="Yellow" style="background:#f2c200"></button><button type="button" class="sw" data-col="#c40000" aria-label="Red" style="background:#c40000"></button><button type="button" class="sw" data-col="#0047b3" aria-label="Blue" style="background:#0047b3"></button><button type="button" class="sw" data-col="#000000" aria-label="Black" style="background:#000000"></button></div><div class="trow" role="group" aria-label="Line width"><button type="button" class="wd" data-w="0.004">Thin</button><button type="button" class="wd on" data-w="0.008">Medium</button><button type="button" class="wd" data-w="0.016">Thick</button></div><div class="snapHint" id="snapMsg">Hold still at the end of a stroke to snap: line, box, circle or triangle. For an arrow, flick a short barb back from the tip, then hold.</div><div class="trow"><button type="button" class="btn sm" id="diagUndo">Undo</button><button type="button" class="btn sm" id="diagClearInk">Clear drawing</button><button type="button" class="btn sm" id="diagClear">Remove picture</button></div></div><label class="f full"><span>What the diagram shows <span class="u">(optional)</span></span><textarea id="diagNote" data-k="diagNote" rows="3" placeholder="e.g. Green = where we intend to fly, Yellow = landing zone, Red = caution area"></textarea></label><button type="button" class="btn sm" id="diagLegend">Insert example legend</button></div></div></section>
+<section id="s-air" style="--sc:#0d3b66"><h2><span class="n">5</span>Restricted airspace</h2><div class="grid"><label class="f full"><span>Does the flight enter restricted airspace?</span><select id="restricted" data-k="restricted"><option value="">Choose...</option><option value="Yes">Yes</option><option value="No">No</option></select></label><label class="f full"><span>Has NAV CANADA issued a flight authorization for this flight?</span><select id="navAuth" data-k="navAuth" data-day="1"><option value="">Choose...</option><option value="Yes">Yes</option><option value="No">No</option><option value="N/A">N/A</option></select></label><label class="f" id="w-fic"><span>Flight center</span><input type="text" id="fic" data-k="fic" autocomplete="off"></label><label class="f" id="w-airFreq"><span>Airspace frequency</span><input type="text" id="airFreq" placeholder="e.g. 126.3" data-k="airFreq" autocomplete="off"></label><label class="f" id="w-atc"><span>ATC contact</span><input type="text" id="atc" data-k="atc" autocomplete="off"></label><label class="f" id="w-atcNum"><span>ATC number</span><input type="tel" id="atcNum" data-k="atcNum" autocomplete="off"></label><p class="static">Other nearest flight centres, distance, contact number, airspace frequency:</p><label class="f full" id="w-near1"><span>1)</span><input type="text" id="near1" data-k="near1" autocomplete="off"></label><label class="f full" id="w-near2"><span>2)</span><input type="text" id="near2" data-k="near2" autocomplete="off"></label><label class="f full" id="w-near3"><span>3)</span><input type="text" id="near3" data-k="near3" autocomplete="off"></label><label class="f full" id="w-near4"><span>4)</span><input type="text" id="near4" data-k="near4" autocomplete="off"></label><label class="f" id="w-emergFreq"><span>Emergency radio frequency</span><input type="text" id="emergFreq" placeholder="e.g. 121.5" data-k="emergFreq" autocomplete="off"></label><label class="f" id="w-classGFreq"><span>General radio frequency, Class G</span><input type="text" id="classGFreq" placeholder="e.g. 126.7" data-k="classGFreq" autocomplete="off"></label></div></section>
+<section id="s-erp" style="--sc:#3e2723"><h2><span class="n">6</span>Emergency response plan</h2><div class="grid"><label class="f full" id="w-raEmerg"><span>Restricted airspace emergency contact</span><input type="text" id="raEmerg" data-k="raEmerg" autocomplete="off"></label><label class="f full" id="w-clientEmerg"><span>Client emergency contact number</span><input type="tel" id="clientEmerg" data-k="clientEmerg" autocomplete="off"></label><p class="static">Local emergency contact number: 911</p><label class="f full"><span>Primary and secondary landing site established</span><select id="landSites" data-k="landSites"><option value="">Choose...</option><option value="Yes">Yes</option><option value="No">No</option><option value="N/A">N/A</option></select></label><label class="f full"><span>Description of emergency response plan</span><textarea id="erpText" rows="4" data-k="erpText"></textarea></label></div></section>
+<section id="s-restr" style="--sc:#263238"><h2><span class="n">7</span>Flight restrictions</h2><div class="grid"><p class="static">The flight will be limited to a maximum altitude of 122 m (400 ft) AGL.</p><p class="static">The pilot and crew will maintain visual line of sight with the drone.</p><p class="static">The pilot will have a valid pilot certificate and flight authorization.</p></div></section>
+<section id="s-haz" style="--sc:#6b4a0f"><h2><span class="n">8</span>Anticipated hazards and controls</h2><div class="grid"><label class="f full"><span>Hazards and controls</span><textarea id="hazards" rows="4" data-k="hazards"></textarea></label></div></section>
+<section id="s-wx" style="--sc:#34495e"><h2><span class="n">9</span>Weather forecast</h2><div class="grid"><label class="f" id="w-wxTemp"><span>Temp (C)</span><input type="text" id="wxTemp" inputmode="decimal" data-k="wxTemp" data-day="1" autocomplete="off"></label><label class="f" id="w-wxPop"><span>PoP (%)</span><input type="text" id="wxPop" inputmode="numeric" data-k="wxPop" data-day="1" autocomplete="off"></label><label class="f" id="w-wxWind"><span>Wind speed (km/h)</span><input type="text" id="wxWind" inputmode="numeric" data-k="wxWind" data-day="1" autocomplete="off"></label><label class="f" id="w-wxGust"><span>Wind gust (km/h)</span><input type="text" id="wxGust" inputmode="numeric" data-k="wxGust" data-day="1" autocomplete="off"></label><label class="f" id="w-wxRain"><span>Rain (mm)</span><input type="text" id="wxRain" inputmode="decimal" data-k="wxRain" data-day="1" autocomplete="off"></label><label class="f" id="w-wxSnow"><span>Snow (cm)</span><input type="text" id="wxSnow" inputmode="decimal" data-k="wxSnow" data-day="1" autocomplete="off"></label><label class="f" id="w-wxVis"><span>Visibility (km)</span><input type="text" id="wxVis" inputmode="decimal" data-k="wxVis" data-day="1" autocomplete="off"></label><label class="f" id="w-wxCeil"><span>Ceiling (m)</span><input type="text" id="wxCeil" placeholder="e.g. 900 or CLR" data-k="wxCeil" data-day="1" autocomplete="off"></label><label class="f" id="w-wxHum"><span>Humidity (%)</span><input type="text" id="wxHum" inputmode="numeric" data-k="wxHum" data-day="1" autocomplete="off"></label><label class="f" id="w-wxCloud"><span>Cloud cover (%)</span><input type="text" id="wxCloud" inputmode="numeric" data-k="wxCloud" data-day="1" autocomplete="off"></label><label class="f full" id="w-wxCond"><span>Conditions</span><input type="text" id="wxCond" data-k="wxCond" data-day="1" autocomplete="off"></label></div></section>
+<section id="s-pre" class="chk" style="--sc:#1b4d1b"><h2><span class="n">10</span>Pre-flight checklist</h2><div class="cnt"><span id="cnt-pre">0 of 23</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="pre">Tick all</button></div><div class="qc"><label><input type="checkbox" id="pre0" data-k="pre0" data-day="1"><span>Check NOTAMs</span></label><label><input type="checkbox" id="pre1" data-k="pre1" data-day="1"><span>Pre-flight safety meeting</span></label><label><input type="checkbox" id="pre2" data-k="pre2" data-day="1"><span>RPAS batteries fully charged</span></label><label><input type="checkbox" id="pre3" data-k="pre3" data-day="1"><span>Controller batteries fully charged</span></label><label><input type="checkbox" id="pre4" data-k="pre4" data-day="1"><span>RTK base batteries fully charged</span></label><label><input type="checkbox" id="pre5" data-k="pre5" data-day="1"><span>VHF radio charged and set to proper channel</span></label><label><input type="checkbox" id="pre6" data-k="pre6" data-day="1"><span>Take-off/landing pad in suitable location</span></label><label><input type="checkbox" id="pre7" data-k="pre7" data-day="1"><span>Area free of ground debris and level</span></label><label><input type="checkbox" id="pre8" data-k="pre8" data-day="1"><span>Overhead is clear of obstructions</span></label><label><input type="checkbox" id="pre9" data-k="pre9" data-day="1"><span>Area has been checked for birds of prey</span></label><label><input type="checkbox" id="pre10" data-k="pre10" data-day="1"><span>Check chassis for cracks</span></label><label><input type="checkbox" id="pre11" data-k="pre11" data-day="1"><span>Check propellers for cracks or wear</span></label><label><input type="checkbox" id="pre12" data-k="pre12" data-day="1"><span>Check motors for free spinning</span></label><label><input type="checkbox" id="pre13" data-k="pre13" data-day="1"><span>Check gimbal for free movement</span></label><label><input type="checkbox" id="pre14" data-k="pre14" data-day="1"><span>Check indicator lights are operational</span></label><label><input type="checkbox" id="pre15" data-k="pre15" data-day="1"><span>Check screws are tight</span></label><label><input type="checkbox" id="pre16" data-k="pre16" data-day="1"><span>Check GPS is functioning properly</span></label><label><input type="checkbox" id="pre17" data-k="pre17" data-day="1"><span>Check landing gear for cracks</span></label><label><input type="checkbox" id="pre18" data-k="pre18" data-day="1"><span>Check batteries for leaking or bulging</span></label><label><input type="checkbox" id="pre19" data-k="pre19" data-day="1"><span>Check electronic speed controller</span></label><label><input type="checkbox" id="pre20" data-k="pre20" data-day="1"><span>Check compass is functioning properly</span></label><label><input type="checkbox" id="pre21" data-k="pre21" data-day="1"><span>Check wiring is not damaged</span></label><label><input type="checkbox" id="pre22" data-k="pre22" data-day="1"><span>Check camera is clean and free moving</span></label></div></section>
+<section id="s-start" class="chk" style="--sc:#0b4f4a"><h2><span class="n">11</span>Start-up launch procedures</h2><div class="cnt"><span id="cnt-start">0 of 16</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="start">Tick all</button></div><div class="qc"><label><input type="checkbox" id="start0" data-k="start0" data-day="1"><span>Prewarm batteries (winter only)</span></label><label><input type="checkbox" id="start1" data-k="start1" data-day="1"><span>Power up controller</span></label><label><input type="checkbox" id="start2" data-k="start2" data-day="1"><span>Start controller software</span></label><label><input type="checkbox" id="start3" data-k="start3" data-day="1"><span>Power up RTK base station</span></label><label><input type="checkbox" id="start4" data-k="start4" data-day="1"><span>Power up RPAS unit</span></label><label><input type="checkbox" id="start5" data-k="start5" data-day="1"><span>Verify SD card is installed</span></label><label><input type="checkbox" id="start6" data-k="start6" data-day="1"><span>Format SD card if necessary</span></label><label><input type="checkbox" id="start7" data-k="start7" data-day="1"><span>Reconfirm battery levels</span></label><label><input type="checkbox" id="start8" data-k="start8" data-day="1"><span>Compass calibration if necessary</span></label><label><input type="checkbox" id="start9" data-k="start9" data-day="1"><span>Check GPS signal</span></label><label><input type="checkbox" id="start10" data-k="start10" data-day="1"><span>IMU calibration if necessary</span></label><label><input type="checkbox" id="start11" data-k="start11" data-day="1"><span>Announce &quot;All clear for take-off&quot;</span></label><label><input type="checkbox" id="start12" data-k="start12" data-day="1"><span>Power up rotors</span></label><label><input type="checkbox" id="start13" data-k="start13" data-day="1"><span>Initiate take-off to 5 m altitude</span></label><label><input type="checkbox" id="start14" data-k="start14" data-day="1"><span>Test return-to-home function</span></label><label><input type="checkbox" id="start15" data-k="start15" data-day="1"><span>Confirm RPAS responds to the controller</span></label></div></section>
+<section id="s-land" class="chk" style="--sc:#0d3b66"><h2><span class="n">12</span>RPAS landing and shut-down procedures</h2><div class="cnt"><span id="cnt-land">0 of 14</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="land">Tick all</button></div><div class="qc"><label><input type="checkbox" id="land0" data-k="land0" data-day="1"><span>Announce &quot;Aircraft inbound for landing&quot;</span></label><label><input type="checkbox" id="land1" data-k="land1" data-day="1"><span>Position RPAS 5 m above landing zone</span></label><label><input type="checkbox" id="land2" data-k="land2" data-day="1"><span>Perform area hazard assessment</span></label><label><input type="checkbox" id="land3" data-k="land3" data-day="1"><span>Land within established landing zone</span></label><label><input type="checkbox" id="land4" data-k="land4" data-day="1"><span>Power down RPAS unit</span></label><label><input type="checkbox" id="land5" data-k="land5" data-day="1"><span>Power down RTK base station</span></label><label><input type="checkbox" id="land6" data-k="land6" data-day="1"><span>Power down controller</span></label><label><input type="checkbox" id="land7" data-k="land7" data-day="1"><span>Verify flight data is properly captured</span></label><label><input type="checkbox" id="land8" data-k="land8" data-day="1"><span>Remove batteries</span></label><label><input type="checkbox" id="land9" data-k="land9" data-day="1"><span>Allow batteries to cool</span></label><label><input type="checkbox" id="land10" data-k="land10" data-day="1"><span>Allow motors to cool</span></label><label><input type="checkbox" id="land11" data-k="land11" data-day="1"><span>Record landing time</span></label><label><input type="checkbox" id="land12" data-k="land12" data-day="1"><span>Give the &quot;All clear&quot; for workers in area</span></label><label><input type="checkbox" id="land13" data-k="land13" data-day="1"><span>Notify local airspace controller</span></label></div></section>
+<section id="s-post" class="chk" style="--sc:#6b4a0f"><h2><span class="n">13</span>Post-flight inspection and storage</h2><div class="cnt"><span id="cnt-post">0 of 8</span> ticked. Leave unticked if not done or not used.<button type="button" class="btn sm" data-all="post">Tick all</button></div><div class="qc"><label><input type="checkbox" id="post0" data-k="post0" data-day="1"><span>Inspect all components for damage</span></label><label><input type="checkbox" id="post1" data-k="post1" data-day="1"><span>Wipe unit down</span></label><label><input type="checkbox" id="post2" data-k="post2" data-day="1"><span>Prepare RPAS for next mission</span></label><label><input type="checkbox" id="post3" data-k="post3" data-day="1"><span>Remove or secure camera</span></label><label><input type="checkbox" id="post4" data-k="post4" data-day="1"><span>Remove SD card for data download</span></label><label><input type="checkbox" id="post5" data-k="post5" data-day="1"><span>Charge batteries</span></label><label><input type="checkbox" id="post6" data-k="post6" data-day="1"><span>Store batteries at a min. 60% charge</span></label><label><input type="checkbox" id="post7" data-k="post7" data-day="1"><span>Perform a quick inventory check on gear</span></label></div></section>
+<section id="s-obs" style="--sc:#263238"><h2><span class="n">14</span>Flight observations</h2>
+<label class="f full"><span>Observations during flight <span class="u">(Optional &ndash; fill in after the flight if needed)</span></span><textarea id="obs" rows="6" placeholder="Optional &ndash; fill in after the flight if needed. Editing this after signing keeps the signature." data-k="obs" data-day="1"></textarea></label></section>
+<section id="s-cmt" style="--sc:#1b5e20" hidden><h2><span class="n">+</span>Post-flight comments</h2>
+<div class="hint" style="font-size:13px;font-weight:600;margin:0 0 8px">Each comment is time-stamped and kept as written (it can't be edited later). Adding comments keeps the pre-flight signature.</div>
+<ol id="cmtList"></ol>
+<label class="f full"><span>New comment</span><textarea id="cmtText" rows="3" placeholder="e.g. Landed 11:40, all batteries recovered"></textarea></label>
+<button type="button" class="btn" id="cmtAdd">Add comment</button></section>
+<section id="s-photos" style="--sc:#34495e"><h2><span class="n">15</span>Photos <span class="u" style="font-size:14px;font-weight:600">&nbsp;(optional)</span></h2><div id="photoBox"></div></section>
+<section id="s-sign" style="--sc:#3e2723"><h2><span class="n">16</span>Pilot in charge sign-off</h2>
+<div class="grid"><label class="f"><span>Pilot in charge</span><input type="text" id="pic" data-k="pic" autocomplete="off" placeholder="Name of pilot in charge"></label>
+<label class="f"><span>Flight date</span><input type="text" id="picDate" readonly tabindex="-1"></label></div>
+<div class="miss" id="missBox" role="status" aria-live="polite"><b id="missHead">Still missing</b><ul id="missList"></ul></div>
+<span class="lbl">Signature</span><div class="sigWrap" id="sigWrap"><canvas id="sigPad" width="600" height="160"></canvas></div>
+<div class="sigLine">Signature: <span id="sigState" data-s="no">not signed</span> <button type="button" class="btn sm" id="sigClear">Clear signature</button></div>
+<button type="button" id="btnComplete" hidden>Complete pre-flight</button>
+<div id="statusBox" hidden><b class="st" id="pfStatus"></b><div id="pfTimes"></div>
+<div class="pfNote">Pre-flight items are read-only. You can still add observations, actual flight time, the landing and post-flight checklists, photos and comments.</div>
+<button type="button" class="btn" id="btnEmail">Email PDF</button><button type="button" class="btn" id="btnClose">Close out log</button><button type="button" class="btn" id="btnUnlock">Unlock pre-flight (clears signature)</button>
+<div class="pfNote" id="emailNote"></div></div>
+</section>
+<button type="button" id="btnSave">Save / Email PDF</button>
+<div id="saveHint"></div>
+<details class="syncBox" id="s-sync"><summary>Sync records <span id="syncStatus" data-state="off">Sync off</span></summary><div class="syncBody"><div id="syncSettings"></div><div class="hint">Optional. Paste the Sync URL and token once. When you tap Save / Email PDF, a copy of the log and its PDF is also sent to the EcoDrone checklist sheet. With no signal it waits on this phone and sends later (status shows Queued). Saving again for the same day updates that row. Email / PDF works the same either way. Blank URL = Sync off.</div></div></details>
+<div class="foot">Record aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. Today's entries, including the signature, are kept on this phone so a reload does not lose them. Reset all clears every field (saved logs and job sites are kept). Copy project keeps the project details and starts the day's items fresh.</div>
+</main>
+<script>
+/* checklist-sync.js (offline outbox) */
+/* ChecklistSync — offline-first outbox for J150 / J100 checklist records.
+ * Additive only: call ChecklistSync.enqueue(...) AFTER the existing PDF share/download.
+ * It never blocks or changes the email/PDF flow. Blank endpoint = disabled.
+ * localStorage: chk.outbox (queue), chk.endpoint, chk.token
+ */
+(function (global) {
+  'use strict';
+  var KQ = 'chk.outbox', KE = 'chk.endpoint', KT = 'chk.token';
+  var MAX_ITEMS = 30;           // ~ PDFs are ~50-300 KB; keeps well under 5 MB quota
+  var busy = false, statusEls = [], lastErr = '';
+
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function queue() { try { return JSON.parse(lsGet(KQ, '[]')) || []; } catch (e) { return []; } }
+  function saveQueue(q) {
+    while (!lsSet(KQ, JSON.stringify(q)) && q.length > 1) {
+      // Storage full: drop the PDF of the oldest item (row still syncs), then oldest item.
+      var o = q.find(function (i) { return i.pdfBase64; });
+      if (o) o.pdfBase64 = ''; else q.shift();
+    }
+  }
+  function config() { return { endpoint: lsGet(KE, '').trim(), token: lsGet(KT, '').trim() }; }
+  function enabled() { var c = config(); return !!(c.endpoint && c.token); }
+
+  function newId(prefix) {
+    var r = '';
+    try { var a = new Uint8Array(6); crypto.getRandomValues(a); a.forEach(function (b) { r += ('0' + b.toString(16)).slice(-2); }); }
+    catch (e) { r = Math.random().toString(16).slice(2, 14); }
+    return (prefix || 'REC') + '-' + Date.now().toString(36) + '-' + r;
+  }
+
+  function bytesToB64(bytes) {
+    if (typeof bytes === 'string') return bytes;          // already base64
+    var s = '', CH = 0x8000;
+    for (var i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(s);
+  }
+
+  /** record: flat object of the 12 sheet fields (see adapters below). pdfBytes: Uint8Array or base64. */
+  function enqueue(record, pdfBytes, filename, clientRecordId) {
+    if (!enabled()) { render(); return null; }
+    var item = {
+      clientRecordId: clientRecordId || newId(record && record.aircraft),
+      record: record || {}, filename: filename || '',
+      pdfBase64: pdfBytes ? bytesToB64(pdfBytes) : '', queuedAt: Date.now(), tries: 0,
+      v: Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+    };
+    var q = queue();
+    // latest version of a record replaces any queued older version (same id)
+    q = q.filter(function (i) { return i.clientRecordId !== item.clientRecordId; });
+    q.push(item);
+    while (q.length > MAX_ITEMS) q.shift();
+    saveQueue(q);
+    render();
+    setTimeout(flush, 0);
+    return item.clientRecordId;
+  }
+
+  function postOne(item, c) {
+    var body = JSON.stringify({ token: c.token, clientRecordId: item.clientRecordId, record: item.record,
+      filename: item.filename, pdfBase64: item.pdfBase64 });
+    // text/plain = "simple" request: no CORS preflight (Apps Script can't answer OPTIONS).
+    return fetch(c.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body, redirect: 'follow', cache: 'no-store' })
+      .then(function (res) { return res.text(); })
+      .then(function (t) { var j; try { j = JSON.parse(t); } catch (e) { j = { ok: false, error: 'bad_response' }; } return j; });
+  }
+
+  function flush() {
+    if (busy || !enabled()) { render(); return Promise.resolve(); }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) { render(); return Promise.resolve(); }
+    var c = config(); busy = true;
+    function next() {
+      var q = queue();
+      if (!q.length) return Promise.resolve();
+      var item = q[0];
+      return postOne(item, c).then(function (j) {
+        var q2 = queue();
+        if (j && j.ok) {
+          lastErr = '';
+          // remove only the version we sent; a newer re-save queued meanwhile stays and is sent next
+          saveQueue(q2.filter(function (i) { return !(i.clientRecordId === item.clientRecordId && i.v === item.v); }));
+          return next();
+        }
+        lastErr = (j && j.error) || 'error';
+        if (lastErr === 'bad_record_id') {   // permanent: drop, can't ever succeed
+          saveQueue(q2.filter(function (i) { return i.clientRecordId !== item.clientRecordId; }));
+          return next();
+        }
+        q2.forEach(function (i) { if (i.clientRecordId === item.clientRecordId) i.tries++; });
+        saveQueue(q2);   // keep (bad_token, busy, server_error) for a later retry
+      }, function () { lastErr = 'offline'; });
+    }
+    return next().then(function () { busy = false; render(); }, function () { busy = false; render(); });
+  }
+
+  function render() {
+    var n = queue().length, t, st;
+    if (!enabled()) { t = 'Sync off'; st = 'off'; }
+    else if (!n) { t = 'Synced'; st = 'synced'; }
+    else { t = 'Queued (' + n + ')' + (lastErr === 'bad_token' ? ' - check sync token' : ''); st = 'queued'; }
+    statusEls.forEach(function (el) { el.textContent = t; el.setAttribute('data-state', st); });
+  }
+
+  /** Optional: mount a tiny settings block (endpoint + token) and status line into `container`. */
+  function mountSettings(container) {
+    var c = config();
+    container.innerHTML =
+      '<label class="f"><span>Sync URL <span class="u">(blank = off)</span></span><input id="chkEndpoint" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://script.google.com/macros/s/.../exec"></label>' +
+      '<label class="f"><span>Sync token</span><input id="chkToken" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></label>' +
+      '<div class="syncLine">Records: <b id="chkStatus"></b></div>';
+    var ep = container.querySelector('#chkEndpoint'), tk = container.querySelector('#chkToken');
+    ep.value = c.endpoint; tk.value = c.token;
+    function save() { lsSet(KE, ep.value.trim()); lsSet(KT, tk.value.trim()); render(); flush(); }
+    ep.addEventListener('change', save); tk.addEventListener('change', save);
+    statusEls.push(container.querySelector('#chkStatus'));
+    render();
+  }
+
+  function init(opts) {
+    opts = opts || {};
+    if (opts.statusEl) statusEls.push(opts.statusEl);
+    if (opts.settingsEl) mountSettings(opts.settingsEl);
+    global.addEventListener('online', flush);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') flush(); });
+    render(); flush();
+  }
+
+  // ---- adapters from each app's snapshotRecord() ----
+  function crewSigned(crew) {
+    crew = crew || [];
+    var s = crew.filter(function (c) { return c.signed; }).map(function (c) { return c.name || '(no name)'; });
+    return s.length + '/' + crew.filter(function (c) { return c.name; }).length + (s.length ? ': ' + s.join(', ') : '');
+  }
+  function windText(r) {
+    return 'wind ' + (r.wind != null ? r.wind : '?') + ' / gust ' + (r.gust != null ? r.gust : '?') + ' ' + (r.windUnit || '') +
+      ' (limit ' + (r.windLim != null ? r.windLim : '?') + ') - ' + (r.wxText || '');
+  }
+  function fromJ150(r) {
+    return { dateTime: ((r.liftDate || '') + ' ' + (r.liftTime || '')).trim() || r.stamp, aircraft: 'J150', mode: r.modeName || r.mode || '',
+      job: r.jobName || '', client: r.clientName || '', pilot: r.pilot || '', crewSigned: crewSigned(r.crew),
+      airspace: r.airspace || '', navDrone: r.navDrone || '', loadResult: r.capText || '', wind: windText(r), goStatus: r.goText || '' };
+  }
+  function fromJ100(r) {
+    return { dateTime: ((r.liftDate || '') + ' ' + (r.liftTime || '')).trim() || r.stamp, aircraft: 'J100', mode: 'Heavy Lifting',
+      job: r.jobName || '', client: r.clientName || '', pilot: r.pilot || '', crewSigned: crewSigned(r.crew),
+      airspace: r.airspace || '', navDrone: r.navDrone || '', loadResult: r.capText || '', wind: windText(r), goStatus: r.goText || '' };
+  }
+
+  function fromDailyLog(r) {
+    return { dateTime: ((r.flightDate || '') + ' ' + (r.recTime || '')).trim() || r.stamp, aircraft: r.aircraftShort || 'Other', mode: 'SMJV Flight Execution',
+      job: [r.f.project, r.f.location].filter(Boolean).join(' - '), client: r.f.client || '', pilot: r.f.pilot || '', crewSigned: r.signed ? 'PIC signed' : 'PIC not signed',
+      airspace: 'Restricted airspace: ' + (r.f.restricted || '(blank)'), navDrone: r.f.navAuth || '', loadResult: 'Checklists ' + r.checksDone + '/' + r.checksTotal,
+      wind: 'wind ' + (r.f.wxWind || '?') + ' / gust ' + (r.f.wxGust || '?') + ' km/h - ' + (r.f.wxCond || ''), goStatus: r.goText || '' };
+  }
+
+  global.ChecklistSync = { init: init, enqueue: enqueue, flush: flush, queue: queue, enabled: enabled,
+    fromJ150: fromJ150, fromJ100: fromJ100, fromDailyLog: fromDailyLog, newId: newId, _keys: { KQ: KQ, KE: KE, KT: KT } };
+})(window);
+
+</script>
+<script>
+(function(){
+'use strict';
+var SPEC={"sections":[{"id":"drone","t":"Drone information","page":1,"c":"#0d3b66","f":[{"k":"asset","l":"Asset unit number","w":2},{"k":"drone","l":"Drone","ty":"drone","w":2,"pdf":false},{"k":"model","l":"Model name"},{"k":"tcReg","l":"TC registration number"},{"k":"serial","l":"Serial number","w":2},{"k":"weight","l":"Weight of drone (kg)","ty":"dec"},{"k":"sfoc","l":"SFOC","ro":true},{"k":"dims","l":"Dimensions of drone (mm)","ph":"L x W x H"}]},{"id":"pilot","t":"Pilot information","page":1,"c":"#2f3e1f","f":[{"k":"pilot","l":"Pilot"},{"k":"pilotPhone","l":"Phone number","ty":"tel"},{"k":"cert","l":"Certificate number"},{"k":"pilotEmail","l":"Email","ty":"email"}]},{"id":"client","t":"Client information","page":1,"c":"#0b4f4a","f":[{"k":"client","l":"Client"},{"k":"clientPhone","l":"Phone number","ty":"tel"},{"k":"project","l":"Project"},{"k":"clientEmail","l":"Email","ty":"email"},{"k":"clientRep","l":"Client rep","w":2}]},{"id":"flight","t":"Flight information","page":1,"c":"#34495e","f":[{"k":"purpose","l":"Flight purpose"},{"k":"estStart","l":"Est. start time","ty":"time"},{"k":"flightDate","l":"Proposed flight date","ty":"date","day":true,"nohtml":true},{"k":"estEnd","l":"Est. end time","ty":"time"},{"k":"location","l":"Flight location"},{"k":"estMins","l":"Est. actual flight time (mins)","ty":"num"},{"k":"lat","l":"Flight coordinates: latitude","ty":"dec"},{"k":"alt","l":"Flight altitude (m AGL)","ty":"num"},{"k":"lon","l":"Flight coordinates: longitude","ty":"dec"},{"k":"diagram","l":"Flight diagram","ty":"diagram","w":2,"pdf":false}]},{"id":"air","t":"Restricted airspace","page":2,"c":"#0d3b66","f":[{"k":"restricted","l":"Does the flight enter restricted airspace?","ty":"sel","o":["","Yes","No"],"w":2},{"k":"navAuth","l":"Has NAV CANADA issued a flight authorization for this flight?","ty":"sel","o":["","Yes","No","N/A"],"w":2,"day":true},{"k":"fic","l":"Flight center"},{"k":"airFreq","l":"Airspace frequency","ph":"e.g. 126.3"},{"k":"atc","l":"ATC contact"},{"k":"atcNum","l":"ATC number","ty":"tel"},{"ty":"static","l":"Other nearest flight centres, distance, contact number, airspace frequency:","lbl":true},{"k":"near1","l":"1)","w":2},{"k":"near2","l":"2)","w":2},{"k":"near3","l":"3)","w":2},{"k":"near4","l":"4)","w":2},{"k":"emergFreq","l":"Emergency radio frequency","ph":"e.g. 121.5"},{"k":"classGFreq","l":"General radio frequency, Class G","ph":"e.g. 126.7"}]},{"id":"erp","t":"Emergency response plan","page":2,"c":"#3e2723","f":[{"k":"raEmerg","l":"Restricted airspace emergency contact","w":2},{"k":"clientEmerg","l":"Client emergency contact number","ty":"tel","w":2},{"ty":"static","l":"Local emergency contact number: 911"},{"k":"landSites","l":"Primary and secondary landing site established","ty":"sel","o":["","Yes","No","N/A"],"w":2},{"k":"erpText","l":"Description of emergency response plan","ty":"area","w":2}]},{"id":"restr","t":"Flight restrictions","page":2,"c":"#263238","f":[{"ty":"static","l":"The flight will be limited to a maximum altitude of 122 m (400 ft) AGL."},{"ty":"static","l":"The pilot and crew will maintain visual line of sight with the drone."},{"ty":"static","l":"The pilot will have a valid pilot certificate and flight authorization."}]},{"id":"haz","t":"Anticipated hazards and controls","page":2,"c":"#6b4a0f","f":[{"k":"hazards","l":"Hazards and controls","ty":"area","w":2}]},{"id":"wx","t":"Weather forecast","page":3,"c":"#34495e","f":[{"k":"wxTemp","l":"Temp (C)","ty":"dec","day":true},{"k":"wxPop","l":"PoP (%)","ty":"num","day":true},{"k":"wxWind","l":"Wind speed (km/h)","ty":"num","day":true},{"k":"wxGust","l":"Wind gust (km/h)","ty":"num","day":true},{"k":"wxRain","l":"Rain (mm)","ty":"dec","day":true},{"k":"wxSnow","l":"Snow (cm)","ty":"dec","day":true},{"k":"wxVis","l":"Visibility (km)","ty":"dec","day":true},{"k":"wxCeil","l":"Ceiling (m)","ph":"e.g. 900 or CLR","day":true},{"k":"wxHum","l":"Humidity (%)","ty":"num","day":true},{"k":"wxCloud","l":"Cloud cover (%)","ty":"num","day":true},{"k":"wxCond","l":"Conditions","w":2,"day":true}]}],"checks":[{"id":"pre","t":"Pre-flight checklist","c":"#1b4d1b","L":["Check NOTAMs","Pre-flight safety meeting","RPAS batteries fully charged","Controller batteries fully charged","RTK base batteries fully charged","VHF radio charged and set to proper channel","Take-off/landing pad in suitable location","Area free of ground debris and level","Overhead is clear of obstructions","Area has been checked for birds of prey","Check chassis for cracks","Check propellers for cracks or wear"],"R":["Check motors for free spinning","Check gimbal for free movement","Check indicator lights are operational","Check screws are tight","Check GPS is functioning properly","Check landing gear for cracks","Check batteries for leaking or bulging","Check electronic speed controller","Check compass is functioning properly","Check wiring is not damaged","Check camera is clean and free moving"],"items":[{"k":"pre0","l":"Check NOTAMs"},{"k":"pre1","l":"Pre-flight safety meeting"},{"k":"pre2","l":"RPAS batteries fully charged"},{"k":"pre3","l":"Controller batteries fully charged"},{"k":"pre4","l":"RTK base batteries fully charged"},{"k":"pre5","l":"VHF radio charged and set to proper channel"},{"k":"pre6","l":"Take-off/landing pad in suitable location"},{"k":"pre7","l":"Area free of ground debris and level"},{"k":"pre8","l":"Overhead is clear of obstructions"},{"k":"pre9","l":"Area has been checked for birds of prey"},{"k":"pre10","l":"Check chassis for cracks"},{"k":"pre11","l":"Check propellers for cracks or wear"},{"k":"pre12","l":"Check motors for free spinning"},{"k":"pre13","l":"Check gimbal for free movement"},{"k":"pre14","l":"Check indicator lights are operational"},{"k":"pre15","l":"Check screws are tight"},{"k":"pre16","l":"Check GPS is functioning properly"},{"k":"pre17","l":"Check landing gear for cracks"},{"k":"pre18","l":"Check batteries for leaking or bulging"},{"k":"pre19","l":"Check electronic speed controller"},{"k":"pre20","l":"Check compass is functioning properly"},{"k":"pre21","l":"Check wiring is not damaged"},{"k":"pre22","l":"Check camera is clean and free moving"}],"nL":12},{"id":"start","t":"Start-up launch procedures","c":"#0b4f4a","L":["Prewarm batteries (winter only)","Power up controller","Start controller software","Power up RTK base station","Power up RPAS unit","Verify SD card is installed","Format SD card if necessary","Reconfirm battery levels"],"R":["Compass calibration if necessary","Check GPS signal","IMU calibration if necessary","Announce \"All clear for take-off\"","Power up rotors","Initiate take-off to 5 m altitude","Test return-to-home function","Confirm RPAS responds to the controller"],"items":[{"k":"start0","l":"Prewarm batteries (winter only)"},{"k":"start1","l":"Power up controller"},{"k":"start2","l":"Start controller software"},{"k":"start3","l":"Power up RTK base station"},{"k":"start4","l":"Power up RPAS unit"},{"k":"start5","l":"Verify SD card is installed"},{"k":"start6","l":"Format SD card if necessary"},{"k":"start7","l":"Reconfirm battery levels"},{"k":"start8","l":"Compass calibration if necessary"},{"k":"start9","l":"Check GPS signal"},{"k":"start10","l":"IMU calibration if necessary"},{"k":"start11","l":"Announce \"All clear for take-off\""},{"k":"start12","l":"Power up rotors"},{"k":"start13","l":"Initiate take-off to 5 m altitude"},{"k":"start14","l":"Test return-to-home function"},{"k":"start15","l":"Confirm RPAS responds to the controller"}],"nL":8},{"id":"land","t":"RPAS landing and shut-down procedures","c":"#0d3b66","L":["Announce \"Aircraft inbound for landing\"","Position RPAS 5 m above landing zone","Perform area hazard assessment","Land within established landing zone","Power down RPAS unit","Power down RTK base station","Power down controller"],"R":["Verify flight data is properly captured","Remove batteries","Allow batteries to cool","Allow motors to cool","Record landing time","Give the \"All clear\" for workers in area","Notify local airspace controller"],"items":[{"k":"land0","l":"Announce \"Aircraft inbound for landing\""},{"k":"land1","l":"Position RPAS 5 m above landing zone"},{"k":"land2","l":"Perform area hazard assessment"},{"k":"land3","l":"Land within established landing zone"},{"k":"land4","l":"Power down RPAS unit"},{"k":"land5","l":"Power down RTK base station"},{"k":"land6","l":"Power down controller"},{"k":"land7","l":"Verify flight data is properly captured"},{"k":"land8","l":"Remove batteries"},{"k":"land9","l":"Allow batteries to cool"},{"k":"land10","l":"Allow motors to cool"},{"k":"land11","l":"Record landing time"},{"k":"land12","l":"Give the \"All clear\" for workers in area"},{"k":"land13","l":"Notify local airspace controller"}],"nL":7},{"id":"post","t":"Post-flight inspection and storage","c":"#6b4a0f","L":["Inspect all components for damage","Wipe unit down","Prepare RPAS for next mission","Remove or secure camera"],"R":["Remove SD card for data download","Charge batteries","Store batteries at a min. 60% charge","Perform a quick inventory check on gear"],"items":[{"k":"post0","l":"Inspect all components for damage"},{"k":"post1","l":"Wipe unit down"},{"k":"post2","l":"Prepare RPAS for next mission"},{"k":"post3","l":"Remove or secure camera"},{"k":"post4","l":"Remove SD card for data download"},{"k":"post5","l":"Charge batteries"},{"k":"post6","l":"Store batteries at a min. 60% charge"},{"k":"post7","l":"Perform a quick inventory check on gear"}],"nL":4}],"drones":[{"id":"j150","model":"EAVision J150","short":"J150","serial":"JMZKJ150UAV602595756","tcReg":"C-2608284424"},{"id":"j100","model":"EAVision J100 (EA-J100)","short":"J100","serial":"EAVUAV502586857","tcReg":"C-2524576485","sfoc":"930613"},{"id":"m4e","model":"DJI Matrice 4E","short":"M4E","serial":"1581F7FVC265G00DTGTP","tcReg":"C-2621293833"},{"id":"mini","model":"DJI Mini 5 Pro","short":"Mini 5 Pro","serial":"1581FDEC25780291NFJ","tcReg":"C-2526377021","weight":"0.249","dims":"298x373x101"},{"id":"other","model":"","short":"","serial":"","tcReg":""}]};
+var SMJV_LOGO_JPG_B64='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';
+var SMJV_LOGO_W=280,SMJV_LOGO_H=108;
+var KD='smjvfe.draft', KSPEC='smjvfe.spec.', KREM='smjvfe.pilotInfo', REMK=['pilot','cert','pilotPhone','pilotEmail'];
+var REQ=[['flightDate','Flight date'],['recTime','Time'],['drone','Drone'],['model','Model name'],['serial','Serial number'],['tcReg','TC registration number'],
+ ['pilot','Pilot'],['cert','Certificate number'],['client','Client'],['project','Project'],['purpose','Flight purpose'],['location','Flight location'],
+ ['estStart','Est. start time'],['estEnd','Est. end time'],['alt','Flight altitude'],['restricted','Restricted airspace answer'],['navAuth','NAV CANADA authorization answer'],
+ ['landSites','Landing sites established answer'],['erpText','Emergency response plan'],['hazards','Hazards and controls'],
+ ['wxTemp','Temp'],['wxPop','PoP'],['wxWind','Wind speed'],['wxGust','Wind gust'],['wxRain','Rain'],['wxSnow','Snow'],['wxVis','Visibility'],['wxCeil','Ceiling'],['wxHum','Humidity'],['wxCloud','Cloud cover'],['wxCond','Conditions'],
+ ['pic','Pilot in charge']]; // v6: observations are post-flight, optional
+function missing(){return REQ.filter(function(r){var e=document.getElementById(r[0]);return !e||!String(e.value).trim()})}
+var locked=true, logId=null, KLOGS='smjvfe.logs', MAXLOGS=40;
+function carryKeys(){return els().filter(function(e){return !e.dataset.day&&e.type!=='checkbox'&&e.dataset.k!=='estMins'}).map(function(e){return e.dataset.k})}
+function getLogs(){try{return JSON.parse(lsGet(KLOGS)||'[]')||[]}catch(e){return []}}
+function putLogs(a){while(a.length>MAXLOGS)a.pop();while(!lsSet(KLOGS,JSON.stringify(a))&&a.length>1)a.pop();renderLogs()}
+function entry(kind,name){var v=read(),c={};carryKeys().forEach(function(k){c[k]=v[k]});var n=new Date();
+  return {kind:kind,name:name||'',savedAt:localDateStr(n)+' '+localTimeStr(n),date:v.flightDate,client:v.client,project:v.project,location:v.location,model:v.model,signed:!!(sig&&sig.uri),carry:c,diag:diag,status:st.status,completeAt:st.completeAt,closedAt:st.closedAt,updatedAt:st.updatedAt}}
+function addLog(){ // one entry per day's log, updated on each save/sign
+  if(!logId){logId='L'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);saveDraft()}
+  var e=entry('log');e.id=logId;e.full={v:read(),sig:sig,syncId:syncId,diag:diag,st:st};var ph=photoBox.list();if(JSON.stringify(ph).length<700000)e.full.photos=ph;var a=getLogs().filter(function(x){return x.id!==logId});a.unshift(e);putLogs(a)}
+function addTemplate(){var nm=$('tplName').value.trim()||[$('client').value,$('location').value].filter(Boolean).join(' - ')||'Job site';
+  var e=entry('site',nm);e.id='S'+Date.now().toString(36);var a=getLogs();a.unshift(e);putLogs(a);$('tplName').value='';$('saveHint').textContent='Job site saved: '+nm}
+function copyLog(id){
+  var e=id?getLogs().filter(function(x){return x.id===id})[0]:null;
+  if(!id){ // Copy project from the log on screen: keep it in Saved logs first
+    if(!confirm('Copy this project into a new log? The current log is kept in Saved logs.'))return;
+    try{addLog()}catch(_){}e=entry('log');}
+  else{if(!e)return;if(!confirm('Copy project "'+(e.name||e.location||e.client||e.date)+'" into a new log? The log on screen is replaced.'))return;}
+  restoring=true;
+  els().forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value=''});
+  write(e.carry||{});
+  restoring=false;sig=null;syncId=null;logId=null;st=normSt(null);applyLock();diag=e.diag||null;showDiag();photoBox.clear();
+  applyDrone(false);showSig();setDateTimeNow();counts();renderMissing();saveDraft();
+  $('s-logs').open=false;window.scrollTo(0,0);$('saveHint').textContent='Project copied to a new log. Fill in today\'s weather, NAV CANADA answer and checklists.'}
+function delLog(id){if(!confirm('Remove this from the list?'))return;putLogs(getLogs().filter(function(x){return x.id!==id}))}
+function renderLogs(){
+  var a=getLogs(),box=$('logList');$('logCount').textContent=a.length;box.innerHTML='';
+  if(!a.length){box.innerHTML='<div class="note">No saved logs yet.</div>';return}
+  a.forEach(function(e){var d=document.createElement('div');d.className='logItem';d.dataset.id=e.id;
+    var t=document.createElement('div');t.innerHTML='<span class="tag">'+(e.kind==='site'?'Job site':'Log')+'</span>';
+    var b=document.createElement('b');b.textContent=e.kind==='site'?e.name:(longDate(e.date)||e.savedAt);t.appendChild(b);d.appendChild(t);
+    var s=document.createElement('div');s.textContent=[e.client,e.project,e.location,e.model].filter(Boolean).join(' \u00b7 ')+(e.kind==='log'?(e.signed?' \u00b7 signed':' \u00b7 not signed'):'')+' \u00b7 saved '+e.savedAt;d.appendChild(s);
+    if(e.kind==='log'){var sg=document.createElement('span');sg.className='stTag';sg.dataset.s=e.status==='Closed out'?'closed':e.status?'complete':'draft';sg.textContent=(e.status||'Draft')+(e.status==='Closed out'&&e.closedAt?' '+e.closedAt:e.status&&e.completeAt?' '+e.completeAt:'')+(e.updatedAt?' \u00b7 Updated '+e.updatedAt:'');t.appendChild(sg);
+      if(e.signed&&e.full){var ro=document.createElement('button');ro.type='button';ro.className='btn sm reopenBtn';ro.textContent='Reopen to add comments';ro.addEventListener('click',function(){reopenLog(e.id)});d.appendChild(ro);}}
+    var c=document.createElement('button');c.type='button';c.className='btn sm copyBtn';c.textContent='Copy project';c.addEventListener('click',function(){copyLog(e.id)});d.appendChild(c);
+    var x=document.createElement('button');x.type='button';x.className='btn sm';x.textContent='Remove';x.addEventListener('click',function(){delLog(e.id)});d.appendChild(x);
+    box.appendChild(d)})}
+function renderMissing(){
+  var m=missing(),ul=$('missList'),box=$('missBox');ul.innerHTML='';
+  m.forEach(function(r){var li=document.createElement('li'),bt=document.createElement('button');bt.type='button';bt.textContent=r[1];bt.dataset.go=r[0];bt.addEventListener('click',function(){jump(r[0])});li.appendChild(bt);ul.appendChild(li);});
+  locked=m.length>0;box.classList.toggle('ok',!locked);
+  $('missHead').textContent=locked?'Still missing ('+m.length+') \u2013 tap one to go to it':'All required fields are filled. You can sign.';
+  $('sigWrap').classList.toggle('locked',locked);$('sigPad').setAttribute('aria-disabled',locked?'true':'false');
+  if(locked&&sig&&sig.uri){sig=null;showSig();$('saveHint').textContent='Signature cleared because a required field is now empty.';}
+  else if(locked)$('sigState').textContent='locked until the form is complete';
+  else if(!(sig&&sig.uri))$('sigState').textContent='not signed';
+  return m;
+}
+function jump(id){var e=$(id);if(!e)return;e.scrollIntoView({block:'center'});try{e.focus({preventScroll:true})}catch(_){e.focus()}e.classList.add('need');setTimeout(function(){e.classList.remove('need')},2500);}
+function $(id){return document.getElementById(id)}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+function pad2(n){return ('0'+n).slice(-2)}
+function localDateStr(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())}
+function localTimeStr(d){return pad2(d.getHours())+':'+pad2(d.getMinutes())}
+function setDateTimeNow(d){d=d||new Date();$('flightDate').value=localDateStr(d);$('recTime').value=localTimeStr(d);syncPicDate();}
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function longDate(iso){var m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(iso||'');return m?MONTHS[+m[2]-1]+' '+(+m[3])+', '+m[1]:(iso||'')}
+function syncPicDate(){$('picDate').value=longDate($('flightDate').value);}
+var syncId=null, sig=null, diag=null, restoring=false, curDrone='', st=normSt(null);
+function normSt(s){s=s||{};return {status:s.status||'',completeAt:s.completeAt||'',closedAt:s.closedAt||'',updatedAt:s.updatedAt||'',comments:(s.comments||[]).slice()}}
+function nowStamp(){var n=new Date();return localDateStr(n)+' '+localTimeStr(n)}
+function els(){return Array.prototype.slice.call(document.querySelectorAll('[data-k]'))}
+function read(){var o={};els().forEach(function(e){o[e.dataset.k]=e.type==='checkbox'?e.checked:e.value});return o}
+function write(o){els().forEach(function(e){var k=e.dataset.k;if(!(k in o))return;if(e.type==='checkbox')e.checked=!!o[k];else e.value=o[k]})}
+function droneById(id){for(var i=0;i<SPEC.drones.length;i++)if(SPEC.drones[i].id===id)return SPEC.drones[i];return null}
+function saveDraft(){
+  if(restoring)return;
+  var d={v:read(),syncId:syncId,sig:sig,diag:diag,logId:logId,st:st};
+  if(!lsSet(KD,JSON.stringify(d))){d.diag=null;lsSet(KD,JSON.stringify(d));$('saveHint').textContent='Phone storage is full: the diagram is not kept after a reload. Save / Email the PDF now, or remove old saved logs.';}
+  var id=curDrone; if(id) lsSet(KSPEC+id,JSON.stringify({weight:$('weight').value,dims:$('dims').value,asset:$('asset').value,model:id==='other'?$('model').value:'',serial:id==='other'?$('serial').value:'',tcReg:id==='other'?$('tcReg').value:''}));
+}
+function loadDraft(){
+  var s=lsGet(KD); if(!s)return false;
+  try{var d=JSON.parse(s);restoring=true;write(d.v||{});syncId=d.syncId||null;logId=d.logId||null;sig=d.sig||null;diag=d.diag||null;st=normSt(d.st);}catch(e){return false}finally{restoring=false}
+  applyDrone(false);showSig();showDiag();syncPicDate();return true;
+}
+function applyDrone(fromUser){
+  var id=$('drone').value,d=droneById(id),card=$('dCard'),other=id==='other';curDrone=id;
+  ['model','serial','tcReg'].forEach(function(k){$(k).readOnly=!!d&&!other;});
+  $('w-sfoc').hidden=!(d&&d.sfoc);
+  if(!d){card.hidden=true;if(fromUser||true){['model','serial','tcReg','sfoc'].forEach(function(k){$(k).value=''});}return;}
+  var mem={};try{mem=JSON.parse(lsGet(KSPEC+id)||'{}')||{}}catch(e){}
+  if(fromUser){
+    $('model').value=other?(mem.model||''):d.model;$('serial').value=other?(mem.serial||''):d.serial;$('tcReg').value=other?(mem.tcReg||''):d.tcReg;$('sfoc').value=d.sfoc||'';
+    $('weight').value=mem.weight!=null&&mem.weight!==''?mem.weight:(d.weight||'');$('dims').value=mem.dims!=null&&mem.dims!==''?mem.dims:(d.dims||'');
+    if(mem.asset!=null)$('asset').value=mem.asset;
+  }else if(!other){$('model').value=d.model;$('serial').value=d.serial;$('tcReg').value=d.tcReg;$('sfoc').value=d.sfoc||'';}
+  card.hidden=false;
+  card.textContent=other?'Other drone: type the model, serial and TC registration below.':(d.model+' \u2013 serial '+d.serial+', TC registration '+d.tcReg+(d.sfoc?', SFOC '+d.sfoc:'')+'. Weight and dimensions: '+(d.weight?'from the original form; check them.':'enter once; they are remembered for this drone.'));
+}
+function counts(){
+  var done=0,tot=0;
+  SPEC.checks.forEach(function(c){var n=0;c.items.forEach(function(i){if($(i.k).checked)n++});$('cnt-'+c.id).textContent=n+' of '+c.items.length;done+=n;tot+=c.items.length;});
+  return {done:done,total:tot};
+}
+/* ---- signature ---- */
+var pad=$('sigPad'),pctx=pad.getContext('2d'),drawing=false,inked=false;
+function clearPad(){pctx.fillStyle='#fff';pctx.fillRect(0,0,pad.width,pad.height);inked=false}
+function showSig(){
+  clearPad();var st=$('sigState');
+  if(sig&&sig.uri){var im=new Image();im.onload=function(){pctx.drawImage(im,0,0,pad.width,pad.height)};im.src=sig.uri;st.textContent='signed at '+sig.time;st.dataset.s='yes';}
+  else{st.textContent=locked?'locked until the form is complete':'not signed';st.dataset.s='no';}
+}
+function pos(e){var r=pad.getBoundingClientRect();return {x:(e.clientX-r.left)*pad.width/r.width,y:(e.clientY-r.top)*pad.height/r.height}}
+pad.addEventListener('pointerdown',function(e){e.preventDefault();if(locked||st.status)return;drawing=true;try{pad.setPointerCapture(e.pointerId)}catch(_){};var p=pos(e);pctx.strokeStyle='#000';pctx.lineWidth=3;pctx.lineCap='round';pctx.beginPath();pctx.moveTo(p.x,p.y);});
+pad.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);pctx.lineTo(p.x,p.y);pctx.stroke();inked=true;});
+function endSig(){if(!drawing)return;drawing=false;if(!inked&&!(sig&&sig.uri))return;sig={uri:pad.toDataURL('image/jpeg',0.8),w:pad.width,h:pad.height,time:localTimeStr(new Date())};$('sigState').textContent='signed at '+sig.time;$('sigState').dataset.s='yes';saveDraft();try{addLog()}catch(_){}renderStatus()}
+pad.addEventListener('pointerup',endSig);pad.addEventListener('pointercancel',endSig);pad.addEventListener('pointerleave',endSig);
+$('sigClear').addEventListener('click',function(){if(st.status)return;sig=null;showSig();saveDraft();renderStatus()});
+/* PHOTOS MODULE JS START (portable: J150/J100/Small Drone).
+ * PhotoBox({el, key, maxPx, quality, cap, onChange}) -> {list(), clear(), render()}
+ * Optional photos with captions, reorder and remove. Stored as JPEG data URIs in localStorage[key],
+ * separate from the form draft, so they are never carried over. Works offline (input type=file, accept=image/*). */
+function PhotoBox(o){
+  var key=o.key, maxPx=o.maxPx||1200, q0=o.quality||0.7, cap=o.cap||450000, el=o.el, photos=[], warn='';
+  try{photos=JSON.parse(localStorage.getItem(key)||'[]')||[]}catch(e){photos=[]}
+  function store(){try{localStorage.setItem(key,JSON.stringify(photos));warn='';return true}catch(e){warn='Phone storage is full: the newest photos are kept only until this page is closed. Save / Email the PDF now, or remove photos or old saved logs.';return false}}
+  function changed(){store();render();if(o.onChange)o.onChange(photos)}
+  function compress(src,w0,h0){
+    var s=Math.min(1,maxPx/Math.max(w0,h0)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(w0*s));c.height=Math.max(1,Math.round(h0*s));
+    var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(src,0,0,c.width,c.height);
+    var q=q0,u=c.toDataURL('image/jpeg',q);while(u.length>cap&&q>0.35){q-=0.1;u=c.toDataURL('image/jpeg',q)}
+    while(u.length>cap&&c.width>300){var n=document.createElement('canvas');n.width=Math.round(c.width*0.8);n.height=Math.round(c.height*0.8);n.getContext('2d').drawImage(c,0,0,n.width,n.height);c=n;u=c.toDataURL('image/jpeg',0.6)}
+    return {uri:u,w:c.width,h:c.height};
+  }
+  function addFile(f){
+    return new Promise(function(res){
+      function use(src,w,h){var p=compress(src,w,h);p.id='P'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);p.cap='';photos.push(p);res()}
+      function viaImg(){var u=URL.createObjectURL(f),im=new Image();im.onload=function(){use(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(u)};im.onerror=function(){res()};im.src=u}
+      if(window.createImageBitmap)createImageBitmap(f,{imageOrientation:'from-image'}).then(function(b){use(b,b.width,b.height)},viaImg);else viaImg();
+    });
+  }
+  function move(i,d){var j=i+d;if(j<0||j>=photos.length)return;var t=photos[i];photos[i]=photos[j];photos[j]=t;changed()}
+  function render(){
+    el.className='phBox';el.innerHTML='';
+    var note=document.createElement('div');note.className='phNote';note.textContent='Add site, weather or weather-app screenshots, or anything else. Each photo prints with its caption on extra pages after the form. Photos are not copied to a new log.';el.appendChild(note);
+    var lab=document.createElement('label');lab.className='phAdd';lab.textContent='Add photo (camera or library)';
+    var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.hidden=true;inp.className='phInput';
+    inp.addEventListener('change',function(){var fs=Array.prototype.slice.call(inp.files||[]);inp.value='';fs.reduce(function(p,f){return p.then(function(){return addFile(f)})},Promise.resolve()).then(changed)});
+    lab.appendChild(inp);el.appendChild(lab);
+    if(warn){var w=document.createElement('div');w.className='phWarn';w.textContent=warn;el.appendChild(w)}
+    photos.forEach(function(p,i){
+      var d=document.createElement('div');d.className='phItem';
+      var im=document.createElement('img');im.src=p.uri;im.alt='Photo '+(i+1);d.appendChild(im);
+      var ta=document.createElement('textarea');ta.placeholder='Caption or notes for photo '+(i+1);ta.value=p.cap||'';ta.className='phCap';
+      ta.addEventListener('input',function(){p.cap=ta.value;store();if(o.onChange)o.onChange(photos)});d.appendChild(ta);
+      var r=document.createElement('div');r.className='phRow';
+      [['Move up',function(){move(i,-1)}],['Move down',function(){move(i,1)}],['Remove',function(){if(confirm('Remove photo '+(i+1)+'?')){photos.splice(i,1);changed()}}]].forEach(function(b){var x=document.createElement('button');x.type='button';x.textContent=b[0];x.addEventListener('click',b[1]);r.appendChild(x)});
+      d.appendChild(r);el.appendChild(d);
+    });
+  }
+  render();
+  return {list:function(){return photos.map(function(p){return {uri:p.uri,w:p.w,h:p.h,cap:p.cap||''}})},clear:function(){photos=[];changed()},set:function(a){photos=(a||[]).map(function(p){return {uri:p.uri,w:p.w,h:p.h,cap:p.cap||''}});changed()},render:render};
+}
+/* PHOTOS MODULE JS END */
+var photoBox=PhotoBox({el:$('photoBox'),key:'smjvfe.photos',maxPx:1200,quality:0.7,cap:450000,onChange:function(){if(typeof st!=='undefined'&&st.status)markUpdated()}});
+/* ---- flight diagram: photo, blank sketch, or draw on a picture ---- */
+var DMAX=1200, DQ=0.7, DCAP=450000; // px, JPEG quality, max data-URI chars (~330 KB)
+var dc=$('diagCanvas'),dx=dc.getContext('2d'),dBase=null,dStrokes=[],dCur=null,dCol='#0a7a2f',dW=0.008,dDraw=false;
+function dRedraw(){
+  dx.fillStyle='#fff';dx.fillRect(0,0,dc.width,dc.height);if(dBase)dx.drawImage(dBase,0,0,dc.width,dc.height);
+  dStrokes.concat(dCur?[dCur]:[]).forEach(function(s){
+    dx.strokeStyle=s.c;dx.lineWidth=s.w;dx.lineCap='round';dx.lineJoin='round';dx.beginPath();
+    if(s===dFlashS){dx.save();dx.shadowColor='#ffffff';dx.shadowBlur=Math.max(8,s.w*1.5)}
+    if(s.shape)shapePath(s.shape,s.w);else{s.p.forEach(function(p,i){i?dx.lineTo(p[0],p[1]):dx.moveTo(p[0],p[1])});if(s.p.length===1)dx.lineTo(s.p[0][0]+0.1,s.p[0][1]);}
+    dx.stroke();if(s===dFlashS)dx.restore();});
+}
+function shapePath(sh,w){
+  if(sh.type==='triangle'){sh.pts.forEach(function(q,i){i?dx.lineTo(q[0],q[1]):dx.moveTo(q[0],q[1])});dx.closePath();return}
+  if(sh.type==='arrow'){
+    dx.moveTo(sh.x0,sh.y0);if(sh.qx!=null)dx.quadraticCurveTo(sh.qx,sh.qy,sh.x1,sh.y1);else dx.lineTo(sh.x1,sh.y1);
+    var bx=sh.qx!=null?sh.qx:sh.x0,by=sh.qx!=null?sh.qy:sh.y0,ang=Math.atan2(sh.y1-by,sh.x1-bx),len=Math.hypot(sh.x1-sh.x0,sh.y1-sh.y0);
+    var hl=Math.max(3.5*(w||4),Math.min(0.22*len,7*(w||4))),sp=0.5;
+    [ang+Math.PI-sp,ang+Math.PI+sp].forEach(function(a2){dx.moveTo(sh.x1,sh.y1);dx.lineTo(sh.x1+hl*Math.cos(a2),sh.y1+hl*Math.sin(a2))});return}
+  if(sh.type==='line'){dx.moveTo(sh.x1,sh.y1);dx.lineTo(sh.x2,sh.y2);return}
+  if(sh.type==='rect'||sh.type==='square'){var c=Math.cos(sh.a),s=Math.sin(sh.a),hw=sh.w/2,hh=sh.h/2;
+    [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]].forEach(function(q,i){var x=sh.cx+q[0]*c-q[1]*s,y=sh.cy+q[0]*s+q[1]*c;i?dx.lineTo(x,y):dx.moveTo(x,y)});dx.closePath();return}
+  dx.ellipse(sh.cx,sh.cy,Math.max(1,sh.rx),Math.max(1,sh.ry),sh.a,0,Math.PI*2);
+}
+/* Shape recognition (iPhone Markup style): classify(points) -> shape or null */
+function plen(P,a,b){var L=0;for(var i=a+1;i<=b;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);return L}
+function segDist(p,a,b){var dx_=b[0]-a[0],dy_=b[1]-a[1],l2=dx_*dx_+dy_*dy_,t=l2?Math.max(0,Math.min(1,((p[0]-a[0])*dx_+(p[1]-a[1])*dy_)/l2)):0;return Math.hypot(p[0]-a[0]-t*dx_,p[1]-a[1]-t*dy_)}
+function rdp(P,eps){if(P.length<3)return P.slice();var d=0,k=0;for(var i=1;i<P.length-1;i++){var e=segDist(P[i],P[0],P[P.length-1]);if(e>d){d=e;k=i}}
+  if(d<=eps)return [P[0],P[P.length-1]];return rdp(P.slice(0,k+1),eps).slice(0,-1).concat(rdp(P.slice(k),eps))}
+function straightFit(P){var a=P[0],z=P[P.length-1],ch=Math.hypot(z[0]-a[0],z[1]-a[1]),L=plen(P,0,P.length-1),dev=0;
+  P.forEach(function(p){dev=Math.max(dev,segDist(p,a,z))});return {ok:ch>0&&ch/L>0.9&&dev<0.08*ch+3,ch:ch,L:L,dev:dev}}
+/* Arrow gesture: draw the shaft to the tip, then flick ONE short barb back from the tip and hold.
+   Detected as a sharp reversal (>110 deg) near the end, with a short tail (6-45% of the shaft). */
+function arrowFit(P){
+  var n=P.length;if(n<8)return null;var L=plen(P,0,n-1),best=-1,bestAng=0;
+  for(var k=Math.floor(n*0.4);k<n-2;k++){
+    var tail=plen(P,k,n-1),shaft=L-tail;if(tail<0.06*shaft||tail>0.45*shaft)continue;
+    var b=P[Math.max(0,k-Math.max(2,Math.floor(n*0.08)))],c=P[k],z=P[n-1];
+    var v1=[c[0]-b[0],c[1]-b[1]],v2=[z[0]-c[0],z[1]-c[1]],m1=Math.hypot(v1[0],v1[1]),m2=Math.hypot(v2[0],v2[1]);if(!m1||!m2)continue;
+    var ang=Math.acos(Math.max(-1,Math.min(1,(v1[0]*v2[0]+v1[1]*v2[1])/(m1*m2))))*180/Math.PI;
+    var tipFar=Math.hypot(c[0]-P[0][0],c[1]-P[0][1]);var far=true;for(var j=k+1;j<n;j++)if(Math.hypot(P[j][0]-P[0][0],P[j][1]-P[0][1])>tipFar*1.02){far=false;break}
+    if(ang>110&&far&&ang>bestAng&&m2>=0.05*shaft){best=k;bestAng=ang}
+  }
+  if(best<0)return null;
+  var S=P.slice(0,best+1),sf=straightFit(S),a=S[0],z=S[S.length-1];
+  if(sf.dev<0.07*sf.ch)return {type:'arrow',x0:a[0],y0:a[1],x1:z[0],y1:z[1]};
+  // curved shaft: least-squares quadratic Bezier control point (chord-length parameters)
+  var cum=[0];for(var i=1;i<S.length;i++)cum.push(cum[i-1]+Math.hypot(S[i][0]-S[i-1][0],S[i][1]-S[i-1][1]));
+  var sx=0,sy=0,sw=0;S.forEach(function(p,i){var u=cum[i]/cum[cum.length-1],b0=(1-u)*(1-u),b1=2*u*(1-u),b2=u*u;sx+=b1*(p[0]-b0*a[0]-b2*z[0]);sy+=b1*(p[1]-b0*a[1]-b2*z[1]);sw+=b1*b1});
+  var qx=sx/sw,qy=sy/sw,err=0;S.forEach(function(p,i){var u=cum[i]/cum[cum.length-1];var x=(1-u)*(1-u)*a[0]+2*u*(1-u)*qx+u*u*z[0],y=(1-u)*(1-u)*a[1]+2*u*(1-u)*qy+u*u*z[1];err+=Math.hypot(p[0]-x,p[1]-y)});
+  err/=S.length;if(err>0.08*cum[cum.length-1])return null;
+  return {type:'arrow',curved:true,x0:a[0],y0:a[1],qx:qx,qy:qy,x1:z[0],y1:z[1]};
+}
+function triangleFit(P,size){
+  var n=P.length,far=0,k=0;for(var i=1;i<n;i++){var d=Math.hypot(P[i][0]-P[0][0],P[i][1]-P[0][1]);if(d>far){far=d;k=i}}
+  var eps=0.07*size,v=rdp(P.slice(0,k+1),eps).concat(rdp(P.slice(k),eps).slice(1));
+  v=v.slice(0,-1); // drop closing point
+  // merge vertices very close together or nearly collinear
+  var clean=[];v.forEach(function(p){if(!clean.length||Math.hypot(p[0]-clean[clean.length-1][0],p[1]-clean[clean.length-1][1])>0.08*size)clean.push(p)});
+  if(clean.length>3&&Math.hypot(clean[0][0]-clean[clean.length-1][0],clean[0][1]-clean[clean.length-1][1])<0.08*size)clean.pop();
+  var out=[];for(var j=0;j<clean.length;j++){var A=clean[(j+clean.length-1)%clean.length],B=clean[j],C=clean[(j+1)%clean.length];
+    var a1=Math.atan2(A[1]-B[1],A[0]-B[0]),a2=Math.atan2(C[1]-B[1],C[0]-B[0]),d2=Math.abs(((a1-a2)*180/Math.PI+540)%360-180);if(d2<160)out.push(B)}
+  if(out.length!==3)return null;
+  var e=0;P.forEach(function(p){e+=Math.min(segDist(p,out[0],out[1]),segDist(p,out[1],out[2]),segDist(p,out[2],out[0]))});e/=n;
+  return e<0.05*size?{type:'triangle',pts:out}:null;
+}
+/* v-fix: arrow = shaft to the point farthest from the start, then a short head that heads back
+   (one barb, a V of two barbs, or a hook). Uses only this stroke's points, so crossing other lines never matters. */
+function bsize(P){var x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;P.forEach(function(p){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});return Math.hypot(x1-x0,y1-y0)}
+function bezFit(S){var a=S[0],z=S[S.length-1],cum=[0];for(var i=1;i<S.length;i++)cum.push(cum[i-1]+Math.hypot(S[i][0]-S[i-1][0],S[i][1]-S[i-1][1]));
+  var T=cum[cum.length-1]||1,sx=0,sy=0,sw=0;S.forEach(function(p,i){var u=cum[i]/T,b0=(1-u)*(1-u),b1=2*u*(1-u),b2=u*u;sx+=b1*(p[0]-b0*a[0]-b2*z[0]);sy+=b1*(p[1]-b0*a[1]-b2*z[1]);sw+=b1*b1});
+  if(!sw)return null;var qx=sx/sw,qy=sy/sw,err=0;S.forEach(function(p,i){var u=cum[i]/T;var x=(1-u)*(1-u)*a[0]+2*u*(1-u)*qx+u*u*z[0],y=(1-u)*(1-u)*a[1]+2*u*(1-u)*qy+u*u*z[1];err+=Math.hypot(p[0]-x,p[1]-y)});
+  err/=S.length;return err<=0.1*T?{qx:qx,qy:qy}:null}
+function arrowFit2(P,size){var n=P.length;if(n<6)return null;size=size||bsize(P);
+  var a=P[0],k=0,far=0;for(var i=0;i<n;i++){var d=Math.hypot(P[i][0]-a[0],P[i][1]-a[1]);if(d>far){far=d;k=i}}
+  if(k>=n-2||far<0.6*size||far<30)return null;
+  var shaftL=plen(P,0,k),headL=plen(P,k,n-1);if(headL<0.05*shaftL||headL>0.7*shaftL)return null;
+  var z=P[k],j0=k;while(j0>0&&Math.hypot(P[j0][0]-z[0],P[j0][1]-z[1])<0.15*far)j0--;
+  var dx_=z[0]-P[j0][0],dy_=z[1]-P[j0][1],dl=Math.hypot(dx_,dy_)||1;dx_/=dl;dy_/=dl;
+  var ext=0,back=0,cnt=0;for(i=k+1;i<n;i++){var vx=P[i][0]-z[0],vy=P[i][1]-z[1],dd=Math.hypot(vx,vy);ext=Math.max(ext,dd);if(dd>0.03*far){cnt++;if((vx*dx_+vy*dy_)/dd<-0.15)back++}}
+  if(ext<0.04*far||ext>0.5*far||!cnt||back/cnt<0.6)return null;
+  var S=P.slice(0,k+1),sf=straightFit(S);if(sf.dev<0.06*sf.ch+3)return {type:'arrow',x0:a[0],y0:a[1],x1:z[0],y1:z[1]};
+  var bz=bezFit(S);if(!bz)return null;return {type:'arrow',curved:true,x0:a[0],y0:a[1],qx:bz.qx,qy:bz.qy,x1:z[0],y1:z[1]};
+}
+function snapTol(){return Math.max(14,0.035*Math.max(dc.width,dc.height))}
+function vertsOf(t){var s=t.shape;if(!s)return t.p.length?[t.p[0],t.p[t.p.length-1]]:[];
+  if(s.type==='line')return [[s.x1,s.y1],[s.x2,s.y2]];if(s.type==='arrow')return [[s.x0,s.y0],[s.x1,s.y1]];if(s.type==='triangle')return s.pts;
+  if(s.type==='rect'||s.type==='square'){var c=Math.cos(s.a),sn=Math.sin(s.a),hw=s.w/2,hh=s.h/2;return [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]].map(function(q){return [s.cx+q[0]*c-q[1]*sn,s.cy+q[0]*sn+q[1]*c]})}return []}
+function segsOf(t){var s=t.shape,v=vertsOf(t);if(!s||s.type==='arrow'&&s.qx!=null)return [];if(s.type==='line'||s.type==='arrow')return [[v[0],v[1]]];
+  if(s.type==='triangle'||s.type==='rect'||s.type==='square')return v.map(function(p,i){return [p,v[(i+1)%v.length]]});return []}
+function snapPt(q,own){var tol=snapTol(),b=null,bd=tol;dStrokes.forEach(function(t){if(t===own)return;vertsOf(t).forEach(function(v){var d=Math.hypot(v[0]-q[0],v[1]-q[1]);if(d<bd){bd=d;b=[v[0],v[1]]}})});if(b)return b;
+  bd=0.6*tol;dStrokes.forEach(function(t){if(t===own)return;segsOf(t).forEach(function(sg){var A=sg[0],B=sg[1],ex=B[0]-A[0],ey=B[1]-A[1],l2=ex*ex+ey*ey;if(!l2)return;var u=Math.max(0,Math.min(1,((q[0]-A[0])*ex+(q[1]-A[1])*ey)/l2)),x=A[0]+u*ex,y=A[1]+u*ey,d=Math.hypot(x-q[0],y-q[1]);if(d<bd){bd=d;b=[x,y]}})});return b}
+function dFinish(s){var P=s.p,m=$('snapMsg');s.sp=null;
+  if(!s.shape&&P.length>=6){var ar=arrowFit2(P);if(ar){s.shape=ar;s.auto=1;m.textContent='Snapped to '+(ar.curved?'curved arrow':'arrow')+'. Use Undo to remove it.'}}
+  if(!s.shape&&P.length>=6){var a0=P[0],z=P[P.length-1],sz=bsize(P);if(Math.hypot(z[0]-a0[0],z[1]-a0[1])<Math.max(snapTol(),0.12*sz)&&plen(P,0,P.length-1)>2.5*sz)P.push([a0[0],a0[1]]);}
+  var q;if(!s.shape&&P.length){var cl=P.length>2&&P[0][0]===P[P.length-1][0]&&P[0][1]===P[P.length-1][1];
+    if(q=snapPt(P[0],s)){P.unshift(q);if(cl)P.push([q[0],q[1]])}if(!cl&&(q=snapPt(P[P.length-1],s)))P.push(q)}
+  else if(s.shape&&s.shape.type==='line'){if(q=snapPt([s.shape.x1,s.shape.y1],s)){s.shape.x1=q[0];s.shape.y1=q[1]}if(q=snapPt([s.shape.x2,s.shape.y2],s)){s.shape.x2=q[0];s.shape.y2=q[1]}}
+  else if(s.shape&&s.shape.type==='arrow'){if(q=snapPt([s.shape.x0,s.shape.y0],s)){s.shape.x0=q[0];s.shape.y0=q[1]}}
+}
+window.__DIAG={last:function(){var s=dStrokes[dStrokes.length-1];return s?{shape:s.shape||null,n:s.p.length,first:s.p[0],end:s.p[s.p.length-1],auto:!!s.auto}:null},all:function(){return dStrokes.map(function(s){return {shape:s.shape||null,first:s.p[0],end:s.p[s.p.length-1],n:s.p.length,c:s.c}})},tol:function(){return snapTol()}};
+function classify(P){
+  if(!P||P.length<4)return null;
+  var L=0,i;for(i=1;i<P.length;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);
+  var minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;P.forEach(function(p){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0]);minY=Math.min(minY,p[1]);maxY=Math.max(maxY,p[1])});
+  var size=Math.hypot(maxX-minX,maxY-minY);if(size<8||L<10)return null;
+  var a=P[0],z=P[P.length-1],chord=Math.hypot(z[0]-a[0],z[1]-a[1]);
+  var arr=arrowFit2(P,size)||(chord>0.25*size?arrowFit(P):null);if(arr)return arr;
+  if(chord/L>0.9||(chord>0.5*size&&straightFit(P).dev<0.05*chord)){ // near-straight: max deviation from the chord small
+    var dev=0;P.forEach(function(p){dev=Math.max(dev,Math.abs((z[0]-a[0])*(a[1]-p[1])-(a[0]-p[0])*(z[1]-a[1]))/chord)});
+    if(dev<0.08*chord+3)return {type:'line',x1:a[0],y1:a[1],x2:z[0],y2:z[1]};return null;}
+  if(chord>0.25*size)return null; // open curve: stay freehand
+  var tri=triangleFit(P,size);if(tri)return tri;
+  var Q=P.slice();var n=Q.length,cx=0,cy=0;Q.forEach(function(p){cx+=p[0];cy+=p[1]});cx/=n;cy/=n;
+  // best-fitting rotated rectangle (min-area box) vs ellipse (PCA); compare mean boundary error
+  var best=null;for(var d=0;d<90;d+=1){var t=d*Math.PI/180,c=Math.cos(t),s=Math.sin(t),x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    Q.forEach(function(p){var u=(p[0]-cx)*c+(p[1]-cy)*s,v=-(p[0]-cx)*s+(p[1]-cy)*c;x0=Math.min(x0,u);x1=Math.max(x1,u);y0=Math.min(y0,v);y1=Math.max(y1,v)});
+    var ar=(x1-x0)*(y1-y0);if(!best||ar<best.ar)best={ar:ar,t:t,x0:x0,x1:x1,y0:y0,y1:y1}}
+  var bt=best,rw=bt.x1-bt.x0,rh=bt.y1-bt.y0,ru=(bt.x0+bt.x1)/2,rv=(bt.y0+bt.y1)/2,ct=Math.cos(bt.t),st=Math.sin(bt.t);
+  var rcx=cx+ru*ct-rv*st,rcy=cy+ru*st+rv*ct,eR=0,eE=0;
+  var sxx=0,syy=0,sxy=0;Q.forEach(function(p){var X=p[0]-cx,Y=p[1]-cy;sxx+=X*X;syy+=Y*Y;sxy+=X*Y});var ea=0.5*Math.atan2(2*sxy,sxx-syy),ec=Math.cos(ea),es=Math.sin(ea),ex0=1e9,ex1=-1e9,ey0=1e9,ey1=-1e9;
+  Q.forEach(function(p){var u=(p[0]-cx)*ec+(p[1]-cy)*es,v=-(p[0]-cx)*es+(p[1]-cy)*ec;ex0=Math.min(ex0,u);ex1=Math.max(ex1,u);ey0=Math.min(ey0,v);ey1=Math.max(ey1,v)});
+  var erx=(ex1-ex0)/2,ery=(ey1-ey0)/2,ecx=cx+((ex0+ex1)/2)*ec-((ey0+ey1)/2)*es,ecy=cy+((ex0+ex1)/2)*es+((ey0+ey1)/2)*ec;
+  Q.forEach(function(p){
+    var u=(p[0]-rcx)*ct+(p[1]-rcy)*st,v=-(p[0]-rcx)*st+(p[1]-rcy)*ct;eR+=Math.min(Math.abs(Math.abs(u)-rw/2),Math.abs(Math.abs(v)-rh/2));
+    var U=(p[0]-ecx)*ec+(p[1]-ecy)*es,V=-(p[0]-ecx)*es+(p[1]-ecy)*ec,r=Math.hypot(U/Math.max(erx,1),V/Math.max(ery,1));eE+=Math.abs(r-1)*Math.min(erx,ery);
+  });
+  eR/=n;eE/=n;var scale=Math.max(rw,rh);
+  if(Math.min(eR,eE)>0.12*scale)return null; // too irregular: keep freehand
+  if(eR<=eE){var ang=bt.t;var deg=ang*180/Math.PI;if(deg<8||deg>82){ // near axis-aligned: square it to the axes
+      if(deg>82){var tmp=rw;rw=rh;rh=tmp}ang=0}
+    if(Math.abs(rw-rh)<0.15*Math.max(rw,rh)){var m=(rw+rh)/2;return {type:'square',cx:rcx,cy:rcy,w:m,h:m,a:ang}}
+    return {type:'rect',cx:rcx,cy:rcy,w:rw,h:rh,a:ang}}
+  if(Math.abs(erx-ery)<0.15*Math.max(erx,ery)){var r0=(erx+ery)/2;return {type:'circle',cx:ecx,cy:ecy,rx:r0,ry:r0,a:0}}
+  return {type:'ellipse',cx:ecx,cy:ecy,rx:erx,ry:ery,a:ea};
+}
+var HOLD_MS=600,dHoldT=null,dAnchor=null,dFlashS=null;
+function holdTol(){return Math.max(6,0.012*Math.max(dc.width,dc.height))}
+function armHold(p){dAnchor=p;clearTimeout(dHoldT);dHoldT=setTimeout(function(){
+  if(!dDraw||!dCur||dCur.shape)return;var sh=classify(dCur.p);if(!sh)return;
+  dCur.shape=sh;dCur.sp=dCur.p[dCur.p.length-1];dFlashS=dCur;dRedraw();var m=$('snapMsg');m.textContent='Snapped to '+(sh.type==='rect'?'rectangle':sh.type==='arrow'&&sh.curved?'curved arrow':sh.type)+'. Lift your finger to keep it, or use Undo.';m.classList.add('hit');
+  setTimeout(function(){dFlashS=null;dRedraw();m.classList.remove('hit')},450);
+},HOLD_MS)}
+function dFlatten(){ // flattened JPEG kept with the log; shrink until under the cap
+  var q=DQ,uri=dc.toDataURL('image/jpeg',q),c=dc;
+  while(uri.length>DCAP&&q>0.35){q-=0.1;uri=c.toDataURL('image/jpeg',q)}
+  while(uri.length>DCAP&&c.width>300){var n=document.createElement('canvas');n.width=Math.round(c.width*0.8);n.height=Math.round(c.height*0.8);n.getContext('2d').drawImage(c,0,0,n.width,n.height);c=n;uri=c.toDataURL('image/jpeg',0.6)}
+  diag={uri:uri,w:c.width,h:c.height};saveDraft();
+}
+function dSetBase(src,w,h,draw){ // src: image/bitmap/null; sizes already scaled
+  dc.width=w;dc.height=h;dStrokes=[];dCur=null;
+  if(src){var b=document.createElement('canvas');b.width=w;b.height=h;var x=b.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(src,0,0,w,h);dBase=b}else dBase=null;
+  dRedraw();dShow(draw);
+}
+function dShow(draw){
+  var has=!!(diag&&diag.uri)||dc.width>0&&!dc.hidden;
+  $('diagCanvas').hidden=!(diag&&diag.uri);$('diagNone').hidden=!!(diag&&diag.uri);$('diagTools').hidden=!(diag&&diag.uri);
+}
+function showDiag(){ // restore from saved flattened JPEG (drawing continues on top of it)
+  if(!(diag&&diag.uri)){dBase=null;dStrokes=[];dc.width=0;dc.height=0;dShow();return}
+  var im=new Image();im.onload=function(){dc.width=diag.w;dc.height=diag.h;var b=document.createElement('canvas');b.width=diag.w;b.height=diag.h;b.getContext('2d').drawImage(im,0,0);dBase=b;dStrokes=[];dCur=null;dRedraw();dShow()};im.src=diag.uri;dShow();
+}
+function loadPicked(file,draw){
+  if(!file)return;
+  function use(src,w0,h0){var s=Math.min(1,DMAX/Math.max(w0,h0));dSetBase(src,Math.max(1,Math.round(w0*s)),Math.max(1,Math.round(h0*s)),draw);dFlatten();dShow();
+    if(draw)$('diagBox').scrollIntoView({block:'center'});$('saveHint').textContent=draw?'Draw on the picture with your finger.':'Photo added.';}
+  function viaImg(){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){use(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(u)};im.onerror=function(){$('saveHint').textContent='Could not open that picture.'};im.src=u}
+  // createImageBitmap applies EXIF orientation (iPhone photos); <img> also does in current Safari
+  if(window.createImageBitmap){createImageBitmap(file,{imageOrientation:'from-image'}).then(function(bm){use(bm,bm.width,bm.height)},viaImg)}else viaImg();
+}
+$('diagDrawFile').addEventListener('change',function(){loadPicked(this.files&&this.files[0],true);this.value=''});
+$('diagFile').addEventListener('change',function(){loadPicked(this.files&&this.files[0],false);this.value=''});
+$('diagSketch').addEventListener('click',function(){if(diag&&diag.uri&&!confirm('Replace the current diagram with a blank sketch?'))return;dSetBase(null,1200,800,true);dFlatten();dShow();$('saveHint').textContent='Sketch with your finger.'});
+function dPos(e){var r=dc.getBoundingClientRect();return [(e.clientX-r.left)*dc.width/r.width,(e.clientY-r.top)*dc.height/r.height]}
+dc.addEventListener('pointerdown',function(e){if(!dc.width||st.status)return;e.preventDefault();dDraw=true;try{dc.setPointerCapture(e.pointerId)}catch(_){}dCur={c:dCol,w:Math.max(2,dW*Math.max(dc.width,dc.height)),p:[dPos(e)]};armHold(dCur.p[0]);dRedraw()});
+dc.addEventListener('pointermove',function(e){if(!dDraw)return;e.preventDefault();var p=dPos(e);if(dCur.shape){if(dCur.sp&&Math.hypot(p[0]-dCur.sp[0],p[1]-dCur.sp[1])>1.5*holdTol()){dCur.shape=null;dCur.sp=null;var m_=$('snapMsg');m_.classList.remove('hit');m_.textContent='Keep drawing. Hold still at the end to snap.'}else return}dCur.p.push(p);if(!dAnchor||Math.hypot(p[0]-dAnchor[0],p[1]-dAnchor[1])>holdTol())armHold(p);dRedraw()});
+function dEnd(){if(!dDraw)return;dDraw=false;clearTimeout(dHoldT);dAnchor=null;if(dCur){dFinish(dCur);dStrokes.push(dCur)}dCur=null;dRedraw();dFlatten()}
+dc.addEventListener('pointerup',dEnd);dc.addEventListener('pointercancel',dEnd);
+['touchstart','touchmove'].forEach(function(ev){dc.addEventListener(ev,function(e){if(dc.width)e.preventDefault()},{passive:false})}); // no page scroll while drawing (iOS)
+document.querySelectorAll('.sw').forEach(function(b){b.addEventListener('click',function(){dCol=b.dataset.col;document.querySelectorAll('.sw').forEach(function(x){x.classList.toggle('on',x===b)})})});
+document.querySelectorAll('.wd').forEach(function(b){b.addEventListener('click',function(){dW=+b.dataset.w;document.querySelectorAll('.wd').forEach(function(x){x.classList.toggle('on',x===b)})})});
+$('diagLegend').addEventListener('click',function(){var n=$('diagNote');if(n.value.trim()&&!confirm('Replace the current text with the example legend?'))return;
+  n.value='Green = where we intend to fly\nYellow = landing zone\nRed = caution area\nBlue = water or other boundary\nBlack = roads, access and labels';n.dispatchEvent(new Event('input',{bubbles:true}));});
+$('diagUndo').addEventListener('click',function(){if(!dStrokes.length)return;dStrokes.pop();dRedraw();dFlatten()});
+$('diagClearInk').addEventListener('click',function(){dStrokes=[];dRedraw();dFlatten()});
+$('diagClear').addEventListener('click',function(){if(!confirm('Remove the diagram?'))return;diag=null;showDiag();saveDraft()});
+$('btnGps').addEventListener('click',function(){
+  if(!navigator.geolocation){$('saveHint').textContent='GPS not available on this phone.';return}
+  navigator.geolocation.getCurrentPosition(function(p){$('lat').value=p.coords.latitude.toFixed(7);$('lon').value=p.coords.longitude.toFixed(7);saveDraft()},function(){$('saveHint').textContent='Could not get GPS position.'},{enableHighAccuracy:true,timeout:15000});
+});
+/* ---- record ---- */
+function snapshotRecord(){
+  var f=read(),c=counts(),d=droneById(f.drone),now=new Date();
+  var short=d?(d.id==='other'?(f.model||'Other'):d.short):'(no drone)';
+  return {f:f,flightDate:f.flightDate,recTime:f.recTime,aircraftShort:short,droneId:f.drone,checksDone:c.done,checksTotal:c.total,
+    signed:!!(sig&&sig.uri),sig:sig,diag:diag,photos:photoBox.list(),goText:st.status?statusText():(sig&&sig.uri?'Signed by pilot in charge at '+sig.time:'Not signed'),st:normSt(st),
+    stamp:localDateStr(now)+' '+localTimeStr(now)};
+}
+/* ---- PDF (Letter, Helvetica, laid out like the original 4-page form) ---- */
+var HW=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+function clean(s){return String(s==null?'':s).replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...').replace(/\u00b0/g,' deg').replace(/[^\x0a\x20-\x7e]/g,'?')}
+function tw(s,size,bold){var w=0;s=clean(s);for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);w+=(c>=32&&c<127?HW[c-32]:556)}return w*size/1000*(bold?1.06:1)}
+function esc(s){return clean(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+function wrap(text,size,bold,maxW,firstW){
+  var out=[];String(clean(text)).split('\n').forEach(function(para){
+    var words=para.split(/ +/),line='',lim=out.length?maxW:(firstW||maxW);
+    words.forEach(function(w){
+      while(tw(w,size,bold)>lim){var k=w.length;while(k>1&&tw((line?line+' ':'')+w.slice(0,k),size,bold)>lim)k--;if(line&&k<4){out.push(line);line='';lim=maxW;continue}out.push((line?line+' ':'')+w.slice(0,k));line='';w=w.slice(k);lim=maxW}
+      var t=line?line+' '+w:w;if(tw(t,size,bold)<=lim)line=t;else{out.push(line);line=w;lim=maxW}
+    });
+    out.push(line);
+  });
+  return out;
+}
+function b64ToBin(b64){var raw=atob(b64),o=new Uint8Array(raw.length);for(var i=0;i<raw.length;i++)o[i]=raw.charCodeAt(i);return o}
+function uriBytes(u){return b64ToBin(u.split('base64,')[1])}
+var NAVY='0.051 0.231 0.4',FEBLUE='0.122 0.373 0.6';
+function buildPdfBytes(rec){
+  var S0=rec.st,f=rec.f,imgs=[{name:'Im1',w:SMJV_LOGO_W,h:SMJV_LOGO_H,bytes:b64ToBin(SMJV_LOGO_JPG_B64)}];
+  var sigName=null,diagName=null;
+  if(rec.sig&&rec.sig.uri){imgs.push({name:'Im2',w:rec.sig.w,h:rec.sig.h,bytes:uriBytes(rec.sig.uri)});sigName='Im2'}
+  if(rec.diag&&rec.diag.uri){imgs.push({name:'Im'+(imgs.length+1),w:rec.diag.w,h:rec.diag.h,bytes:uriBytes(rec.diag.uri)});diagName='Im'+imgs.length}
+  var pages=[],ops,y,X0=50,X1=562,MID=310,BOT=48,TOPY=724;
+  function txt(x,yy,s,size,bold,col){ops.push('BT');if(col)ops.push(col+' rg');ops.push('/'+(bold?'F2':'F1')+' '+size+' Tf');ops.push(x.toFixed(2)+' '+yy.toFixed(2)+' Td');ops.push('('+esc(s)+') Tj');if(col)ops.push('0 0 0 rg');ops.push('ET');}
+  function newPage(cont){
+    ops=[];pages.push(ops);
+    var lw=100,lh=lw*SMJV_LOGO_H/SMJV_LOGO_W;
+    ops.push('q');ops.push(lw.toFixed(2)+' 0 0 '+lh.toFixed(2)+' '+X0+' '+(792-20-lh).toFixed(2)+' cm');ops.push('/Im1 Do');ops.push('Q');
+    var T='Flight Execution';txt(X1-tw(T,22,true),792-44,T,22,true,FEBLUE);
+    var sub=(f.client?'Client: '+f.client+'   ':'')+'Date: '+(longDate(rec.flightDate)||'(blank)')+(cont?'   (continued)':'');
+    txt(X1-tw(sub,8.5,false),792-57,sub,8.5,false);
+    ops.push(NAVY+' RG');ops.push('1.2 w');ops.push(X0+' 728 m '+X1+' 728 l S');ops.push('0 0 0 RG');
+    y=TOPY-8;
+  }
+  function ensure(h){if(y-h<BOT)newPage(true)}
+  function heading(t,sm){ensure(40);y-=sm?5:8;txt(X0,y-12,t.toUpperCase(),sm?12:13,true,NAVY);y-=sm?17:20;}
+  function lv(x,w,label,val,yy){ // label + value, wrapped; returns height
+    var L=clean(label).toUpperCase()+(/\?$/.test(label)?' ':': '),lwid=tw(L,8.5,true),v=clean(val),lines=v?wrap(v,9.5,false,w,Math.max(40,w-lwid)):[''];
+    txt(x,yy,L,8.5,true);
+    lines.forEach(function(s,i){if(s)txt(i?x:x+lwid,yy-i*12,s,9.5,false)});
+    return lines.length*12;
+  }
+  function measure(w,label,val){var L=clean(label).toUpperCase()+(/\?$/.test(label)?' ':': '),v=clean(val);return (v?wrap(v,9.5,false,w,Math.max(40,w-tw(L,8.5,true))).length:1)*12}
+  function pair(a,b){
+    var wA=b?MID-X0-12:X1-X0,hA=measure(wA,a.l,f[a.k]),hB=b?measure(X1-MID,b.l,f[b.k]):0,h=Math.max(hA,hB);
+    ensure(h+2);lv(X0,wA,a.l,f[a.k],y-9);if(b)lv(MID,X1-MID,b.l,f[b.k],y-9);y-=h+2;
+  }
+  function para(t,size,bold){wrap(t,size,bold,X1-X0).forEach(function(s){ensure(13);txt(X0,y-9,s,size,bold);y-=size+3.5})}
+  function block(label,val,minH){ // label on its own line, value below (like the form's big text areas)
+    ensure(28);txt(X0,y-9,clean(label).toUpperCase()+':',8.5,true);y-=15;
+    var lines=val?wrap(val,9.5,false,X1-X0-6):[];lines.forEach(function(s){ensure(12);txt(X0+6,y-9,s,9.5,false);y-=12});
+    if(minH&&lines.length*12<minH)y-=minH-lines.length*12;
+    y-=4;
+  }
+  function box(x,yTop,w,h){ops.push('0.6 w');ops.push(x+' '+(yTop-h).toFixed(2)+' '+w+' '+h.toFixed(2)+' re S')}
+  function tick(x,yy,on){box(x,yy+7,7,7);if(on){ops.push('1.1 w');ops.push((x+1.2)+' '+(yy+3.4).toFixed(2)+' m '+(x+2.9)+' '+(yy+1.2).toFixed(2)+' l '+(x+6.2)+' '+(yy+6.2).toFixed(2)+' l S')}}
+  function checks(c){
+    heading(c.t,true);var n=0;c.items.forEach(function(i){if(f[i.k])n++});
+    ensure(11);txt(X0,y-7,n+' of '+c.items.length+' ticked',7.5,false);y-=10;
+    var L=c.items.slice(0,c.nL),R=c.items.slice(c.nL),rows=Math.max(L.length,R.length),cw=MID-X0-16;
+    for(var r=0;r<rows;r++){
+      var a=L[r],b=R[r],la=a?wrap(a.l.toUpperCase(),7.6,false,cw):[],lb=b?wrap(b.l.toUpperCase(),7.6,false,X1-MID-12):[],h=Math.max(la.length,lb.length)*9.2+1.2;
+      ensure(h);
+      if(a){tick(X0,y-8,!!f[a.k]);la.forEach(function(s,i){txt(X0+11,y-7.5-i*9.2,s,7.6,false)})}
+      if(b){tick(MID,y-8,!!f[b.k]);lb.forEach(function(s,i){txt(MID+11,y-7.5-i*9.2,s,7.6,false)})}
+      y-=h;
+    }
+  }
+  function sigImg(maxW,maxH){
+    if(!sigName){ensure(14);txt(X0+70,y-9,'(not signed)',9.5,false);y-=16;return}
+    var w=maxW,h=w*rec.sig.h/rec.sig.w;if(h>maxH){h=maxH;w=h*rec.sig.w/rec.sig.h}
+    ensure(h+4);ops.push('q');ops.push(w.toFixed(2)+' 0 0 '+h.toFixed(2)+' '+(X0+70)+' '+(y-h).toFixed(2)+' cm');ops.push('/'+sigName+' Do');ops.push('Q');y-=h+6;
+  }
+  var page=0;
+  SPEC.sections.forEach(function(s){
+    if(s.page!==page){page=s.page;if(pages.length<page)newPage(false);}
+    heading(s.t);var q=[];
+    function flush(){while(q.length){pair(q.shift(),q.shift())}}
+    s.f.forEach(function(fd){
+      if(fd.pdf===false||fd.ty==='drone'||fd.ty==='diagram'||fd.k==='diagNote')return;
+      if(fd.ty==='static'){flush();para(fd.l.toUpperCase(),fd.lbl?8.5:9,!!fd.lbl);return}
+      if(fd.k==='sfoc'&&!f.sfoc)return;
+      if(fd.ty==='area'){flush();block(fd.l,f[fd.k],fd.k==='erpText'?24:36);return}
+      if(fd.w===2){flush();pair(fd,null);return}
+      q.push(fd);
+    });
+    flush();
+    if(s.id==='flight'){ // flight diagram box, like page 1 of the form
+      var legL=f.diagNote?wrap(f.diagNote,9,false,X1-X0-6):[],legH=legL.length?16+legL.length*11+4:0;
+      ensure(150);txt(X0,y-9,'FLIGHT DIAGRAM',8.5,true);y-=14;
+      var h=Math.max(150,y-BOT-4-legH);if(diagName)h=Math.min(h,360);box(X0,y,X1-X0,h);
+      if(diagName){var iw=X1-X0-8,ih=iw*rec.diag.h/rec.diag.w;if(ih>h-8){ih=h-8;iw=ih*rec.diag.w/rec.diag.h}ops.push('q');ops.push(iw.toFixed(2)+' 0 0 '+ih.toFixed(2)+' '+(X0+(X1-X0-iw)/2).toFixed(2)+' '+(y-4-ih).toFixed(2)+' cm');ops.push('/'+diagName+' Do');ops.push('Q');}
+      y-=h+6;
+      if(legL.length){ensure(28);txt(X0,y-9,'WHAT THE DIAGRAM SHOWS:',8.5,true);y-=15;legL.forEach(function(s){ensure(12);txt(X0+6,y-9,s,9,false);y-=11});y-=4;}
+    }
+  });
+  SPEC.checks.forEach(function(c,i){if(i===0&&pages.length<3)newPage(false);checks(c)});
+  y-=6;ensure(44);txt(X0,y-9,'SIGNATURE:',8.5,true);sigImg(130,34);
+  newPage(false);
+  heading('Flight observations');block('Observations during flight',f.obs,S0&&(S0.status||S0.comments.length)?120:260);
+  var S=rec.st||{};
+  if(S.status){ensure(30);y-=4;var stl='STATUS: '+S.status.toUpperCase();txt(X0,y-10,stl,11,true,NAVY);y-=16;
+    para([S.completeAt?'Pre-flight complete '+S.completeAt:'',S.closedAt?'Closed out '+S.closedAt:'',S.updatedAt?'Updated '+S.updatedAt:''].filter(Boolean).join('   |   '),8.5,false);y-=2;}
+  if(S.comments&&S.comments.length){heading('Post-flight comments',true);
+    S.comments.forEach(function(c){var L=wrap(c.text,9.5,false,X1-X0-110);ensure(12*L.length+2);txt(X0,y-9,c.t,8.5,true);L.forEach(function(s,i){txt(X0+100,y-9-i*12,s,9.5,false)});y-=12*L.length+3;});y-=4;}
+  ensure(90);y-=6;
+  lv(X0,MID-X0-12,'Pilot in charge',f.pic||f.pilot,y-9);lv(MID,X1-MID,'Flight date',longDate(rec.flightDate),y-9);y-=24;
+  txt(X0,y-9,'SIGNATURE:',8.5,true);sigImg(180,48);
+  para((rec.signed?'Signed by pilot in charge at '+rec.sig.time:'Not signed')+(S.status?'.  Status: '+statusText():'')+'.  Saved '+rec.stamp+'.  Drone: '+(f.model||'(none)')+(f.serial?', serial '+f.serial:'')+(f.tcReg?', TC '+f.tcReg:'')+'.  Checklist items ticked: '+rec.checksDone+' of '+rec.checksTotal+'.',7.5,false);
+  para('Record aid only. The pilot in command makes the final call.',7.5,false);
+  (rec.photos||[]).forEach(function(ph,pi){ // extra pages: 2 photos per page with captions
+    var nm='Im'+(imgs.length+1);imgs.push({name:nm,w:ph.w,h:ph.h,bytes:uriBytes(ph.uri)});
+    if(pi%2===0){newPage(false);heading('Photos'+(pi?' (continued)':''))}
+    var capL=ph.cap?wrap(ph.cap,9,false,X1-X0):[],maxH=Math.min(290,y-BOT-14-6-capL.length*11-6-(pi%2===0?300:0)),iw=X1-X0,ih=iw*ph.h/ph.w;
+    if(ih>maxH){ih=maxH;iw=ih*ph.w/ph.h}
+    txt(X0,y-9,'PHOTO '+(pi+1)+' OF '+rec.photos.length,8.5,true);y-=14;
+    ops.push('q');ops.push(iw.toFixed(2)+' 0 0 '+ih.toFixed(2)+' '+(X0+(X1-X0-iw)/2).toFixed(2)+' '+(y-ih).toFixed(2)+' cm');ops.push('/'+nm+' Do');ops.push('Q');y-=ih+6;
+    capL.forEach(function(s){ensure(12);txt(X0,y-9,s,9,false);y-=11});y-=10;
+  });
+  var NP=pages.length;
+  pages.forEach(function(pp,i){ops=pp;var t='Page '+(i+1)+' of '+NP;txt(X1-tw(t,9,true),26,t,9,true);txt(X0,26,'SMJV Flight Execution'+(rec.flightDate?' - '+rec.flightDate:''),7.5,false)});
+  var streams=pages.map(function(pp){return pp.join('\n')});
+  var imgBase=5,pgBase=5+imgs.length,objs=[];
+  var xo=imgs.map(function(im,i){return '/'+im.name+' '+(imgBase+i)+' 0 R'}).join(' ');
+  objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+  objs.push('<< /Type /Pages /Kids ['+streams.map(function(s,i){return (pgBase+2*i)+' 0 R'}).join(' ')+'] /Count '+NP+' >>');
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  imgs.forEach(function(im){objs.push({head:'<< /Type /XObject /Subtype /Image /Width '+im.w+' /Height '+im.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+im.bytes.length+' >>\nstream\n',bin:im.bytes})});
+  streams.forEach(function(st,i){
+    objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents '+(pgBase+2*i+1)+' 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << '+xo+' >> >> >>');
+    objs.push('<< /Length '+st.length+' >>\nstream\n'+st+'\nendstream');
+  });
+  var pieces=['%PDF-1.4\n'],offs=[],cur=pieces[0].length;
+  function add(c){pieces.push(c);cur+=c.length}
+  objs.forEach(function(ob,i){offs.push(cur);if(typeof ob==='string')add((i+1)+' 0 obj\n'+ob+'\nendobj\n');else{add((i+1)+' 0 obj\n'+ob.head);add(ob.bin);add('\nendstream\nendobj\n')}});
+  var xp=cur,n=objs.length+1,x='xref\n0 '+n+'\n0000000000 65535 f \n';
+  offs.forEach(function(o){var s=String(o);x+='0000000000'.slice(s.length)+s+' 00000 n \n'});
+  pieces.push(x);pieces.push('trailer\n<< /Size '+n+' /Root 1 0 R >>\nstartxref\n'+xp+'\n%%EOF\n');
+  var total=pieces.reduce(function(a,c){return a+c.length},0),out=new Uint8Array(total),p=0;
+  pieces.forEach(function(c){if(typeof c==='string'){for(var k=0;k<c.length;k++)out[p++]=c.charCodeAt(k)&255}else{out.set(c,p);p+=c.length}});
+  return out;
+}
+function buildPdfFilename(rec){var d=new Date();return 'SMJV_Flight_Execution_'+(rec&&rec.flightDate||localDateStr(d))+'_'+pad2(d.getHours())+pad2(d.getMinutes())+'.pdf'}
+function canShareFiles(file){try{return !!(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]}))}catch(e){return false}}
+function downloadPdf(bytes,name){var u=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),a=document.createElement('a');a.href=u;a.download=name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},2000)}
+function newSyncId(){try{return ChecklistSync.newId('DFL')}catch(e){return 'DFL-'+Date.now().toString(36)+'-'+Math.random().toString(16).slice(2,10)}}
+function saveOrEmailCore(){
+  var rec=snapshotRecord(),bytes=buildPdfBytes(rec),name=buildPdfFilename(rec),file,hint=$('saveHint');
+  try{file=new File([bytes],name,{type:'application/pdf'})}catch(e){file=null}
+  if(file&&canShareFiles(file)){
+    navigator.share({files:[file],title:'SMJV Flight Execution',text:'SMJV Flight Execution '+(rec.flightDate||'')}).then(function(){hint.textContent='Opened share sheet \u2014 pick Mail or Save to Files.'}).catch(function(err){if(err&&err.name==='AbortError'){hint.textContent='Share cancelled.';return}downloadPdf(bytes,name);hint.textContent='PDF downloaded: '+name});
+    return {mode:'share',filename:name,bytes:bytes,record:rec};
+  }
+  downloadPdf(bytes,name);hint.textContent='PDF downloaded: '+name;
+  return {mode:'download',filename:name,bytes:bytes,record:rec};
+}
+function saveOrEmail(){
+  var res=saveOrEmailCore();try{addLog()}catch(_){}
+  syncRes(res);return res;
+}
+function syncRes(res){try{if(window.ChecklistSync&&ChecklistSync.enabled()){if(!syncId){syncId=newSyncId();saveDraft();try{addLog()}catch(_){}}ChecklistSync.enqueue(ChecklistSync.fromDailyLog(res.record),res.bytes,res.filename,syncId);return true}}catch(e){}return false}
+function pdfNow(){var rec=snapshotRecord();return {record:rec,bytes:buildPdfBytes(rec),filename:buildPdfFilename(rec)}}
+/* ---- v7: living log (pre-flight complete -> comments -> closed out) ---- */
+var POSTK=['obs','estMins'];SPEC.checks.forEach(function(c){if(c.id==='land'||c.id==='post')c.items.forEach(function(i){POSTK.push(i.k)})});
+function statusText(){return st.status?(st.status+(st.status==='Closed out'?' '+st.closedAt:' '+st.completeAt)+(st.updatedAt?' - Updated '+st.updatedAt:'')):''}
+function allowed(el){
+  if(el.closest('#s-photos,#s-cmt,#s-logs,#s-sync,#statusBox'))return true;
+  if(el.id==='btnComplete')return true;
+  if(el.dataset.k&&POSTK.indexOf(el.dataset.k)>=0)return true;
+  if(el.dataset.all==='land'||el.dataset.all==='post')return true;
+  return false}
+function applyLock(){
+  var on=!!st.status;document.body.classList.toggle('pfLocked',on);
+  document.querySelectorAll('[data-pfl]').forEach(function(e){e.disabled=false;e.removeAttribute('data-pfl')});
+  if(on)document.querySelectorAll('main section input,main section select,main section textarea,main section button,#s-date input,#s-date button').forEach(function(e){if(!allowed(e)&&!e.disabled){e.disabled=true;e.setAttribute('data-pfl','1')}});
+  renderStatus()}
+function renderStatus(){
+  var b=$('statusBox'),on=!!st.status;b.hidden=!on;b.dataset.s=st.status==='Closed out'?'closed':'complete';
+  $('btnComplete').hidden=on||!(sig&&sig.uri)||locked;
+  $('s-cmt').hidden=!on&&!st.comments.length;$('cmtAdd').disabled=!on;$('cmtText').disabled=!on;
+  if(on){$('pfStatus').textContent=st.status;
+    $('pfTimes').textContent=['Pre-flight completed '+st.completeAt,st.closedAt?'Closed out '+st.closedAt:'',st.updatedAt?'Updated '+st.updatedAt:''].filter(Boolean).join(' \u00b7 ');
+    $('btnClose').hidden=st.status==='Closed out';}
+  var ol=$('cmtList');ol.innerHTML='';st.comments.forEach(function(c){var li=document.createElement('li'),s=document.createElement('span');s.className='t';s.textContent=c.t+' ';li.appendChild(s);li.appendChild(document.createTextNode(c.text));ol.appendChild(li)})}
+function markUpdated(){if(!st.status||restoring)return;st.updatedAt=nowStamp();renderStatus();saveDraft()}
+function completePreflight(){
+  if(!(sig&&sig.uri)||locked||st.status)return null;
+  st.status='Pre-flight complete';st.completeAt=nowStamp();applyLock();saveDraft();try{addLog()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);var synced=syncRes(res);
+  $('saveHint').textContent='Pre-flight complete at '+st.completeAt+'. PDF saved: '+res.filename+(synced?'. Sent to the collector.':'.')+' Tap Email PDF to send it.';
+  return res}
+function mailtoHref(rec){var f=rec.f;return 'mailto:?subject='+encodeURIComponent('SMJV Flight Execution '+(rec.flightDate||'')+(f.client?' - '+f.client:''))+'&body='+encodeURIComponent('SMJV Flight Execution '+(rec.flightDate||'')+(f.location?' at '+f.location:'')+'. Status: '+(statusText()||'not signed')+'.\n\nThe PDF is attached (attach it from Downloads/Files if your mail app did not).')}
+function emailPdf(){
+  var res=pdfNow(),file=null,note=$('emailNote');try{file=new File([res.bytes],res.filename,{type:'application/pdf'})}catch(e){}
+  if(file&&canShareFiles(file)){navigator.share({files:[file],title:'SMJV Flight Execution',text:'SMJV Flight Execution '+(res.record.flightDate||'')}).then(function(){note.textContent='Share sheet opened \u2013 pick Mail to send the PDF.'}).catch(function(err){if(err&&err.name==='AbortError'){note.textContent='Share cancelled.';return}note.textContent='Could not share; try again.'});return {mode:'share',filename:res.filename}}
+  downloadPdf(res.bytes,res.filename);var href=mailtoHref(res.record),a=document.createElement('a');a.href=href;a.dataset.test='mailto';a.hidden=true;document.body.appendChild(a);try{a.click()}catch(e){}a.remove();
+  note.textContent='This phone/browser cannot attach files to email from here, and a mailto link can\'t carry attachments. Your mail app opens with the subject and text only; the PDF was downloaded ('+res.filename+') \u2013 attach it from Downloads/Files.';
+  return {mode:'mailto',filename:res.filename,href:href}}
+function addComment(){var v=$('cmtText').value.trim();if(!v||!st.status)return;st.comments.push({t:nowStamp(),text:v});$('cmtText').value='';st.updatedAt=nowStamp();renderStatus();saveDraft();try{addLog()}catch(_){}}
+function closeOut(){if(!st.status||st.status==='Closed out')return null;st.status='Closed out';st.closedAt=nowStamp();renderStatus();saveDraft();try{addLog()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);syncRes(res);$('saveHint').textContent='Log closed out at '+st.closedAt+'. PDF saved: '+res.filename;return res}
+function unlockPre(){if(!st.status)return false;if(!confirm('Unlock the pre-flight? This clears the signature. You will need to sign again. Comments are kept.'))return false;
+  sig=null;st.status='';st.completeAt='';st.closedAt='';st.updatedAt=nowStamp();applyLock();showSig();renderMissing();renderStatus();saveDraft();try{addLog()}catch(_){}
+  $('saveHint').textContent='Pre-flight unlocked. Signature cleared.';return true}
+function reopenLog(id){
+  var e=getLogs().filter(function(x){return x.id===id})[0];if(!e||!e.full)return;
+  if(id!==logId&&!confirm('Open this saved log to add comments? The log on screen now is replaced (it stays in Saved logs if it was saved).'))return;
+  var same=id===logId;restoring=true;
+  els().forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value=''});write(e.full.v||{});
+  sig=e.full.sig||null;syncId=e.full.syncId||null;logId=e.id;diag=e.full.diag||null;st=normSt(e.full.st);restoring=false;
+  if(!same)photoBox.set(e.full.photos||[]);
+  applyDrone(false);showSig();showDiag();syncPicDate();counts();renderMissing();applyLock();saveDraft();
+  $('s-logs').open=false;$('s-obs').scrollIntoView({block:'start'});$('saveHint').textContent='Reopened: add observations, flight time, landing/post-flight checks, photos or comments. Then Save / Email PDF.'}
+function applyDefaults(){var r={};try{r=JSON.parse(lsGet(KREM)||'{}')||{}}catch(e){}REMK.forEach(function(k){if(r[k])$(k).value=r[k]})}
+function remember(){var r={};REMK.forEach(function(k){r[k]=$(k).value});lsSet(KREM,JSON.stringify(r))}
+function newDay(){ // "Reset all": complete reset (saved logs, job sites and remembered pilot details for autofill-on-typing are kept in storage)
+  restoring=true;
+  els().forEach(function(e){if(e.type==='checkbox')e.checked=false;else e.value=''});
+  restoring=false;sig=null;syncId=null;logId=null;diag=null;st=normSt(null);applyLock();photoBox.clear();applyDrone(false);showDiag();showSig();setDateTimeNow();counts();renderMissing();$('saveHint').textContent='Reset all: blank log started.';saveDraft();renderLogs();
+}
+$('btnNew').addEventListener('click',function(){if(confirm('Reset all? This clears every field and starts a blank log. Saved logs and job sites are kept.'))newDay()});
+$('btnCopyTop').addEventListener('click',function(){copyLog(null)});
+$('btnNow').addEventListener('click',function(){setDateTimeNow();saveDraft()});
+$('btnSave').addEventListener('click',function(){saveOrEmail()});
+$('btnComplete').addEventListener('click',completePreflight);$('btnEmail').addEventListener('click',emailPdf);$('cmtAdd').addEventListener('click',addComment);
+$('btnClose').addEventListener('click',function(){if(confirm('Close out this log? You can still reopen it later to add comments.'))closeOut()});$('btnUnlock').addEventListener('click',unlockPre);
+$('drone').addEventListener('change',function(){applyDrone(true)});
+$('flightDate').addEventListener('change',syncPicDate);$('flightDate').addEventListener('input',syncPicDate);
+REMK.forEach(function(k){$(k).addEventListener('change',remember)});
+document.querySelectorAll('[data-all]').forEach(function(b){b.addEventListener('click',function(){var c=SPEC.checks.filter(function(x){return x.id===b.dataset.all})[0];c.items.forEach(function(i){$(i.k).checked=true});counts();saveDraft()})});
+clearPad();
+if(!loadDraft()){applyDefaults();setDateTimeNow();applyDrone(false);showDiag();}
+counts();renderMissing();renderLogs();applyLock();
+$('btnTpl').addEventListener('click',addTemplate);
+document.addEventListener('input',function(ev){counts();renderMissing();renderStatus();if(st.status&&ev.target.dataset&&ev.target.dataset.k)markUpdated();saveDraft()});
+document.addEventListener('change',function(ev){counts();renderMissing();renderStatus();if(st.status&&ev.target.dataset&&ev.target.dataset.k){markUpdated();try{addLog()}catch(_){}}saveDraft()});
+window.addEventListener('pagehide',saveDraft);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveDraft()});
+try{ChecklistSync.init({statusEl:$('syncStatus'),settingsEl:$('syncSettings')})}catch(e){}
+window.__DFL={getSyncId:function(){return syncId},read:read,snapshotRecord:snapshotRecord,buildPdfBytes:buildPdfBytes,buildPdfFilename:buildPdfFilename,saveOrEmail:saveOrEmail,newDay:newDay,missing:function(){return missing().map(function(r){return r[1]})},isLocked:function(){return locked},photos:function(){return photoBox.list()},classify:classify,diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,w:dStrokes[dStrokes.length-1].w,shape:dStrokes[dStrokes.length-1].shape||null}:null}},DCAP:DCAP,getLogs:getLogs,status:function(){return normSt(st)},completePreflight:completePreflight,emailPdf:emailPdf,closeOut:closeOut,unlockPre:unlockPre,reopenLog:reopenLog,addComment:addComment,getLogId:function(){return logId},carryKeys:carryKeys,SPEC:SPEC,longDate:longDate};
+})();
+</script>
+</body>
+</html>
