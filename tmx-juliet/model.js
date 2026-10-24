@@ -1,0 +1,1 @@
+window.HIXON_MODEL={"files": ["m/tmx_0.glb", "m/tmx_1.glb", "m/tmx_2.glb", "m/tmx_3.glb", "m/tmx_4.glb", "m/tmx_5.glb", "m/tmx_6.glb", "m/tmx_7.glb", "m/tmx_8.glb", "m/tmx_9.glb", "m/tmx_10.glb", "m/tmx_11.glb"], "bytes": [14560724, 12701824, 10683512, 10850796, 10474592, 10893028, 10918624, 10910168, 10737744, 10656776, 11265464, 11218264]};
