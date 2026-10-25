@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>TMX2 2D orthomosaic</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  html,body{margin:0;height:100%;font-family:system-ui,-apple-system,sans-serif;background:#1a1a1a;color:#eee}
+  #map{position:absolute;inset:0;top:48px;bottom:0}
+  header{position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;gap:.75rem;
+    padding:0 .9rem;background:#1a1a1acc;backdrop-filter:blur(8px);z-index:1000;border-bottom:1px solid #333}
+  header h1{font-size:1rem;font-weight:600;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header a{color:#9cf;text-decoration:none;font-size:.9rem;white-space:nowrap}
+  .leaflet-control-attribution{font-size:10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>TMX2 2D orthomosaic</h1>
+  <a href="../tmx3/">TMX3</a>
+  <a href="../models.html">Models</a>
+</header>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+// Bounds from z20 XYZ tile indices (Google/Web Mercator): x 171790–171806, y 356878–357016
+const BOUNDS = L.latLngBounds(
+  [49.69050961, -121.02058411], // SW
+  [49.72137185, -121.01474762]  // NE
+);
+const map = L.map('map', {
+  maxBounds: BOUNDS.pad(0.35),
+  minZoom: 12,
+  maxZoom: 20,
+  zoomControl: true
+});
+L.tileLayer('{z}/{x}/{y}.png', {
+  minZoom: 12,
+  maxZoom: 20,
+  maxNativeZoom: 20,
+  noWrap: true,
+  bounds: BOUNDS,
+  attribution: 'TMX2 2D orthomosaic · DJI Terra'
+}).addTo(map);
+map.fitBounds(BOUNDS, { padding: [12, 12] });
+</script>
+</body>
+</html>
