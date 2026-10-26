@@ -1,0 +1,1 @@
+window.HIXON_MODEL={"files": ["m/s_0.glb", "m/s_1.glb", "m/s_2.glb", "m/s_3.glb", "m/s_4.glb", "m/s_5.glb"], "bytes": [12179076, 12850816, 12727336, 12434532, 12834620, 12198976]};
