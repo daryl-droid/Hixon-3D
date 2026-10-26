@@ -1,1 +1,1 @@
-window.HIXON_MODEL={"files": ["m/n_0.glb", "m/n_1.glb", "m/n_2.glb", "m/n_3.glb", "m/n_4.glb", "m/n_5.glb"], "bytes": [9186392, 7989332, 7735932, 7484236, 8742516, 8302764]};
+window.HIXON_MODEL={"files": ["m/n_0.glb", "m/n_1.glb", "m/n_2.glb", "m/n_3.glb", "m/n_4.glb", "m/n_5.glb", "m/n_6.glb", "m/n_7.glb", "m/n_8.glb", "m/n_9.glb"], "bytes": [14318916, 14677076, 14235240, 13416788, 14190016, 14429128, 15033932, 15312924, 14826352, 11925960]};
