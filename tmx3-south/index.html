@@ -12,10 +12,11 @@
   #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;background:linear-gradient(#9fb3c4,#d9e1e7)}
   header{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;background:linear-gradient(rgba(20,26,32,.85),rgba(20,26,32,0));pointer-events:none}
   h1{margin:0;font-size:17px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-  #bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;padding:10px 12px calc(env(safe-area-inset-bottom) + 10px)}
-  button{appearance:none;border:0;border-radius:22px;padding:11px 18px;font:600 15px -apple-system,sans-serif;color:#fff;background:rgba(20,26,32,.78);box-shadow:0 2px 8px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  #bar a,#bar button{pointer-events:auto}
+  #bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:6px 8px calc(env(safe-area-inset-bottom) + 6px);pointer-events:none}
+  button{appearance:none;border:0;border-radius:18px;padding:8px 12px;font:600 13px -apple-system,sans-serif;color:#fff;background:rgba(20,26,32,.72);box-shadow:0 2px 6px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   button:active{background:rgba(60,70,80,.9)}
-  #help{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 64px);background:rgba(20,26,32,.82);padding:10px 14px;border-radius:12px;font-size:13px;width:max-content;max-width:88vw;transition:opacity .4s}
+  #help{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 48px);background:rgba(20,26,32,.78);padding:7px 11px;border-radius:10px;font-size:12px;width:max-content;max-width:88vw;transition:opacity .4s}
   #help.hide{opacity:0;pointer-events:none}
   #load{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(29,35,41,.92);transition:opacity .5s}
   #load.done{opacity:0;pointer-events:none}
@@ -45,7 +46,7 @@ import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 const MODEL = window.HIXON_MODEL || {files: [], bytes: []};
-let HOME = {eye: [ 180, 220, -200 ], target: [ 10, 30, -400 ]};  // metres, model coords (Y up)
+let HOME = {eye: [ 151.4, 311.5, 225.8 ], target: [ 0, 64.7, 0 ]};  // focus crop, closer fill
 
 const hv = (location.hash.match(/v=([-\d.,]+)/) || [])[1];
 if (hv) { const n = hv.split(',').map(Number); if (n.length === 6) HOME = {eye: n.slice(0, 3), target: n.slice(3)}; }
@@ -59,14 +60,14 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.12;
 controls.enablePan = true; controls.screenSpacePanning = true; controls.zoomToCursor = true;
 controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI; controls.minAzimuthAngle = -Infinity; controls.maxAzimuthAngle = Infinity;
-controls.minDistance = 2; controls.maxDistance = 1500;
+controls.minDistance = 2; controls.maxDistance = 900;
 controls.touches = {ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN};
 controls.mouseButtons = {LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN};
 const group = new THREE.Group(); scene.add(group);
 
 function setView(v){ camera.position.set(...v.eye); controls.target.set(...v.target); controls.update(); }
 function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h;
-  camera.fov = w < h ? 62 : 45; camera.updateProjectionMatrix(); }
+  camera.fov = w < h ? 68 : 48; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize(); setView(HOME);
 
 // smooth fly of orbit centre
