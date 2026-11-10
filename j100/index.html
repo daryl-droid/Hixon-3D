@@ -216,11 +216,24 @@ header .hbtns button{padding:0 8px;font-size:14px}
 #cmtList{margin:0 0 10px;padding-left:20px}#cmtList li{margin:0 0 6px}#cmtList .t{font-weight:800}
 body.pfLocked [data-pfl]{opacity:.75}
 body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
+/* v18: After task (before close out) */
+#s-after .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+#s-after textarea{min-height:72px}
+#s-after textarea{display:block;width:100%;min-height:72px;font-size:17px;padding:8px 10px;border:2px solid #000;border-radius:8px;font-family:inherit;background:#fff;resize:vertical}
+#s-after.need{outline:4px solid #b00000;outline-offset:2px}
+#atMsg{font-size:15px;font-weight:800;color:#b00000;margin:0 0 8px}#atMsg:empty{display:none}
+.sigAt{font-weight:700;color:#333}
+/* close-out board + late arrivals (after GO) */
+.openTag{display:inline-block;font-size:12px;font-weight:800;border-radius:6px;padding:1px 6px;margin-left:6px;color:#fff;background:#b00000}
+#latePad{display:block;width:100%;height:auto;border:2px solid #000;border-radius:8px;background:#fff;touch-action:none;margin:0 0 8px}
+#lateList{margin:0 0 8px;padding-left:22px}#lateList li{margin:0 0 6px;font-size:15px}#lateList img{display:block;max-width:220px;height:auto;border:1px solid #000;background:#fff;margin-top:2px}
+.lateBtns{display:flex;flex-wrap:wrap;gap:8px}#lateMsg{font-size:14px;font-weight:700;color:#000;margin:6px 0 0}#lateMsg:empty{display:none}
+#atSrc{font-size:14px;font-weight:700;color:#0d3b66;margin:0 0 8px}#atSrc:empty{display:none}
 </style>
 </head>
 <body>
 <header>
-  <h1>J100 Lift Checklist<small>Simple - works offline</small></h1>
+  <h1>J100 Lift Checklist<small>Simple - works offline &middot; v18</small></h1>
   <div class="hbtns"><button type="button" id="btnCopyTop">Copy project</button><button type="button" id="btnNew">Reset all</button></div>
 </header>
 <main>
@@ -400,15 +413,34 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
 <ol id="cmtList"></ol>
 <label class="f"><span>New comment</span><textarea id="cmtText" rows="3" placeholder="e.g. Landed 11:40, all batteries recovered"></textarea></label>
 <button type="button" class="btn" id="cmtAdd">Add comment</button></div>
+<div class="lvBox" id="s-after" hidden style="border-color:#23395b"><h2>After task</h2>
+  <div id="atMsg" role="alert"></div>
+  <div class="sub">Approx. flight time <span class="u">(optional; blank = close-out stays open on the board)</span></div>
+  <div id="atSrc" role="status"></div>
+  <div class="row3">
+    <label class="f"><span>Hours</span><input type="text" id="atHours" inputmode="numeric" autocomplete="off" placeholder="h"></label>
+    <label class="f"><span>Minutes</span><input type="text" id="atMins" inputmode="numeric" autocomplete="off" placeholder="min"></label>
+    <label class="f"><span>Flights <span class="u">(opt.)</span></span><input type="text" id="atFlights" inputmode="numeric" autocomplete="off" placeholder="#"></label>
+  </div>
+  <label class="f"><span>Notes <span class="u">(optional)</span></span><textarea id="atNotes" rows="3" placeholder="e.g. 3 batteries, finished north block, no issues"></textarea></label>
+  <div class="hint" style="margin:0">Goes on the PDF, the saved record and the flight log.</div>
+</div>
+<div class="lvBox" id="s-late" hidden style="border-color:#1f3a4d"><h2>Late arrivals <span class="u">(added after GO)</span></h2>
+<div class="hint" style="margin:0 0 8px">Someone arrived after GO? Add their name and signature. They are listed separately on the PDF as "added after GO" with the time.</div>
+<ol id="lateList"></ol>
+<label class="f"><span>Name</span><input type="text" id="lateName" autocomplete="off" placeholder="Name of the person arriving"></label>
+<canvas id="latePad" width="600" height="160" aria-label="Late arrival signature"></canvas>
+<div class="lateBtns"><button type="button" class="btn sm" id="lateClear">Clear signature</button><button type="button" class="btn" id="lateAdd">Add late arrival</button></div>
+<div id="lateMsg" role="status"></div></div>
 <button type="button" id="btnSave">Save / Email record</button>
 <div id="saveHint" role="status" aria-live="polite"></div>
-<details class="syncBox" id="s-sync"><summary>Sync records <span id="syncStatus" data-state="off">Sync off</span></summary><div class="syncBody"><div id="syncSettings"></div><div class="hint">Optional. Paste the Sync URL and token once. When you tap Save / Email, a copy of the record and its PDF is also sent to the EcoDrone checklist sheet. With no signal it waits on this phone and sends later (status shows Queued). Email / PDF works the same either way. Blank URL = Sync off.</div></div></details>
+<details class="syncBox" id="s-sync"><summary>Sync records <span id="syncStatus" data-state="off">Collector not set up yet</span></summary><div class="syncBody"><div id="syncSettings"></div><div class="hint">Optional. Paste the Sync URL and token once. When you tap Save / Email, a copy of the record and its PDF is also sent to the EcoDrone checklist sheet. With no signal it waits on this phone and sends later (status shows Queued). Email / PDF works the same either way. Blank URL = collector not set up yet: records wait on this phone (last 10) and send once the URL and token are entered.</div></div></details>
 <details class="logsBox" id="s-logs"><summary>Saved records and job sites <span id="logCount">0</span></summary><div class="logsBody">
-<div class="lvHint">Every saved, completed or closed-out record is kept here on this phone. "Copy project" starts a new record with the job, client, crew, site, airspace, special considerations, mode details, site diagram and legend filled in. Date and time, weather, wind, NAV Drone answer, quick checks, signatures, comments, photos and status start fresh.</div>
+<div class="lvHint">Every saved, completed or closed-out record is kept here on this phone. "Copy project" opens a new checklist in a new tab (this one stays open) with the job, client, crew, site, airspace, special considerations, mode details, site diagram and legend filled in. Date and time, weather, wind, NAV Drone answer, quick checks, signatures, comments, photos, after-task and status start fresh.</div>
 <label class="f"><span>Name this job site <span class="u">(optional)</span></span><input type="text" id="tplName" autocomplete="off" placeholder="e.g. North field"></label>
 <button type="button" class="btn sm" id="btnTpl">Save as job site</button>
 <div id="logList"></div></div></details>
-<div class="foot">Checklist aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. Payload limit, wind limit, Pilot/PIC, and crew names are remembered. The current lift's entries (except signatures) are kept on this phone so a reload does not lose them, until you tap Reset all. Save / Email builds a PDF on the phone (share sheet or download) &mdash; nothing is uploaded unless Sync is set up (then a copy goes to the EcoDrone checklist sheet).</div>
+<div class="foot">Checklist aid only. The pilot in command makes the final call. Data stays on this phone unless Sync is set up. Payload limit, wind limit, Pilot/PIC, and crew names are remembered. The current lift's entries and signatures are kept on this phone so a reload does not lose them, until you tap Reset all. Each open tab keeps its own checklist. Save / Email builds a PDF on the phone (share sheet or download) &mdash; nothing is uploaded unless Sync is set up (then a copy goes to the EcoDrone checklist sheet).</div>
 </main>
 <script>
 /* checklist-sync.js (offline outbox) */
@@ -420,7 +452,8 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
 (function (global) {
   'use strict';
   var KQ = 'chk.outbox', KE = 'chk.endpoint', KT = 'chk.token';
-  var MAX_ITEMS = 30;           // ~ PDFs are ~50-300 KB; keeps well under 5 MB quota
+  var MAX_ITEMS = 30, OFF_MAX = 10, OFF_PDFS = 3;   // collector not set up yet: keep the last 10 records, PDFs for the newest 3
+             // ~ PDFs are ~50-300 KB; keeps well under 5 MB quota
   var busy = false, statusEls = [], lastErr = '';
 
   function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
@@ -452,7 +485,7 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
 
   /** record: flat object of the 12 sheet fields (see adapters below). pdfBytes: Uint8Array or base64. */
   function enqueue(record, pdfBytes, filename, clientRecordId) {
-    if (!enabled()) { render(); return null; }
+    var off = !enabled();   // not set up yet: still queued, sent once the Sync URL + token are entered
     var item = {
       clientRecordId: clientRecordId || newId(record && record.aircraft),
       record: record || {}, filename: filename || '',
@@ -464,6 +497,7 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
     q = q.filter(function (i) { return i.clientRecordId !== item.clientRecordId; });
     q.push(item);
     while (q.length > MAX_ITEMS) q.shift();
+    if (off) { while (q.length > OFF_MAX) q.shift(); q.forEach(function (i, k) { if (k < q.length - OFF_PDFS) i.pdfBase64 = ''; }); }
     saveQueue(q);
     render();
     setTimeout(flush, 0);
@@ -505,14 +539,14 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
         saveQueue(q2);   // keep (bad_token, busy, server_error) for a later retry
       }, function () { lastErr = 'offline'; });
     }
-    return next().then(function () { busy = false; render(); }, function () { busy = false; render(); });
+    return next().then(function () { busy = false; render(); fireFlushed(); }, function () { busy = false; render(); });
   }
 
   function render() {
     var n = queue().length, t, st;
-    if (!enabled()) { t = 'Sync off'; st = 'off'; }
+    if (!enabled()) { t = 'Collector not set up yet' + (n ? ' - ' + n + ' waiting on this phone' : ''); st = 'off'; }
     else if (!n) { t = 'Synced'; st = 'synced'; }
-    else { t = 'Queued (' + n + ')' + (lastErr === 'bad_token' ? ' - check sync token' : ''); st = 'queued'; }
+    else { t = 'Queued (' + n + ')' + (lastErr === 'bad_token' ? ' - check sync token' : (lastErr === 'bad_response' ? ' - collector not set up yet (check the Sync URL)' : '')); st = 'queued'; }
     statusEls.forEach(function (el) { el.textContent = t; el.setAttribute('data-state', st); });
   }
 
@@ -543,20 +577,41 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
   // ---- adapters from each app's snapshotRecord() ----
   function crewSigned(crew) {
     crew = crew || [];
-    var s = crew.filter(function (c) { return c.signed; }).map(function (c) { return c.name || '(no name)'; });
-    return s.length + '/' + crew.filter(function (c) { return c.name; }).length + (s.length ? ': ' + s.join(', ') : '');
+    var s = crew.filter(function (c) { return c.signed; }).map(function (c) { return String(c.name || '').trim() || 'Unnamed'; });
+    return s.length + '/' + crew.filter(function (c) { return String(c.name || '').trim() || c.signed; }).length + (s.length ? ': ' + s.join(', ') : '');
   }
   function windText(r) {
     return 'wind ' + (r.wind != null ? r.wind : '?') + ' / gust ' + (r.gust != null ? r.gust : '?') + ' ' + (r.windUnit || '') +
       ' (limit ' + (r.windLim != null ? r.windLim : '?') + ') - ' + (r.wxText || '');
   }
+  function sigList(crew) {   // v10: who signed + when (images are in the PDF)
+    return (crew || []).filter(function (c) { return c.signed; })
+      .map(function (c) { return (String(c.name || '').trim() || 'Unnamed') + ' signed' + (c.signedAt ? ' ' + c.signedAt : ''); }).join('; ');
+  }
   function fromJ100(r) {
     return { dateTime: ((r.liftDate || '') + ' ' + (r.liftTime || '')).trim() || r.stamp, aircraft: 'J100', mode: 'Heavy Lifting',
       job: r.jobName || '', client: r.clientName || '', pilot: r.pilot || '', crewSigned: crewSigned(r.crew),
-      airspace: r.airspace || '', navDrone: r.navDrone || '', loadResult: r.capText || '', wind: windText(r), goStatus: r.goText || '' };
+      airspace: r.airspace || '', navDrone: r.navDrone || '', loadResult: r.capText || '', wind: windText(r), goStatus: r.goText || '',
+      signatures: sigList(r.crew), flightMin: (typeof r.flightMin === 'number' && isFinite(r.flightMin)) ? r.flightMin : '',
+      flights: r.flights || '', afterNotes: r.afterNotes || '', date: r.liftDate || '', aircraftSerial: 'EAVUAV502586857' };
   }
 
-  global.ChecklistSync = { init: init, enqueue: enqueue, flush: flush, queue: queue, enabled: enabled,
+
+  /* Close-out state of one record from the collector (GET ?action=record). Resolves null when off/offline/unknown. */
+  var flushedFns = [];
+  function onFlushed(fn) { flushedFns.push(fn); }
+  function fireFlushed() { flushedFns.forEach(function (f) { try { f(); } catch (e) {} }); }
+  function pull(id) {
+    if (!enabled() || !id) return Promise.resolve(null);
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return Promise.resolve(null);
+    var c = config(), u = c.endpoint + (c.endpoint.indexOf('?') < 0 ? '?' : '&') + 'action=record&id=' + encodeURIComponent(id) + '&token=' + encodeURIComponent(c.token);
+    try {
+      return fetch(u, { method: 'GET', redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.text(); })
+        .then(function (t) { var j = null; try { j = JSON.parse(t); } catch (e) {} return j && j.ok ? j.record : null; }, function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  global.ChecklistSync = { init: init, enqueue: enqueue, flush: flush, queue: queue, enabled: enabled, pull: pull, onFlushed: onFlushed,
     fromJ100: fromJ100, newId: newId, _keys: { KQ: KQ, KE: KE, KT: KT } };
 })(window);
 
@@ -564,6 +619,46 @@ body.pfLocked #crewList canvas,body.pfLocked #diagCanvas{pointer-events:none}
 <script>
 (function(){
 'use strict';
+/* v18: every open checklist (tab/window) keeps its own record slot in localStorage, so a copy opened in a
+   new tab never overwrites this one (and vice versa). Slot 'main' uses the old v9 keys (upgrade keeps the draft).
+   Only the owning tab writes a slot; if another tab takes it over, this tab forks to a new slot before writing. */
+var SLOT=(function(){
+  var P='j100s.',OWN=P+'own.',HB=P+'hb.',REG=P+'slots',CP=P+'copy.',ALIVE=10000,BASES=[P+'draft',P+'live',P+'photos'];
+  function g(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function s(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+  function rm(k){try{localStorage.removeItem(k)}catch(e){}}
+  function sg(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+  function ss(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
+  function rid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+  function reg(){try{var r=JSON.parse(g(REG)||'{}');return r&&typeof r==='object'?r:{}}catch(e){return {}}}
+  function key(b,i){return i==='main'?b:b+'@'+i}
+  var copyKey=null;try{copyKey=new URLSearchParams(location.search).get('copy')}catch(e){}
+  if(copyKey&&!/^[A-Za-z0-9]{4,40}$/.test(copyKey))copyKey=null;
+  var tab=copyKey?null:sg(P+'tab');if(!tab)tab=rid('T');ss(P+'tab',tab);
+  function alive(i){try{var h=JSON.parse(g(HB+i)||'null');return !!h&&h.tab!==tab&&Date.now()-h.t<ALIVE}catch(e){return false}}
+  var id=null;
+  if(copyKey)id=rid('S');
+  else{var mine=sg(P+'slot');if(mine&&!alive(mine))id=mine;
+    if(!id){var r=reg(),best=null,bu=-1;Object.keys(r).concat(r.main==null?['main']:[]).forEach(function(k){if(alive(k))return;var u=+r[k]||0;if(u>bu){bu=u;best=k}});id=best||rid('S')}}
+  var api={tab:tab,copyKey:copyKey,forked:false,onFork:null,
+    id:function(){return id},
+    k:function(b,write){if(write)api.guard();return key(b,id)},
+    own:function(){return g(OWN+id)===tab},
+    guard:function(){var o=g(OWN+id);if(o===null)s(OWN+id,tab);else if(o!==tab)fork()},
+    touch:function(nonBlank){var r=reg();r[id]=nonBlank?Date.now():(r[id]||0);s(REG,JSON.stringify(r))}};
+  function claim(){s(OWN+id,tab);ss(P+'slot',id);beat()}
+  function beat(){var o=g(OWN+id);if(o!==null&&o!==tab){fork();return}if(o===null)s(OWN+id,tab);s(HB+id,JSON.stringify({t:Date.now(),tab:tab}))}
+  function fork(){var old=id;id=rid('S');api.forked=true;s(OWN+id,tab);ss(P+'slot',id);s(HB+id,JSON.stringify({t:Date.now(),tab:tab}));api.touch(true);if(api.onFork)try{api.onFork(old)}catch(e){}}
+  function blankSlot(k){var d=null,l=null;try{d=JSON.parse(g(key(P+'draft',k))||'null')}catch(e){}try{l=JSON.parse(g(key(P+'live',k))||'null')}catch(e){}
+    var v=(d&&d.v)||{};return !(d&&(d.mode||(v.jobName||'').trim()||(v.clientName||'').trim()||(d.crew||[]).some(function(c){return c&&c.s})))&&!(l&&l.st&&l.st.status)&&!g(key(P+'photos',k))}
+  function prune(){var r=reg(),ch=false;Object.keys(r).forEach(function(k){if(k===id||k==='main'||alive(k))return;if(blankSlot(k)){BASES.forEach(function(b){rm(key(b,k))});rm(OWN+k);rm(HB+k);delete r[k];ch=true}});if(ch)s(REG,JSON.stringify(r));
+    try{for(var i=localStorage.length-1;i>=0;i--){var kk=localStorage.key(i);if(kk&&kk.indexOf(CP)===0){var o=null;try{o=JSON.parse(g(kk))}catch(e){}if(!o||Date.now()-(+o.t||0)>864e5)rm(kk)}}}catch(e){}}
+  claim();prune();setInterval(beat,3000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')beat()});
+  window.addEventListener('pagehide',function(){try{var h=JSON.parse(g(HB+id)||'null');if(h&&h.tab===tab)rm(HB+id)}catch(e){}});
+  window.addEventListener('storage',function(e){if(e.key===OWN+id&&e.newValue!==tab)fork()});
+  return api;
+})();
 var KEY={payload:'j100s.payload',windLim:'j100s.windLim',windUnit:'j100s.windUnit',crew:'j100s.crew',pilot:'j100s.pilot'};
 var crewState=[]; /* {id,name,present} + canvas DOM */
 var crewIdSeq=1;
@@ -654,7 +749,7 @@ function compute(d){
   return o;
 }
 
-var numIds=['wLoad','wRig','lineLen','payload','weak','temp','humid','alt','dist','height','pwrH','treesH','windLim','wind','gust'];
+var numIds=['atHours','atMins','atFlights','wLoad','wRig','lineLen','payload','weak','temp','humid','alt','dist','height','pwrH','treesH','windLim','wind','gust'];
 var signedIds={temp:1,alt:1};
 var qcs=[].slice.call(document.querySelectorAll('#qc input'));
 function read(){
@@ -692,13 +787,13 @@ function buildPdfLines(rec){
   L('Tailgate given: '+(rec.tailgateGiven?'yes':'no'));
   L('Saved: '+rec.stamp);
   L('');
-  L('CREW');
+  L('CREW');var CR=(rec.crew||[]).filter(function(c){return String(c.name||'').trim()||c.signed||c.sigJpegB64});
   L('  Pilot / PIC: '+(rec.pilot||'(blank)'));
-  if(!rec.crew||!rec.crew.length){L('  (no crew names)');}
+  if(!CR.length){L('  (no crew names)');}
   else{
-    rec.crew.forEach(function(c,i){
-      var att=c.signed?'SIGNED (present)':(c.present?'PRESENT (not signed)':(c.name?'unmarked':'(blank name)'));
-      L('  '+(i+1)+'. '+(c.name||'(blank)')+' - '+att);
+    CR.forEach(function(c,i){
+      var att=c.signed?'SIGNED (present)'+(c.signedAt?' at '+c.signedAt:''):(c.present?'PRESENT (not signed)':'unmarked');
+      L('  '+(i+1)+'. '+(String(c.name||'').trim()||'Unnamed')+' - '+att);
     });
   }
   L('');
@@ -732,8 +827,15 @@ function buildPdfLines(rec){
   L('');
   L('GO STATUS: '+rec.goText);
   L('');
+  if(rec.status||rec.flightMin!=null||rec.flights||rec.afterNotes){
+    L('AFTER TASK');
+    L('  Approx flight time: '+(rec.flightText||'(blank)')+'    Flights: '+(rec.flights||'(blank)'));
+    if(!rec.afterNotes)L('  Notes: (blank)');
+    else{L('  Notes:');String(rec.afterNotes).split(/\r?\n/).forEach(function(t){wrapTxt(t,92).forEach(function(x){L('    '+x)})});}
+    L('');
+  }
   L('Source: EAVision J100 User Manual (2024), Specs & Lifting precautions.');
-  L('Checklist aid only. Pilot in command makes the final call.');
+  L('Checklist aid only. Pilot in command makes the final call.    J100 Lift Checklist v18');
   return lines;
 }
 function b64ToBin(b64){
@@ -785,7 +887,7 @@ function buildPdfBytes(rec){
         imgs.push({name:name,w:iw,h:ih,bytes:bytes});
         var drawW=140, drawH=drawW*ih/iw;
         if(drawH>30){drawH=30;drawW=drawH*iw/ih;}
-        sigDraw.push({name:name,label:(c.name||'Crew')+' signature',drawW:drawW,drawH:drawH});
+        sigDraw.push({name:name,label:(String(c.name||'').trim()||'Unnamed')+' signature'+(c.signedAt?' (signed '+c.signedAt+')':''),drawW:drawW,drawH:drawH});
       }catch(e){}
     });
   }
@@ -927,21 +1029,14 @@ function snapshotRecord(){
   var goText=o.go?(goTime?'GO confirmed at '+goTime:'GO unlocked (not yet tapped)'):'GO locked';
   var aw=altWorkText(o,d.alt);
   var crew=crewState.map(function(c){
-    var signed=false, png=null, jpegB64=null, sw=0, sh=0;
-    if(c.canvas){
-      try{
-        var empty=isCanvasBlank(c.canvas);
-        if(!empty){
-          signed=true;
-          png=canvasToPngDataUri(c.canvas);
-          var juri=canvasToJpegDataUri(c.canvas,0.85);
-          if(juri)jpegB64=juri.split('base64,')[1];
-          sw=c.canvas.width; sh=c.canvas.height;
-        }
-      }catch(e){}
-    }
-    return {name:(c.name||'').trim(), present:!!c.present||signed, signed:signed, sigPng:png, sigJpegB64:jpegB64, sigW:sw, sigH:sh};
+    var sig=c.sig||null, jpegB64=null, sw=c.sigW||0, sh=c.sigH||0, live=false;
+    try{live=!!c.canvas&&!isCanvasBlank(c.canvas)}catch(e){}
+    if(sig&&/^data:image\/jpe?g/.test(sig))jpegB64=sig.split('base64,')[1];
+    else if(live){var juri=canvasToJpegDataUri(c.canvas,0.85);if(juri){jpegB64=juri.split('base64,')[1];if(!sig)sig=juri;sw=c.canvas.width;sh=c.canvas.height;}}
+    var signed=!!sig;
+    return {name:(c.name||'').trim(), present:!!c.present||signed, signed:signed, signedAt:signed?(c.sigAt||''):'', sigPng:sig, sigJpegB64:jpegB64, sigW:sw||320, sigH:sh||88};
   });
+  var fm=flightMin(), fl=num($('atFlights').value);
   return {
     stamp:stamp, liftDate:$('liftDate').value.trim(), liftTime:$('liftTime').value.trim(), jobName:($('jobName')?$('jobName').value.trim():''), clientName:($('clientName')?$('clientName').value.trim():''), clientContact:($('clientContact')?$('clientContact').value.trim():''), airspace:$('airspace').value, navDrone:$('navDrone').value, airNote:airNoteText($('airspace').value), special:($('special')?$('special').value.trim():''), what:$('what').value.trim(), load:d.load, rig:d.rig,
     totalText:o.total!=null?fmt(o.total)+' kg':'-- kg',
@@ -959,9 +1054,14 @@ function snapshotRecord(){
     pilot:($('pilot')?$('pilot').value.trim():''),
     tailgateGiven:!!($('tailgateGiven')&&$('tailgateGiven').checked),
     tailgateObserver:observerName(),
-    crew:crew
+    crew:crew,
+    flightMin:ok(fm)?fm:null, flightText:flightText(fm), flights:ok(fl)?String(fl):'', afterNotes:$('atNotes').value.trim()
   };
 }
+/* v10 After task: approximate flight time (hours + minutes), optional number of flights, notes */
+function flightMin(){var h=$('atHours').value.trim(),m=$('atMins').value.trim();if(!h&&!m)return null;
+  var hv=h?num(h):0,mv=m?num(m):0;if(!ok(hv)||!ok(mv))return NaN;return Math.round(hv*60+mv)}
+function flightText(m){if(m==null)return '(blank)';if(!ok(m))return '(unclear)';return Math.floor(m/60)+' h '+(m%60)+' min ('+m+' min)'}
 function qLabel(c){return c.parentNode.querySelector('span').textContent.replace(/\u2013/g,'-')}
 function notReady(o){
   var why=[];
@@ -1000,7 +1100,7 @@ function downloadPdf(bytes, name){
 function saveOrEmail(){
   var res=saveOrEmailCore();
   try{
-    if(window.ChecklistSync&&ChecklistSync.enabled()){
+    if(window.ChecklistSync){
       if(!syncId){syncId=newSyncId();saveDraft();}
       ChecklistSync.enqueue(ChecklistSync.fromJ100(res.record),res.bytes,res.filename,syncId);
     }
@@ -1114,7 +1214,12 @@ function loadCrewNames(){
   names=names.map(function(n){return String(n||'').trim()}).filter(Boolean);
   return names;
 }
-function bindSigCanvas(cv){
+function sigStamp(){var d=new Date();return localDateStr(d)+' '+localTimeStr(d)}
+function captureSig(c,cv){
+  try{if(isCanvasBlank(cv)){c.sig=null;c.sigAt='';}else{c.sig=canvasToJpegDataUri(cv,0.85);c.sigW=cv.width;c.sigH=cv.height;if(!c.sigAt)c.sigAt=sigStamp();}}catch(e){}
+  if(typeof saveDraft==='function')saveDraft();
+}
+function bindSigCanvas(cv,c){
   var drawing=false, last=null;
   function pos(e){
     var r=cv.getBoundingClientRect();
@@ -1125,7 +1230,7 @@ function bindSigCanvas(cv){
   }
   function start(e){e.preventDefault();drawing=true;last=pos(e);var ctx=cv.getContext('2d');ctx.beginPath();ctx.fillStyle='#000';ctx.arc(last.x,last.y,1.2,0,Math.PI*2);ctx.fill();}
   function move(e){if(!drawing)return;e.preventDefault();var p=pos(e);var ctx=cv.getContext('2d');ctx.strokeStyle='#000';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;}
-  function end(e){if(!drawing)return;e.preventDefault();drawing=false;last=null;}
+  function end(e){if(!drawing)return;e.preventDefault();drawing=false;last=null;if(c&&c.canvas===cv)captureSig(c,cv);}
   cv.addEventListener('mousedown',start);cv.addEventListener('mousemove',move);
   cv.addEventListener('mouseup',end);cv.addEventListener('mouseleave',end);
   cv.addEventListener('touchstart',start,{passive:false});
@@ -1183,7 +1288,7 @@ function renderCrew(){
       row.appendChild(sw);
       // keep prior canvas content if re-render from present toggle of OTHER? we rebuild all - preserve via temp
       c._pendingCanvas=cv;
-      clr.addEventListener('click',function(){clearCanvas(cv);});
+      clr.addEventListener('click',function(){clearCanvas(cv);c.sig=null;c.sigAt='';saveDraft();});
     }
     list.appendChild(row);
   });
@@ -1192,28 +1297,28 @@ function renderCrew(){
     if(c._pendingCanvas){
       var cv=c._pendingCanvas; delete c._pendingCanvas;
       sizeCanvas(cv);
-      if(c._pngStash){
-        var img=new Image();
-        img.onload=function(){var ctx=cv.getContext('2d');ctx.drawImage(img,0,0,cv.width,cv.height);};
-        img.src=c._pngStash; delete c._pngStash;
-      }
       c.canvas=cv;
-      bindSigCanvas(cv);
+      drawSig(c);
+      bindSigCanvas(cv,c);
     } else {
       c.canvas=null;
     }
   });
   updateObserver();
 }
-function stashSigsBeforeRerender(){
-  crewState.forEach(function(c){
-    if(c.canvas&&!isCanvasBlank(c.canvas)){
-      try{c._pngStash=canvasToPngDataUri(c.canvas)}catch(e){}
-    }
-  });
+/* v18: c.sig (JPEG data URI) is the stored signature; the canvas only shows it. Old v9 PNGs are converted once drawn. */
+function drawSig(c){
+  var cv=c.canvas;if(!cv||!c.sig)return;var src=c.sig,img=new Image();
+  img.onload=function(){if(c.canvas!==cv||c.sig!==src)return;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    if(!/^data:image\/jpe?g/.test(src)){c.sig=canvasToJpegDataUri(cv,0.85);c.sigW=cv.width;c.sigH=cv.height;if(typeof saveDraft==='function')saveDraft();}};
+  img.src=src;
 }
-function addCrewPerson(name){
-  crewState.push({id:crewIdSeq++, name:name||'', present:false, canvas:null});
+function stashSigsBeforeRerender(){
+  crewState.forEach(function(c){if(c.canvas&&!c.sig&&!isCanvasBlank(c.canvas))captureSig(c,c.canvas)});
+}
+function addCrewPerson(name,o){
+  o=o||{};
+  crewState.push({id:crewIdSeq++, name:name||'', present:!!o.present, canvas:null, sig:o.sig||null, sigW:o.sigW||0, sigH:o.sigH||0, sigAt:o.sigAt||''});
 }
 function initCrew(){
   var names=loadCrewNames();
@@ -1224,7 +1329,7 @@ function initCrew(){
   renderCrew();
 }
 function clearCrewAttendance(){
-  crewState.forEach(function(c){c.present=false;c.canvas=null;delete c._pngStash;});
+  crewState.forEach(function(c){c.present=false;c.canvas=null;c.sig=null;c.sigAt='';});
   renderCrew();
 }
 
@@ -1237,7 +1342,7 @@ $('windLim').addEventListener('input',function(){lsSet(KEY.windLim,this.value.tr
 $('windUnit').addEventListener('change',function(){lsSet(KEY.windUnit,this.value)});
 if($('pilot'))$('pilot').addEventListener('input',function(){lsSet(KEY.pilot,this.value.trim())});
 $('btnAddCrew').addEventListener('click',function(){stashSigsBeforeRerender();addCrewPerson('');renderCrew();saveCrewNames();});
-window.addEventListener('resize',function(){crewState.forEach(function(c){if(c.canvas){var png=null;try{if(!isCanvasBlank(c.canvas))png=canvasToPngDataUri(c.canvas);}catch(e){} sizeCanvas(c.canvas); if(png){var img=new Image();img.onload=function(){c.canvas.getContext('2d').drawImage(img,0,0,c.canvas.width,c.canvas.height);};img.src=png;}}});});
+window.addEventListener('resize',function(){crewState.forEach(function(c){if(!c.canvas)return;var w=Math.max(200,Math.floor(c.canvas.parentNode.getBoundingClientRect().width||300));if(c.canvas.style.width===w+'px')return;stashSigsBeforeRerender();sizeCanvas(c.canvas);drawSig(c);});});
 document.addEventListener('input',render);
 document.addEventListener('change',render);
 $('go').addEventListener('click',function(){
@@ -1248,7 +1353,7 @@ $('go').addEventListener('click',function(){
 });
 $('btnNew').addEventListener('click',function(){
   if(!confirm('Reset all? This clears every field and starts a blank record. Saved records and job sites are kept.'))return;
-  ['jobName','clientName','clientContact','special','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'].forEach(function(id){if($(id))$(id).value=''});
+  ['atHours','atMins','atFlights','atNotes','jobName','clientName','clientContact','special','what','wLoad','wRig','lineLen','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust'].forEach(function(id){if($(id))$(id).value=''});
   $('lineType').value='';$('airspace').value='';$('navDrone').value='';updateAirNote();
   ['uPeople','uRoads','uWater','pwr','trees'].forEach(function(id){$(id).checked=false});
   qcs.forEach(function(q){q.checked=false});
@@ -1257,31 +1362,35 @@ $('btnNew').addEventListener('click',function(){
   setDateTimeNow();
   goTime=null;syncId=null;clearDraft();render();window.scrollTo(0,0);
 });
-var DRAFT_KEY='j100s.draft';
-var DRAFT_IDS=['liftDate','liftTime','jobName','clientName','clientContact','special','what','wLoad','wRig','lineLen','lineType','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust','airspace','navDrone'];
+var DRAFT_KEY='j100s.draft'; // v10: slot base; real key = SLOT.k(DRAFT_KEY)
+var DRAFT_IDS=['atHours','atMins','atFlights','atNotes','liftDate','liftTime','jobName','clientName','clientContact','special','what','wLoad','wRig','lineLen','lineType','weak','temp','humid','alt','dist','height','pwrH','treesH','wind','gust','airspace','navDrone'];
 var DRAFT_CBS=['uPeople','uRoads','uWater','pwr','trees','tailgateGiven'];
 function saveDraft(){
   try{
-    var o={v:{},c:{},q:qcs.map(function(c){return c.checked}),p:crewState.map(function(c){return !!c.present}),goTime:goTime,syncId:syncId};
+    var o={v:{},c:{},q:qcs.map(function(c){return c.checked}),p:crewState.map(function(c){return !!c.present}),goTime:goTime,syncId:syncId,
+      pilot:$('pilot').value,crew:crewState.map(function(c){return {n:c.name||'',p:!!c.present,s:c.sig||null,w:c.sigW||0,h:c.sigH||0,at:c.sigAt||''}})};
     DRAFT_IDS.forEach(function(id){if($(id))o.v[id]=$(id).value});
     DRAFT_CBS.forEach(function(id){if($(id))o.c[id]=$(id).checked});
-    lsSet(DRAFT_KEY,JSON.stringify(o));
+    lsSet(SLOT.k(DRAFT_KEY,true),JSON.stringify(o));
+    SLOT.touch(!!(o.mode||(o.v.jobName||'').trim()||(o.v.clientName||'').trim()||o.crew.some(function(c){return c.s})));
   }catch(e){}
 }
 function loadDraft(){
-  var raw=lsGet(DRAFT_KEY); if(!raw)return false;
+  var raw=lsGet(SLOT.k(DRAFT_KEY)); if(!raw)return false;
   try{
     var o=JSON.parse(raw);
     DRAFT_IDS.forEach(function(id){if($(id)&&o.v&&typeof o.v[id]==='string')$(id).value=o.v[id]});
     DRAFT_CBS.forEach(function(id){if($(id)&&o.c&&id in o.c)$(id).checked=!!o.c[id]});
     if(o.q)qcs.forEach(function(c,i){c.checked=!!o.q[i]});
-    if(o.p){crewState.forEach(function(c,i){c.present=!!o.p[i]});renderCrew();}
+    if(Array.isArray(o.crew)&&o.crew.length){crewState=[];o.crew.forEach(function(x){x=x||{};addCrewPerson(x.n||'',{present:x.p,sig:x.s,sigW:x.w,sigH:x.h,sigAt:x.at})});renderCrew();}
+    else if(o.p){crewState.forEach(function(c,i){c.present=!!o.p[i]});renderCrew();}
+    if(typeof o.pilot==='string'&&$('pilot'))$('pilot').value=o.pilot;
     if(o.goTime)goTime=o.goTime;
     if(o.syncId)syncId=o.syncId;
     return true;
   }catch(e){return false}
 }
-function clearDraft(){try{localStorage.removeItem(DRAFT_KEY)}catch(e){}try{phClear()}catch(e){}}
+function clearDraft(){try{localStorage.removeItem(SLOT.k(DRAFT_KEY,true))}catch(e){}try{phClear()}catch(e){}}
 $('btnSave').addEventListener('click',function(){saveOrEmail()});
 if($('s-tailgate'))$('s-tailgate').addEventListener('toggle',function(){var t=this.querySelector('.tgTap');if(t)t.textContent=this.open?'tap to close':'tap to open';});
 initCrew();
@@ -1298,8 +1407,8 @@ window.__J100S={getSyncId:function(){return syncId},compute:compute,render:rende
 /* ---- Photos (optional; never blocks GO) ---- */
 var PH_KEY='j100s.photos',PH_MAX=10,PH_PX=1200,PH_Q=0.7;
 var photos=[];
-function phLoad(){try{var a=JSON.parse(localStorage.getItem(PH_KEY)||'[]');photos=Array.isArray(a)?a.filter(function(p){return p&&p.b64}):[]}catch(e){photos=[]}}
-function phStore(){try{if(photos.length)localStorage.setItem(PH_KEY,JSON.stringify(photos));else localStorage.removeItem(PH_KEY);return true}catch(e){return false}}
+function phLoad(){try{var a=JSON.parse(localStorage.getItem(SLOT.k(PH_KEY))||'[]');photos=Array.isArray(a)?a.filter(function(p){return p&&p.b64}):[]}catch(e){photos=[]}}
+function phStore(){try{var k=SLOT.k(PH_KEY,true);if(photos.length)localStorage.setItem(k,JSON.stringify(photos));else localStorage.removeItem(k);return true}catch(e){return false}}
 function phMsg(t,err){var m=$('phMsg');m.textContent=t||'';m.className=err?'err':'';}
 function phRender(){
   var L=$('phList');L.innerHTML='';
@@ -1354,10 +1463,11 @@ window.__PHOTOS={list:function(){return photos},add:phAddFiles,clear:phClear,KEY
 (function(){
 var LKEY='j100s.live',RKEY='j100s.records',MAXREC=30,FROM='fromJ100';
 var LV=normSt(null),logId=null,diag=null,restoring=false;
-function normSt(s){s=s||{};return {status:s.status||'',completeAt:s.completeAt||'',closedAt:s.closedAt||'',updatedAt:s.updatedAt||'',comments:(s.comments||[]).slice(),sigs:s.sigs||null}}
+function normSt(s){s=s||{};return {status:s.status||'',completeAt:s.completeAt||'',closedAt:s.closedAt||'',updatedAt:s.updatedAt||'',comments:(s.comments||[]).slice(),sigs:s.sigs||null,
+  late:(s.late||[]).slice(),latePending:s.latePending||null,server:s.server||null}}
 function nowStamp(){var n=new Date();return localDateStr(n)+' '+localTimeStr(n)}
-function liveSave(){var o={st:LV,logId:logId,diag:diag,legend:$('diagNote').value};
-  if(!lsSet2(LKEY,JSON.stringify(o))){o.diag=null;lsSet2(LKEY,JSON.stringify(o));$('saveHint').textContent='Phone storage is full: the diagram is not kept after a reload. Save / Email the PDF now, or remove old saved records.';}}
+function liveSave(){var o={st:LV,logId:logId,diag:diag,legend:$('diagNote').value},lk=SLOT.k(LKEY,true);
+  if(!lsSet2(lk,JSON.stringify(o))){o.diag=null;lsSet2(lk,JSON.stringify(o));$('saveHint').textContent='Phone storage is full: the diagram is not kept after a reload. Save / Email the PDF now, or remove old saved records.';}}
 function lsSet2(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
 var DMAX=1200, DQ=0.7, DCAP=450000; // px, JPEG quality, max data-URI chars (~330 KB)
 var dc=$('diagCanvas'),dx=dc.getContext('2d'),dBase=null,dStrokes=[],dCur=null,dCol='#0a7a2f',dW=0.008,dDraw=false;
@@ -1544,17 +1654,18 @@ $('diagUndo').addEventListener('click',function(){if(!dStrokes.length)return;dSt
 $('diagClearInk').addEventListener('click',function(){dStrokes=[];dRedraw();dFlatten()});
 $('diagClear').addEventListener('click',function(){if(!confirm('Remove the diagram?'))return;diag=null;showDiag();liveSave()});
 /* ---- record state ---- */
-function sigOf(c){try{return c.canvas&&!isCanvasBlank(c.canvas)?canvasToPngDataUri(c.canvas):null}catch(e){return null}}
-function crewSnap(){return crewState.map(function(c){return {name:(c.name||'').trim(),present:!!c.present,sig:sigOf(c)}})}
+function sigOf(c){if(c.sig)return c.sig;try{return c.canvas&&!isCanvasBlank(c.canvas)?canvasToJpegDataUri(c.canvas,0.85):null}catch(e){return null}}
+function crewSnap(){return crewState.map(function(c){var sg=sigOf(c);return {name:(c.name||'').trim(),present:!!c.present||!!sg,sig:sg,sigW:c.sigW||0,sigH:c.sigH||0,sigAt:c.sigAt||''}})}
 function allSigned(){var any=false,ok=true;crewState.forEach(function(c){var s=!!sigOf(c);if(s)any=true;if(c.present&&(c.name||'').trim()&&!s)ok=false});return any&&ok}
 function ready(){return !!goTime&&!$('go').disabled&&allSigned()}
-function draftObj(){saveDraft();try{return JSON.parse(lsGet(DRAFT_KEY)||'{}')||{}}catch(e){return {}}}
-var FRESH_V=['liftDate','liftTime','wind','gust','temp','humid','navDrone'];
-function carryOf(){var d=draftObj();FRESH_V.forEach(function(k){if(d.v)delete d.v[k]});if(d.c)delete d.c.tailgateGiven;delete d.tg;delete d.q;delete d.p;delete d.goTime;delete d.syncId;
+function draftObj(){saveDraft();try{return JSON.parse(lsGet(SLOT.k(DRAFT_KEY))||'{}')||{}}catch(e){return {}}}
+var FRESH_V=['liftDate','liftTime','wind','gust','temp','humid','navDrone','atHours','atMins','atFlights','atNotes'];
+function carryOf(){var d=draftObj();FRESH_V.forEach(function(k){if(d.v)delete d.v[k]});if(d.c)delete d.c.tailgateGiven;delete d.tg;delete d.q;delete d.p;delete d.crew;delete d.goTime;delete d.syncId;
   return {draft:d,pilot:$('pilot')?$('pilot').value:'',crew:crewState.map(function(c){return (c.name||'').trim()}),diag:diag,legend:$('diagNote').value}}
 function getRecs(){try{return JSON.parse(lsGet(RKEY)||'[]')||[]}catch(e){return []}}
 function putRecs(a){while(a.length>MAXREC)a.pop();while(!lsSet2(RKEY,JSON.stringify(a))&&a.length>1)a.pop();renderRecs()}
-function entry(kind,name){var n=new Date();return {kind:kind,name:name||'',savedAt:localDateStr(n)+' '+localTimeStr(n),date:$('liftDate').value,job:$('jobName').value.trim(),client:$('clientName').value.trim(),signed:allSigned(),carry:carryOf(),status:LV.status,completeAt:LV.completeAt,closedAt:LV.closedAt,updatedAt:LV.updatedAt}}
+function entry(kind,name){var n=new Date();return {kind:kind,name:name||'',savedAt:localDateStr(n)+' '+localTimeStr(n),date:$('liftDate').value,job:$('jobName').value.trim(),client:$('clientName').value.trim(),signed:allSigned(),carry:carryOf(),status:LV.status,completeAt:LV.completeAt,closedAt:LV.closedAt,updatedAt:LV.updatedAt,
+  syncId:syncId||'',go:!!goTime,closeout:closeoutState()}}
 function addRecord(){
   if(!logId){logId='R'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
   var e=entry('rec');e.id=logId;e.full={draft:JSON.stringify(draftObj()),pilot:$('pilot')?$('pilot').value:'',crew:crewSnap(),diag:diag,legend:$('diagNote').value,st:LV};
@@ -1563,28 +1674,52 @@ function addRecord(){
 function addSite(){var nm=$('tplName').value.trim()||[$('clientName').value.trim(),$('jobName').value.trim()].filter(Boolean).join(' - ')||'Job site';
   var e=entry('site',nm);e.id='S'+Date.now().toString(36);var a=getRecs();a.unshift(e);putRecs(a);$('tplName').value='';$('saveHint').textContent='Job site saved: '+nm}
 function resetCore(){var oc=window.confirm;window.confirm=function(){return true};try{$('btnNew').click()}finally{window.confirm=oc}}
-function setCrew(list){crewState=[];list.forEach(function(x){addCrewPerson(typeof x==='string'?x:x.name)});if(!crewState.length){addCrewPerson('');addCrewPerson('')}renderCrew();saveCrewNames()}
+function setCrew(list){crewState=[];list.forEach(function(x){if(typeof x==='string')addCrewPerson(x);else addCrewPerson((x&&x.name)||'',x&&{present:x.present,sig:x.sig,sigW:x.sigW,sigH:x.sigH,sigAt:x.sigAt})});if(!crewState.length){addCrewPerson('');addCrewPerson('')}renderCrew();saveCrewNames()}
 function applyCarry(c){
   resetCore();restoring=true;
   setCrew(c.crew||[]);if($('pilot')&&c.pilot!=null){$('pilot').value=c.pilot;saveCrewNames()}
-  goTime=null;syncId=null;lsSet2(DRAFT_KEY,JSON.stringify(c.draft||{}));loadDraft();goTime=null;syncId=null;setDateTimeNow();
+  goTime=null;syncId=null;lsSet2(SLOT.k(DRAFT_KEY,true),JSON.stringify(c.draft||{}));loadDraft();goTime=null;syncId=null;setDateTimeNow();
   diag=c.diag||null;$('diagNote').value=c.legend||'';showDiag();restoring=false;
   render();saveDraft();liveSave();applyLock()}
+function hasContent(){return !!($('jobName').value.trim()||$('clientName').value.trim()||crewState.some(function(c){return !!c.sig})||LV.status||LV.comments.length||logId)}
+function standaloneApp(){try{return navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)}catch(e){return false}}
+var COPY_MSG='Fill in today\'s weather, wind, NAV Drone answer and quick checks, then GO and sign.';
 function copyProject(id){
   var e=null;
-  if(!id){if(!confirm('Copy this project into a new record? The current record is kept in Saved records.'))return false;try{addRecord()}catch(_){}e={carry:carryOf()}}
-  else{e=getRecs().filter(function(x){return x.id===id})[0];if(!e)return false;if(!confirm('Copy project "'+(e.name||e.job||e.client||e.date)+'" into a new record? The record on screen is replaced (it stays in Saved records if it was saved).'))return false}
+  if(!id){if(!confirm('Copy this project into a new checklist? It opens in a new tab. This checklist stays open and is kept in Saved records.'))return false;try{addRecord()}catch(_){}e={carry:carryOf()}}
+  else{e=getRecs().filter(function(x){return x.id===id})[0];if(!e)return false;if(!confirm('Copy project "'+(e.name||e.job||e.client||e.date)+'" into a new checklist? It opens in a new tab. The checklist on screen stays open.'))return false}
+  var how=openCopy(e.carry||{});
+  if(how==='tab'){$('saveHint').textContent='New checklist opened in a new tab. This one is still open; close its tab when you are done.';return 'tab'}
+  // new tab not possible (pop-up blocked or home-screen app): keep the current checklist in Saved records first, then copy here
+  if(hasContent())try{addRecord()}catch(_){}
   applyCarry(e.carry||{});$('s-logs').open=false;window.scrollTo(0,0);
-  $('saveHint').textContent='Project copied to a new record. Fill in today\'s weather, wind, NAV Drone answer and quick checks, then GO and sign.';return true}
-function putSigsBack(list){return new Promise(function(res){
-  var n=0;(list||[]).forEach(function(s,i){var c=crewState[i];if(c&&s&&s.sig){c._pngStash=s.sig;n++}});
-  if(!n){res();return}renderCrew();setTimeout(res,120)})}
+  var t='Could not open a new tab here, so the copy opened in this tab. The previous checklist is kept in Saved records (open Saved records to reopen it).';
+  $('saveHint').textContent=t+' '+COPY_MSG;try{alert(t)}catch(_){}return 'same'}
+function openCopy(carry){
+  if(standaloneApp())return 'same'; // iOS home-screen app: a new window opens in Safari, which has separate storage
+  var k=Date.now().toString(36)+Math.random().toString(36).slice(2,8),ck='j100s.copy.'+k;
+  if(!lsSet2(ck,JSON.stringify({t:Date.now(),carry:carry})))return 'same';
+  var w=null;try{w=window.open(location.href.split(/[?#]/)[0]+'?copy='+k,'_blank')}catch(_){w=null}
+  if(!w){try{localStorage.removeItem(ck)}catch(_){}return 'same'}
+  return 'tab'}
+function takeCopy(){ // new tab opened by Copy: build a fresh record from the one-time hand-off key, then clean the URL
+  var k=SLOT.copyKey;if(!k)return false;var ck='j100s.copy.'+k,o=null;
+  try{o=JSON.parse(lsGet(ck)||'null')}catch(_){}try{localStorage.removeItem(ck)}catch(_){}
+  try{history.replaceState(null,'',location.href.split(/[?#]/)[0])}catch(_){}
+  if(!o||!o.carry){$('saveHint').textContent='The copied project was not found. Use Copy project again from Saved records.';return false}
+  applyCarry(o.carry);window.scrollTo(0,0);$('saveHint').textContent='New checklist copied from the project. '+COPY_MSG;return true}
+function putSigsBack(list){return new Promise(function(res){ // legacy (v9) records: signatures only in the crew snapshot
+  var n=0,used={};(list||[]).forEach(function(s,i){if(!s||!s.sig)return;var nm=(s.name||'').trim(),c=null;
+    if(nm)crewState.forEach(function(x){if(!c&&!used[x.id]&&(x.name||'').trim()===nm)c=x});
+    if(!c&&crewState[i]&&!used[crewState[i].id])c=crewState[i];
+    if(c&&!c.sig){used[c.id]=1;c.sig=s.sig;c.sigW=s.sigW||0;c.sigH=s.sigH||0;c.sigAt=s.sigAt||'';c.present=true;n++}});
+  if(!n){res();return}renderCrew();saveDraft();setTimeout(res,120)})}
 function reopen(id){
   var e=getRecs().filter(function(x){return x.id===id})[0];if(!e||!e.full)return Promise.resolve(false);
   if(id!==logId&&!confirm('Open this saved record to add comments? The record on screen now is replaced (it stays in Saved records if it was saved).'))return Promise.resolve(false);
   restoring=true;resetCore();var f=e.full;
   setCrew(f.crew||[]);if($('pilot')){$('pilot').value=f.pilot||'';saveCrewNames()}
-  goTime=null;syncId=null;lsSet2(DRAFT_KEY,f.draft||'{}');loadDraft();
+  goTime=null;syncId=null;lsSet2(SLOT.k(DRAFT_KEY,true),f.draft||'{}');loadDraft();
   LV=normSt(f.st);logId=e.id;diag=f.diag||null;$('diagNote').value=f.legend||'';showDiag();
   if(window.__PHOTOS){photos=(f.photos||[]).slice();phStore();phRender()}
   render();
@@ -1597,16 +1732,17 @@ function renderRecs(){
   a.forEach(function(e){var d=document.createElement('div');d.className='logItem';d.dataset.id=e.id;
     var t=document.createElement('div');t.innerHTML='<span class="tag">'+(e.kind==='site'?'Job site':'Record')+'</span>';
     var b=document.createElement('b');b.textContent=e.kind==='site'?e.name:((e.date||'')+' '+(e.job||e.client||'')).trim()||e.savedAt;t.appendChild(b);
-    if(e.kind==='rec'){var sg=document.createElement('span');sg.className='stTag';sg.dataset.s=e.status==='Closed out'?'closed':e.status?'complete':'draft';sg.textContent=(e.status||'Draft')+(e.status==='Closed out'&&e.closedAt?' '+e.closedAt:e.status&&e.completeAt?' '+e.completeAt:'')+(e.updatedAt?' \u00b7 Updated '+e.updatedAt:'');t.appendChild(sg)}
+    if(e.kind==='rec'){var sg=document.createElement('span');sg.className='stTag';sg.dataset.s=e.status==='Closed out'?'closed':e.status?'complete':'draft';sg.textContent=(e.status||'Draft')+(e.status==='Closed out'&&e.closedAt?' '+e.closedAt:e.status&&e.completeAt?' '+e.completeAt:'')+(e.updatedAt?' \u00b7 Updated '+e.updatedAt:'');t.appendChild(sg);
+      if((e.status||e.go)&&e.closeout!=='closed'){var ob=document.createElement('span');ob.className='openTag';ob.textContent='Open close-out';t.appendChild(ob)}}
     d.appendChild(t);
     var s=document.createElement('div');s.textContent=[e.client,e.kind==='site'?e.job:''].filter(Boolean).join(' \u00b7 ')+(e.kind==='rec'?(e.signed?' \u00b7 signed':' \u00b7 not signed'):'')+' \u00b7 saved '+e.savedAt;d.appendChild(s);
-    if(e.kind==='rec'&&e.full&&e.status){var ro=document.createElement('button');ro.type='button';ro.className='btn sm reopenBtn';ro.textContent='Reopen to add comments';ro.addEventListener('click',function(){reopen(e.id)});d.appendChild(ro)}
+    if(e.kind==='rec'&&e.full&&(e.status||e.go)){var ro=document.createElement('button');ro.type='button';ro.className='btn sm reopenBtn';ro.textContent=e.closeout!=='closed'?'Reopen to finish close-out':'Reopen to add comments';ro.addEventListener('click',function(){reopen(e.id)});d.appendChild(ro)}
     var c=document.createElement('button');c.type='button';c.className='btn sm copyBtn';c.textContent='Copy project';c.addEventListener('click',function(){copyProject(e.id)});d.appendChild(c);
     var x=document.createElement('button');x.type='button';x.className='btn sm';x.textContent='Remove';x.addEventListener('click',function(){delRec(e.id)});d.appendChild(x);
     box.appendChild(d)})}
 /* ---- status, lock, comments ---- */
-function statusText(){return LV.status?(LV.status+(LV.status==='Closed out'?' '+LV.closedAt:' '+LV.completeAt)+(LV.updatedAt?' - Updated '+LV.updatedAt:'')):''}
-function allowed(el){return !!el.closest('#s-photos,#s-cmt,#s-logs,#s-sync,#statusBox,#s-tailgate')||el.id==='btnSave'||el.id==='btnComplete'}
+function statusText(){return LV.status?(LV.status+(LV.status==='Closed out'?' '+LV.closedAt:' '+LV.completeAt)+(LV.updatedAt?' - Updated '+LV.updatedAt:'')+(closeoutState()!=='closed'?' - close-out open':'')):(goTime?'GO '+goTime+' - close-out open':'')}
+function allowed(el){return !!el.closest('#s-photos,#s-cmt,#s-after,#s-late,#s-logs,#s-sync,#statusBox,#s-tailgate')||el.id==='btnSave'||el.id==='btnComplete'}
 function applyLock(){
   var on=!!LV.status;document.body.classList.toggle('pfLocked',on);
   document.querySelectorAll('[data-pfl]').forEach(function(e){e.disabled=false;e.removeAttribute('data-pfl')});
@@ -1615,14 +1751,14 @@ function applyLock(){
 function renderStatus(){
   var b=$('statusBox'),on=!!LV.status;b.hidden=!on;b.dataset.s=LV.status==='Closed out'?'closed':'complete';
   $('btnComplete').hidden=on||!ready();
-  $('s-cmt').hidden=!on&&!LV.comments.length;$('cmtAdd').disabled=!on;$('cmtText').disabled=!on;
+  $('s-cmt').hidden=!on&&!LV.comments.length;$('s-after').hidden=!(on||goDone());$('s-late').hidden=!(on||goDone()||(LV.late||[]).length);$('cmtAdd').disabled=!on;$('cmtText').disabled=!on;
   if(on){$('pfStatus').textContent=LV.status;
     $('pfTimes').textContent=['Pre-flight completed '+LV.completeAt,LV.closedAt?'Closed out '+LV.closedAt:'',LV.updatedAt?'Updated '+LV.updatedAt:''].filter(Boolean).join(' \u00b7 ');
     $('btnClose').hidden=LV.status==='Closed out'}
   var ol=$('cmtList');ol.innerHTML='';LV.comments.forEach(function(c){var li=document.createElement('li'),s=document.createElement('span');s.className='t';s.textContent=c.t+' ';li.appendChild(s);li.appendChild(document.createTextNode(c.text));ol.appendChild(li)})}
 function markUpdated(){if(!LV.status||restoring)return;LV.updatedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}}
 function pdfNow(){var rec=snapshotRecord();return {record:rec,bytes:buildPdfBytes(rec),filename:buildPdfFilename(null,rec.mode)}}
-function syncRes(res){try{if(window.ChecklistSync&&ChecklistSync.enabled()){if(!syncId){syncId=newSyncId();saveDraft()}ChecklistSync.enqueue(ChecklistSync[FROM](res.record),res.bytes,res.filename,syncId);return true}}catch(e){}return false}
+function syncRes(res){try{if(window.ChecklistSync){if(!syncId){syncId=newSyncId();saveDraft()}ChecklistSync.enqueue(ChecklistSync[FROM](res.record),res.bytes,res.filename,syncId);return ChecklistSync.enabled()}}catch(e){}return false}
 function completePreflight(){
   if(!ready()||LV.status)return null;
   LV.status='Pre-flight complete';LV.completeAt=nowStamp();LV.sigs=crewSnap();applyLock();liveSave();try{addRecord()}catch(_){}
@@ -1637,24 +1773,40 @@ function emailPdf(){
   note.textContent='This phone/browser cannot attach files to email from here, and a mailto link can\'t carry attachments. Your mail app opens with the subject and text only; the PDF was downloaded ('+res.filename+') \u2013 attach it from Downloads/Files.';
   return {mode:'mailto',filename:res.filename,href:href}}
 function addComment(){var v=$('cmtText').value.trim();if(!v||!LV.status)return;LV.comments.push({t:nowStamp(),text:v});$('cmtText').value='';LV.updatedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}}
-function closeOut(){if(!LV.status||LV.status==='Closed out')return null;LV.status='Closed out';LV.closedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}
-  var res=pdfNow();downloadPdf(res.bytes,res.filename);syncRes(res);$('saveHint').textContent='Record closed out at '+LV.closedAt+'. PDF saved: '+res.filename;return res}
+/* Close-out is optional (Nov 9): only an unclear number stops it. A blank flight time leaves the close-out open (board). */
+function afterReady(ask){
+  var m=flightMin(),box=$('s-after'),msg=$('atMsg'),fl=$('atFlights').value.trim(),fv=num(fl);
+  function stop(t,el){box.hidden=false;box.classList.add('need');msg.textContent=t;box.scrollIntoView({block:'start'});try{$(el).focus({preventScroll:true})}catch(_){}return false}
+  if(m!==null&&!ok(m))return stop('Flight time is not a clear number. Enter hours and minutes.','atHours');
+  if(fl&&!(ok(fv)&&fv%1===0))return stop('Number of flights is not a clear whole number.','atFlights');
+  box.classList.remove('need');msg.textContent='';return true}
+function closeOut(checked){if(!LV.status||LV.status==='Closed out')return null;if(!checked&&!afterReady(false))return null;LV.status='Closed out';LV.closedAt=nowStamp();renderStatus();liveSave();try{addRecord()}catch(_){}
+  var res=pdfNow();downloadPdf(res.bytes,res.filename);syncRes(res);$('saveHint').textContent='Record closed out at '+LV.closedAt+'. PDF saved: '+res.filename+(closeoutState()!=='closed'?'. Close-out stays open until the flight time is entered (here, or on the Open close-outs board).':'');return res}
 function unlockPre(){if(!LV.status)return false;if(!confirm('Unlock the pre-flight? This clears all signatures. Everyone will need to sign again. Comments are kept.'))return false;
-  crewState.forEach(function(c){if(c.canvas)clearCanvas(c.canvas);delete c._pngStash});LV.status='';LV.completeAt='';LV.closedAt='';LV.sigs=null;LV.updatedAt=nowStamp();applyLock();liveSave();try{addRecord()}catch(_){}
+  crewState.forEach(function(c){if(c.canvas)clearCanvas(c.canvas);c.sig=null;c.sigAt=''});saveDraft();LV.status='';LV.completeAt='';LV.closedAt='';LV.sigs=null;LV.updatedAt=nowStamp();applyLock();liveSave();try{addRecord()}catch(_){}
   $('saveHint').textContent='Pre-flight unlocked. Signatures cleared.';return true}
 /* ---- hooks into the app ---- */
-var _snap=snapshotRecord;snapshotRecord=function(){var r=_snap.apply(this,arguments);r.status=LV.status;r.statusText=statusText();r.comments=LV.comments.slice();r.diagLegend=$('diagNote').value.trim();return r};
-try{var _from=ChecklistSync[FROM];ChecklistSync[FROM]=function(r){var o=_from.apply(this,arguments);if(r&&r.status)o.goStatus=(o.goStatus||'')+' | '+r.statusText;return o}}catch(e){}
+var _snap=snapshotRecord;snapshotRecord=function(){var r=_snap.apply(this,arguments);r.status=LV.status;r.statusText=statusText();
+  r.closeout=closeoutState();r.goDone=goDone();r.late=(LV.late||[]).map(function(a){return {name:a.name,present:a.present!==false,signedAt:a.signedAt||'',addedAt:a.addedAt||'',source:a.source||'app'}});r.comments=LV.comments.slice();r.diagLegend=$('diagNote').value.trim();return r};
+try{var _from=ChecklistSync[FROM];ChecklistSync[FROM]=function(r){var o=_from.apply(this,arguments);if(r&&r.status)o.goStatus=(o.goStatus||'')+' | '+r.statusText;if(r){o.closeout=r.closeout||'open';o.lateAttendees=r.late||[];
+  // a value that only came from the collector (board/bot) is not sent back as the app's own entry
+  var sv=LV.server||{};if(sv.pulledMin!=null&&o.flightMin===sv.pulledMin)o.flightMin='';if(sv.pulledFlights!=null&&String(o.flights)===String(sv.pulledFlights))o.flights=''}return o}}catch(e){}
+var _bpb=buildPdfBytes;buildPdfBytes=function(rec){if(rec&&LV.late&&LV.late.length&&!rec._late){var r2={};for(var k in rec)r2[k]=rec[k];r2._late=true;r2.crew=(rec.crew||[]).concat(lateAsCrew());return _bpb.call(this,r2)}return _bpb.apply(this,arguments)};
 var _lines=buildPdfLines;buildPdfLines=function(rec){var L=_lines.apply(this,arguments);
   if(rec&&rec.status)L.splice(2,0,'STATUS: '+rec.statusText);
+  if(rec&&(rec.status||rec.goDone))L.forEach(function(x,i){if(/^GO STATUS: /.test(x))L[i]=x+'    CLOSE-OUT: '+(rec.closeout==='closed'?'closed':'OPEN (no flight time yet)')});
+  if(rec&&rec._late){var fi=-1;L.forEach(function(x,i){if(fi<0&&/\[added after GO at /.test(x))fi=i});if(fi>=0)L.splice(fi,0,'  -- Added after GO (late arrivals; the names above signed before GO) --')}
   if(rec&&rec.comments&&rec.comments.length){L.push('');L.push('POST-FLIGHT COMMENTS');rec.comments.forEach(function(c){wrapTxt(c.t+'  '+String(c.text).replace(/\s+/g,' '),95).forEach(function(s,i){L.push((i?'    ':'- ')+s)})})}
   return L};
 var _soe=saveOrEmail;saveOrEmail=function(){var r=_soe.apply(this,arguments);try{addRecord()}catch(_){}return r};
 var _cd=clearDraft;clearDraft=function(){_cd.apply(this,arguments);LV=normSt(null);logId=null;diag=null;$('diagNote').value='';showDiag();liveSave();applyLock()};
 $('btnCopyTop').addEventListener('click',function(){copyProject(null)});
+$('s-after').addEventListener('change',function(){if($('s-after').classList.contains('need')&&flightMin()>0){$('s-after').classList.remove('need');$('atMsg').textContent=''}if(LV.status&&!restoring){liveSave();try{addRecord()}catch(_){}}});
+window.addEventListener('storage',function(e){if(e.key===RKEY)renderRecs()}); // another tab saved a record: refresh the list only
+SLOT.onFork=function(){saveDraft();liveSave();try{phStore()}catch(_){}$('saveHint').textContent='This checklist was also opened in another tab, so this tab now keeps its own copy. Nothing was overwritten.'};
 $('btnTpl').addEventListener('click',addSite);
 $('btnComplete').addEventListener('click',completePreflight);$('btnEmail').addEventListener('click',emailPdf);$('cmtAdd').addEventListener('click',addComment);
-$('btnClose').addEventListener('click',function(){if(confirm('Close out this record? You can still reopen it later to add comments.'))closeOut()});$('btnUnlock').addEventListener('click',unlockPre);
+$('btnClose').addEventListener('click',function(){if(!afterReady(true))return;if(confirm('Close out this record? You can still reopen it later to add comments.'))closeOut(true)});$('btnUnlock').addEventListener('click',unlockPre);
 $('diagNote').addEventListener('input',function(){liveSave()});
 $('s-photos').addEventListener('click',function(ev){if(ev.target.tagName==='BUTTON')setTimeout(markUpdated,0)});
 $('s-photos').addEventListener('change',function(){setTimeout(markUpdated,600)});
@@ -1662,12 +1814,87 @@ function after(){if(!restoring){applyLock()}}
 document.addEventListener('input',after);document.addEventListener('change',after);
 setInterval(function(){var h=LV.status||!ready();if($('btnComplete').hidden!==!!h)$('btnComplete').hidden=!!h},700);
 document.addEventListener('pointerup',function(){setTimeout(renderStatus,50)});document.addEventListener('touchend',function(){setTimeout(renderStatus,50)});
-try{var o=JSON.parse(lsGet(LKEY)||'null');if(o){LV=normSt(o.st);logId=o.logId||null;diag=o.diag||null;$('diagNote').value=o.legend||''}}catch(e){}
+try{var o=JSON.parse(lsGet(SLOT.k(LKEY))||'null');if(o){LV=normSt(o.st);logId=o.logId||null;diag=o.diag||null;$('diagNote').value=o.legend||''}}catch(e){}
 showDiag();
-if(LV.status&&LV.sigs){restoring=true;putSigsBack(LV.sigs).then(function(){restoring=false;applyLock()})}
-renderRecs();applyLock();
-var A=window['__J100S'];if(A){A.snapshotRecord=snapshotRecord;A.buildPdfLines=buildPdfLines;A.saveOrEmail=saveOrEmail}
-window.__LIVE={getDiag:function(){return diag},legend:function(){return $('diagNote').value.trim()},status:function(){return normSt(LV)},ready:ready,completePreflight:completePreflight,emailPdf:emailPdf,closeOut:closeOut,unlockPre:unlockPre,reopen:reopen,addComment:addComment,copyProject:copyProject,getRecs:getRecs,getLogId:function(){return logId},classify:classify,
+if(LV.status&&LV.sigs&&!crewState.some(function(c){return !!c.sig})){ // v9 live state: rebuild the crew exactly as it was at Complete
+  restoring=true;setCrew(LV.sigs);saveDraft();restoring=false;applyLock()}
+var AF={min:function(){var m=flightMin();return m==null||!ok(m)?null:m},setMin:function(m){$('atHours').value=String(Math.floor(m/60));$('atMins').value=String(m%60)},flights:'atFlights',notes:'atNotes',
+  fillDraft:function(v,st){if(st.flightMin!==''&&st.flightMin!=null&&!(v.atHours||'').trim()&&!(v.atMins||'').trim()){v.atHours=String(Math.floor(+st.flightMin/60));v.atMins=String(+st.flightMin%60)}
+    if(st.flights&&!(v.atFlights||'').trim())v.atFlights=String(st.flights);if(st.notes&&!(v.atNotes||'').trim())v.atNotes=String(st.notes)}};
+
+/* ---- close-out state, post on GO, late arrivals, collector pull (Nov 9) ---- */
+function closeoutState(){var m=AF?AF.min():null;return LV.status==='Closed out'?(m>0?'closed':'open (closed out, no flight time)'):'open'}
+function goDone(){return !!goTime}
+function lateKey(a){return (a.name||'')+'|'+(a.signedAt||'')}
+function lateAsCrew(){return (LV.late||[]).map(function(a){var j=a.sig&&/^data:image\/jpe?g/.test(a.sig)?a.sig.split('base64,')[1]:null;
+  return {name:(a.name||'')+' [added after GO at '+(a.addedAt||'?')+']',present:a.present!==false,signed:!!j,signedAt:a.signedAt||'',sigJpegB64:j,sigW:a.sigW||600,sigH:a.sigH||160,late:true}})}
+var LP=$('latePad'),lpx=LP.getContext('2d'),lpInk=false,lpDraw=false;
+function lpClear(){lpx.fillStyle='#fff';lpx.fillRect(0,0,LP.width,LP.height);lpInk=false;LV.latePending=null}
+function lpPos(e){var r=LP.getBoundingClientRect();return {x:(e.clientX-r.left)*LP.width/r.width,y:(e.clientY-r.top)*LP.height/r.height}}
+LP.addEventListener('pointerdown',function(e){e.preventDefault();lpDraw=true;try{LP.setPointerCapture(e.pointerId)}catch(_){}var p=lpPos(e);lpx.strokeStyle='#000';lpx.lineWidth=3;lpx.lineCap='round';lpx.beginPath();lpx.moveTo(p.x,p.y)});
+LP.addEventListener('pointermove',function(e){if(!lpDraw)return;var p=lpPos(e);lpx.lineTo(p.x,p.y);lpx.stroke();lpInk=true});
+function lpEnd(){if(!lpDraw)return;lpDraw=false;if(!lpInk)return; // stored as soon as the finger lifts
+  LV.latePending={name:$('lateName').value.trim(),sig:LP.toDataURL('image/jpeg',0.85),signedAt:(LV.latePending&&LV.latePending.signedAt)||nowStamp()};liveSave()}
+LP.addEventListener('pointerup',lpEnd);LP.addEventListener('pointercancel',lpEnd);LP.addEventListener('pointerleave',lpEnd);
+function lpRedraw(){var p=LV.latePending;lpClear();if(!p)return;LV.latePending=p;if(p.name&&!$('lateName').value)$('lateName').value=p.name;
+  if(p.sig){var im=new Image();im.onload=function(){lpx.drawImage(im,0,0,LP.width,LP.height);lpInk=true};im.src=p.sig}}
+function renderLate(){var ol=$('lateList');ol.innerHTML='';(LV.late||[]).forEach(function(a){var li=document.createElement('li');
+  li.appendChild(document.createTextNode(a.name+' - '+(a.signedAt?'SIGNED (present) at '+a.signedAt:(a.present!==false?'PRESENT (not signed)':'not present'))+' - added after GO at '+a.addedAt+(a.source&&a.source!=='app'?' ('+a.source+')':'')));
+  if(a.sig){var im=document.createElement('img');im.alt=a.name+' signature';im.src=a.sig;li.appendChild(im)}ol.appendChild(li)});
+  $('s-late').hidden=!(goDone()||LV.status||(LV.late||[]).length)}
+function addLate(){var nm=$('lateName').value.trim(),msg=$('lateMsg');
+  if(!goDone()&&!LV.status){msg.textContent='Late arrivals can be added after GO.';return null}
+  if(!nm&&!lpInk){msg.textContent='Enter the name of the person arriving (or their signature).';try{$('lateName').focus()}catch(_){}return null}
+  nm=nm||'Unnamed';
+  var p=LV.latePending,sig=lpInk?((p&&p.sig)||LP.toDataURL('image/jpeg',0.85)):null,at=nowStamp();
+  var a={name:nm,present:true,sig:sig,sigW:LP.width,sigH:LP.height,signedAt:sig?((p&&p.signedAt)||at):'',addedAt:at,source:'app'};
+  LV.late=(LV.late||[]).concat([a]);LV.latePending=null;LV.updatedAt=at;$('lateName').value='';lpClear();
+  liveSave();try{addRecord()}catch(_){}renderLate();renderStatus();
+  var res=pdfNow(),sent=syncRes(res);
+  msg.textContent=nm+' added after GO at '+at+(sent?'. The record was sent to the collector (same record).':'. Save / Email to send the updated PDF.');return a}
+function postOnGo(){if(!goTime||restoring)return null;
+  try{addRecord()}catch(_){}renderStatus();
+  var res=pdfNow(),sent=syncRes(res);
+  if(sent)$('saveHint').textContent='GO at '+goTime+': checklist sent to the collector (PDF + Open close-outs board). Close-out (flight time, flights, notes) can follow later.';
+  return sent?res:null}
+function aval(id){return $(id)?$(id).value.trim():''}
+function applyServer(st){if(!st)return false;var ch=false,notes=[],pm=(LV.server||{}).pulledMin,pf=(LV.server||{}).pulledFlights,src=st.source==='bot'?'bot':(st.source||'board');
+  (st.late||[]).forEach(function(a){if(!a||!a.name)return;if((LV.late||[]).some(function(x){return lateKey(x)===lateKey(a)}))return;
+    LV.late=(LV.late||[]).concat([{name:a.name,present:a.present!==false,sig:a.sig||null,sigW:600,sigH:160,signedAt:a.signedAt||'',addedAt:a.addedAt||'',source:a.source||'board'}]);ch=true;notes.push(a.name+' added on the '+(a.source||'board')+'.')});
+  if(st.flightMin!==''&&st.flightMin!=null&&isFinite(+st.flightMin)){var sm=+st.flightMin,loc=AF.min();
+    if(loc==null){AF.setMin(sm);ch=true;pm=sm;notes.push('Flight time '+sm+' min filled in from the '+src+(st.updatedAt?' ('+st.updatedAt+')':'')+'.')}
+    else if(loc!==sm)notes.push('Note: the '+src+' has '+sm+' min; this record has '+loc+' min (kept).')}
+  if(st.flights&&AF.flights&&!aval(AF.flights)){$(AF.flights).value=st.flights;ch=true;pf=st.flights}
+  if(st.notes&&AF.notes&&!aval(AF.notes)){$(AF.notes).value=st.notes;ch=true}
+  if(st.closeout==='closed'&&LV.status&&LV.status!=='Closed out'){LV.status='Closed out';LV.closedAt=st.updatedAt||nowStamp();ch=true;notes.push('Closed out on the board.')}
+  LV.server={closeout:st.closeout||'',source:st.source||'',updatedAt:st.updatedAt||'',flag:st.flag||'',pulledMin:pm==null?null:pm,pulledFlights:pf==null?null:pf};
+  if(ch){saveDraft();liveSave();try{addRecord()}catch(_){}renderLate();applyLock()}else liveSave();
+  $('atSrc').textContent=notes.join(' ');return ch}
+function pullNow(){try{if(!syncId||!window.ChecklistSync||!ChecklistSync.enabled()||!ChecklistSync.pull)return Promise.resolve(null);
+  var id=syncId;return ChecklistSync.pull(id).then(function(st){if(st&&id===syncId)applyServer(st);return st})}catch(e){return Promise.resolve(null)}}
+// Saved records with an open close-out: refresh their badge / after-task values from the collector
+function pullSaved(){try{if(!window.ChecklistSync||!ChecklistSync.enabled()||!ChecklistSync.pull)return Promise.resolve(0);
+  var open=getRecs().filter(function(e){return e.kind==='rec'&&e.syncId&&e.closeout!=='closed'&&e.syncId!==syncId}).slice(0,10);
+  return Promise.all(open.map(function(e){return ChecklistSync.pull(e.syncId).then(function(st){return {id:e.id,st:st}})})).then(function(list){
+    var a=getRecs(),n=0;list.forEach(function(x){if(!x.st)return;a.forEach(function(e){if(e.id!==x.id)return;var st=x.st;
+      e.closeout=st.closeout==='closed'?'closed':'open';e.server={flightMin:st.flightMin,flights:st.flights,source:st.source,updatedAt:st.updatedAt};
+      try{var d=JSON.parse((e.full&&e.full.draft)||'{}');d.v=d.v||{};AF.fillDraft(d.v,st);e.full.draft=JSON.stringify(d);
+        var s2=e.full.st||{};var L2=s2.late||[];(st.late||[]).forEach(function(q){if(!L2.some(function(y){return lateKey(y)===lateKey(q)}))L2.push({name:q.name,present:q.present!==false,sig:q.sig||null,sigW:600,sigH:160,signedAt:q.signedAt||'',addedAt:q.addedAt||'',source:q.source||'board'})});s2.late=L2;
+        if(st.closeout==='closed'&&s2.status&&s2.status!=='Closed out'){s2.status='Closed out';s2.closedAt=st.updatedAt||'';e.status='Closed out';e.closedAt=s2.closedAt}e.full.st=s2}catch(_){}
+      n++})});if(n)putRecs(a);return n})}catch(e){return Promise.resolve(0)}}
+// after-task edits on a record that is already posted (GO done): send the update (same record) once typing stops
+['input','change'].forEach(function(ev){$('s-after').addEventListener(ev,function(e){if(!e.isTrusted||!LV.server)return;var id=e.target&&e.target.id;if(id==='atHours'||id==='atMins'||id===AF.minId)LV.server.pulledMin=null;if(id===AF.flights)LV.server.pulledFlights=null})});
+var atT=null;$('s-after').addEventListener('change',function(){if(!goTime||restoring)return;clearTimeout(atT);atT=setTimeout(function(){try{addRecord()}catch(_){}var res=pdfNow();if(syncRes(res))$('saveHint').textContent='After task sent to the collector (same record). Close-out: '+(closeoutState()==='closed'?'closed':'open')+'.'},800)});
+$('lateAdd').addEventListener('click',addLate);$('lateClear').addEventListener('click',function(){lpClear();liveSave()});
+$('lateName').addEventListener('input',function(){if(LV.latePending){LV.latePending.name=this.value.trim();liveSave()}});
+$('go').addEventListener('click',function(){setTimeout(postOnGo,0)});
+try{ChecklistSync.onFlushed(function(){setTimeout(function(){pullNow();pullSaved()},0)})}catch(_){}
+takeCopy();
+renderRecs();applyLock();renderLate();lpRedraw();setTimeout(function(){pullNow();pullSaved()},300);
+var A=window['__J100S'];if(A){A.snapshotRecord=snapshotRecord;A.buildPdfLines=buildPdfLines;A.saveOrEmail=saveOrEmail;A.buildPdfBytes=buildPdfBytes}
+window.__LIVE={slot:function(){return SLOT.id()},tab:SLOT.tab,afterReady:afterReady,flightMin:flightMin,
+  closeoutState:closeoutState,addLate:addLate,postOnGo:postOnGo,pullNow:pullNow,pullSaved:pullSaved,applyServer:applyServer,late:function(){return (LV.late||[]).slice()},
+  getDiag:function(){return diag},legend:function(){return $('diagNote').value.trim()},status:function(){return normSt(LV)},ready:ready,completePreflight:completePreflight,emailPdf:emailPdf,closeOut:closeOut,unlockPre:unlockPre,reopen:reopen,addComment:addComment,copyProject:copyProject,getRecs:getRecs,getLogId:function(){return logId},classify:classify,
   diagState:function(){return {diag:diag,strokes:dStrokes.length,col:dCol,w:dW,cw:dc.width,ch:dc.height,last:dStrokes.length?{c:dStrokes[dStrokes.length-1].c,shape:dStrokes[dStrokes.length-1].shape||null}:null}},DCAP:DCAP,KEYS:{live:LKEY,recs:RKEY}};
 })();
 })();
